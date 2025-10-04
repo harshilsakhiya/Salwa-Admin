@@ -91,7 +91,8 @@ const extractList = (payload: SuperAdminListResponse | SuperAdminRecord[] | unkn
 export const upsertSuperAdmin = (payload: SuperAdminRecord) =>
   apiRequest<{ message?: string; status?: number }>(`${BASE_URL}/UpsertSuperAdmin`, {
     method: "POST",
-    body: payload,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
   });
 
 export const getSuperAdmins = async (params: { pageNumber?: number; pageSize?: number; search?: string } = {}) => {
@@ -136,7 +137,8 @@ export const fetchSuperAdminTypes = async (): Promise<SuperAdminTypeOption[]> =>
     `${ACCOUNT_BASE_URL}/Common`,
     {
       method: "POST",
-      body: { parameter: "{}", spName: "USP_GetSuperAdminTypeDropdown", language: "EN" },
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ parameter: "{}", spName: "USP_GetSuperAdminTypeDropdown", language: "EN" }),
     }
   );
 

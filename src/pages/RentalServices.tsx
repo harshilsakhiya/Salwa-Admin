@@ -3,7 +3,11 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import DashboardLayout from "../layouts/DashboardLayout";
-import { ModalOverlay, RejectReasonModal, StatusSuccessModal } from "../components/rentalServices/Modals";
+import {
+  ModalOverlay,
+  RejectReasonModal,
+  StatusSuccessModal,
+} from "../components/rentalServices/Modals";
 
 export type Status = "Pending" | "Approved" | "Rejected" | "Published";
 
@@ -50,13 +54,13 @@ export interface RentalServiceDetailState {
   mapNote: string;
 }
 
-enum StatusActionLabel {
-  approve = "Approve",
-  reject = "Reject",
-  publish = "Publish",
-  markPending = "Mark Pending",
-  reopen = "Reopen",
-}
+export const StatusActionLabel = {
+  approve: "Approve",
+  reject: "Reject",
+  publish: "Publish",
+  markPending: "Mark Pending",
+  reopen: "Reopen",
+};
 
 export const STATUS_BADGE_CLASSES: Record<Status, string> = {
   Pending: "border border-amber-200 bg-amber-50 text-amber-700",
@@ -314,7 +318,8 @@ const RentalServices = () => {
     [navigationState]
   );
 
-  const baseRoute = effectiveState.baseRoute || "/service-dashboard/rental-services";
+  const baseRoute =
+    effectiveState.baseRoute || "/service-dashboard/rental-services";
 
   const [orders, setOrders] = useState<OrderRecord[]>(() =>
     effectiveState.items.map((item, index) => ({ ...item, id: index + 1 }))
@@ -332,19 +337,27 @@ const RentalServices = () => {
   } | null>(null);
 
   useEffect(() => {
-    setOrders(effectiveState.items.map((item, index) => ({ ...item, id: index + 1 })));
+    setOrders(
+      effectiveState.items.map((item, index) => ({ ...item, id: index + 1 }))
+    );
   }, [effectiveState]);
 
   const totals = useMemo(() => {
-    const approved = orders.filter((order) => order.status === "Approved").length;
-    const rejected = orders.filter((order) => order.status === "Rejected").length;
+    const approved = orders.filter(
+      (order) => order.status === "Approved"
+    ).length;
+    const rejected = orders.filter(
+      (order) => order.status === "Rejected"
+    ).length;
     const total = orders.length;
     return { approved, rejected, total };
   }, [orders]);
 
   const updateOrderStatus = (orderId: number, nextStatus: Status) => {
     setOrders((prev) =>
-      prev.map((item) => (item.id === orderId ? { ...item, status: nextStatus } : item))
+      prev.map((item) =>
+        item.id === orderId ? { ...item, status: nextStatus } : item
+      )
     );
   };
 
@@ -416,8 +429,12 @@ const RentalServices = () => {
         <section className="space-y-8 rounded-[32px] border border-gray-200 bg-white p-8 shadow-sm">
           <header className="flex flex-wrap items-start justify-between gap-4">
             <div className="space-y-1">
-              <h1 className="text-2xl font-helveticaBold text-primary">{effectiveState.serviceTitle}</h1>
-              <p className="text-sm text-gray-500">{effectiveState.optionTitle}</p>
+              <h1 className="text-2xl font-helveticaBold text-primary">
+                {effectiveState.serviceTitle}
+              </h1>
+              <p className="text-sm text-gray-500">
+                {effectiveState.optionTitle}
+              </p>
             </div>
             <div className="flex items-center gap-3">
               <button
@@ -454,7 +471,11 @@ const RentalServices = () => {
           <RejectReasonModal
             reason={rejectModal.reason}
             orderTitle={`${rejectModal.order.orderTitle} (${rejectModal.order.orderNo})`}
-            onReasonChange={(value) => setRejectModal((prev) => (prev ? { ...prev, reason: value } : prev))}
+            onReasonChange={(value) =>
+              setRejectModal((prev) =>
+                prev ? { ...prev, reason: value } : prev
+              )
+            }
             onCancel={() => setRejectModal(null)}
             onSubmit={handleRejectSubmit}
           />
@@ -476,7 +497,11 @@ const RentalServices = () => {
   );
 };
 
-const StatsRow = ({ totals }: { totals: { approved: number; rejected: number; total: number } }) => (
+const StatsRow = ({
+  totals,
+}: {
+  totals: { approved: number; rejected: number; total: number };
+}) => (
   <div className="grid gap-4 sm:grid-cols-3">
     <StatCard label="Total Approved" value={totals.approved} />
     <StatCard label="Total Rejected" value={totals.rejected} />
@@ -536,12 +561,16 @@ const OrdersTable = ({
         <tbody className="divide-y divide-gray-100 bg-white">
           {orders.map((order) => (
             <tr key={order.id}>
-              <td className="px-6 py-4 font-semibold text-primary">{order.orderNo}</td>
+              <td className="px-6 py-4 font-semibold text-primary">
+                {order.orderNo}
+              </td>
               <td className="px-6 py-4 text-gray-700">{order.orderTitle}</td>
               <td className="px-6 py-4 text-gray-500">{order.deviceName}</td>
               <td className="px-6 py-4 text-gray-500">{order.fdaNumber}</td>
               <td className="px-6 py-4 text-gray-500">{order.deviceType}</td>
-              <td className="px-6 py-4 text-gray-500">{order.approvalNumber}</td>
+              <td className="px-6 py-4 text-gray-500">
+                {order.approvalNumber}
+              </td>
               <td className="px-6 py-4 text-gray-500">{order.date}</td>
               <td className="px-6 py-4 text-gray-500">{order.country}</td>
               <td className="px-6 py-4 text-gray-500">{order.region}</td>
@@ -609,13 +638,29 @@ const OrdersTable = ({
   </div>
 );
 
-const ActionButton = ({ label, className, onClick }: { label: string; className: string; onClick: () => void }) => (
+const ActionButton = ({
+  label,
+  className,
+  onClick,
+}: {
+  label: string;
+  className: string;
+  onClick: () => void;
+}) => (
   <button type="button" className={className} onClick={onClick}>
     {label}
   </button>
 );
 
-const IconButton = ({ label, onClick, children }: { label: string; onClick: () => void; children: ReactNode }) => (
+const IconButton = ({
+  label,
+  onClick,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  children: ReactNode;
+}) => (
   <button
     type="button"
     aria-label={label}
@@ -627,12 +672,21 @@ const IconButton = ({ label, onClick, children }: { label: string; onClick: () =
 );
 
 const EyeIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M1.5 12s3.5-7 10.5-7 10.5 7 10.5 7-3.5 7-10.5 7-10.5-7-10.5-7Z" />
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.6"
+    className="h-4 w-4"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M1.5 12s3.5-7 10.5-7 10.5 7 10.5 7-3.5 7-10.5 7-10.5-7-10.5-7Z"
+    />
     <circle cx="12" cy="12" r="2.5" />
   </svg>
 );
 
 export default RentalServices;
-
-
