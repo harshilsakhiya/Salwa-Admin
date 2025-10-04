@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import DashboardLayout from "../layouts/DashboardLayout";
 import { useToast } from "../components/ToastProvider";
 import { getSuperAdmins, softDeleteSuperAdmin, updateSuperAdminStatus } from "../services/superAdminService";
 import type { SuperAdminRecord, SuperAdminStatusId } from "../services/superAdminService";
+import Sidebar from "../components/Sidebar";
+import Header from "../components/Header";
+import ProfileModal from "../components/ProfileModal";
 
 const PAGE_SIZE = 10;
 
@@ -30,6 +32,42 @@ const SupervisorPage = () => {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({
+    employeeId: 0,
+    firstName: "",
+    middleName: "",
+    lastName: "",
+    idNumber: "",
+    idExpiryDate: "",
+    dateOfBirth: "",
+    graduationCertificate: "",
+    acquiredLanguages: "",
+    telephone: "",
+    officialEmail: "",
+    type: 0,
+    country: "",
+    region: "",
+    city: "",
+    nationalAddress: "",
+    address: "",
+    latitude: "",
+    longitude: "",
+    bankName: "",
+    ibanNumber: "",
+    password: "",
+    otp: 0,
+    isPasswordset: 0,
+    isOtpVerify: 0,
+    isMobileNoVerify: true,
+    createdBy: 0,
+    updatedBy: 0,
+    isActive: true,
+    statusId: 0
+  });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
@@ -76,7 +114,123 @@ const SupervisorPage = () => {
   };
 
   const handleAdd = () => {
-    navigate("/supervisor-management/add");
+    setShowForm(true);
+    setFormData({
+      employeeId: 0,
+      firstName: "",
+      middleName: "",
+      lastName: "",
+      idNumber: "",
+      idExpiryDate: "",
+      dateOfBirth: "",
+      graduationCertificate: "",
+      acquiredLanguages: "",
+      telephone: "",
+      officialEmail: "",
+      type: 0,
+      country: "",
+      region: "",
+      city: "",
+      nationalAddress: "",
+      address: "",
+      latitude: "",
+      longitude: "",
+      bankName: "",
+      ibanNumber: "",
+      password: "",
+      otp: 0,
+      isPasswordset: 0,
+      isOtpVerify: 0,
+      isMobileNoVerify: true,
+      createdBy: 0,
+      updatedBy: 0,
+      isActive: true,
+      statusId: 0
+    });
+    setFormErrors({});
+  };
+
+  const handleCancelForm = () => {
+    setShowForm(false);
+    setFormData({
+      employeeId: 0,
+      firstName: "",
+      middleName: "",
+      lastName: "",
+      idNumber: "",
+      idExpiryDate: "",
+      dateOfBirth: "",
+      graduationCertificate: "",
+      acquiredLanguages: "",
+      telephone: "",
+      officialEmail: "",
+      type: 0,
+      country: "",
+      region: "",
+      city: "",
+      nationalAddress: "",
+      address: "",
+      latitude: "",
+      longitude: "",
+      bankName: "",
+      ibanNumber: "",
+      password: "",
+      otp: 0,
+      isPasswordset: 0,
+      isOtpVerify: 0,
+      isMobileNoVerify: true,
+      createdBy: 0,
+      updatedBy: 0,
+      isActive: true,
+      statusId: 0
+    });
+    setFormErrors({});
+  };
+
+  const validateForm = () => {
+    const errors: Record<string, string> = {};
+
+    if (!formData.firstName.trim()) errors.firstName = "First name is required";
+    if (!formData.lastName.trim()) errors.lastName = "Last name is required";
+    if (!formData.idNumber.trim()) errors.idNumber = "ID Number is required";
+    if (!formData.telephone.trim()) errors.telephone = "Telephone is required";
+    if (!formData.officialEmail.trim()) errors.officialEmail = "Email is required";
+    if (!formData.country.trim()) errors.country = "Country is required";
+    if (!formData.region.trim()) errors.region = "Region is required";
+    if (!formData.city.trim()) errors.city = "City is required";
+    if (!formData.address.trim()) errors.address = "Address is required";
+    if (!formData.bankName.trim()) errors.bankName = "Bank name is required";
+    if (!formData.ibanNumber.trim()) errors.ibanNumber = "IBAN number is required";
+
+    if (formData.officialEmail && !/\S+@\S+\.\S+/.test(formData.officialEmail)) {
+      errors.officialEmail = "Please enter a valid email";
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    try {
+      // Here you would call your API endpoint
+      // await upsertSuperAdmin(formData);
+      showToast("Supervisor saved successfully!", "success");
+      setShowForm(false);
+      void loadData(pageNumber, searchTerm.trim());
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to save supervisor";
+      showToast(message, "error");
+    }
+  };
+
+  const handleInputChange = (field: string, value: string | number | boolean) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (formErrors[field]) {
+      setFormErrors(prev => ({ ...prev, [field]: "" }));
+    }
   };
 
   const handleView = (record: SuperAdminRecord) => {
@@ -133,98 +287,124 @@ const SupervisorPage = () => {
     ];
   }, [records, totalCount]);
 
+  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
+  const closeSidebar = () => setIsSidebarOpen(false);
+
   return (
-    <DashboardLayout>
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 pb-16">
-        <Header onRefresh={handleRefresh} loading={loading} />
-        <section className="space-y-6 rounded-[32px] border border-gray-200 bg-white p-8 shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="grid gap-1 text-primary">
-              <h2 className="text-2xl font-semibold">Supervisor / Employee Management</h2>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Overview</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-white shadow hover:bg-[#030447]"
-                onClick={handleAdd}
-              >
-                Add
-              </button>
-              <button
-                type="button"
-                className="rounded-full border border-gray-200 px-6 py-2 text-sm font-semibold text-primary transition hover:border-primary"
-                onClick={handleRefresh}
-              >
-                Refresh
-              </button>
-            </div>
-          </div>
+    <div className="salva-main-desh p-5 w-full mx-auto flex bg-[#f2f2f2] h-screen">
+      {/* Mobile backdrop overlay */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={closeSidebar}
+        />
+      )}
 
-          <StatsRow stats={stats} />
-          <ChartPlaceholder />
-
-          <form onSubmit={handleSearchSubmit} className="flex flex-wrap items-center justify-between gap-3">
-            <div className="relative flex-1 min-w-[220px] max-w-sm">
-              <input
-                value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
-                placeholder="Search by name, ID, or email"
-                className="w-full rounded-full border border-gray-200 bg-white px-5 py-3 pl-12 text-sm text-gray-600 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-              <span className="pointer-events-none absolute inset-y-0 left-4 grid place-items-center text-primary/60">
-                <SearchIcon />
-              </span>
-            </div>
-            <button
-              type="submit"
-              className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-white shadow transition hover:bg-[#030447]"
-              disabled={loading}
-            >
-              Search
-            </button>
-          </form>
-
-          <DataTable
-            loading={loading}
-            errorMessage={errorMessage}
-            records={records}
-            pageNumber={pageNumber}
-            pageSize={PAGE_SIZE}
-            totalCount={totalCount}
-            onPageChange={handlePageChange}
-            onView={handleView}
-            onEdit={handleEdit}
-            onToggleStatus={handleStatusToggle}
-            onDelete={handleDelete}
-          />
-        </section>
+      {/* Sidebar */}
+      <div className="sticky top-0 h-screen z-30">
+        <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
       </div>
-    </DashboardLayout>
+
+      {/* Right content area */}
+      <div className="salva-right-desh-part-main w-full flex flex-col h-screen overflow-hidden">
+        {/* Header section */}
+        <div className="sticky top-0 z-20 flex-shrink-0 p-2 sm:p-3 lg:p-5" style={{ backgroundColor: 'var(--bg-primary)' }}>
+          <div className="salva-right-desh-head-search-profile-and-noti w-fit ml-auto flex flex-wrap gap-2 sm:gap-3 lg:gap-4 mb-4 sm:mb-6 lg:mb-8 max-[767px]:w-full">
+            <Header
+              onToggleSidebar={toggleSidebar}
+              onOpenProfile={() => setIsProfileOpen(true)}
+            />
+          </div>
+        </div>
+
+        {/* Main content area */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden main-content-scroll px-2 sm:px-3 lg:px-5">
+          <div className="w-full">
+            {!showForm ? (
+              <div className="flex-1 space-y-6 rounded-[32px] border border-gray-200 bg-white p-8 shadow-sm">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div className="grid gap-1 text-primary">
+                    <h2 className="text-2xl font-semibold">Supervisor / Employee Management</h2>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Overview</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-white shadow hover:bg-[#030447]"
+                      onClick={handleAdd}
+                    >
+                      Add
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-full border border-gray-200 px-6 py-2 text-sm font-semibold text-primary transition hover:border-primary"
+                      onClick={handleRefresh}
+                    >
+                      Refresh
+                    </button>
+                  </div>
+                </div>
+
+                <StatsRow stats={stats} />
+                <ChartPlaceholder />
+
+                <form onSubmit={handleSearchSubmit} className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="relative flex-1 min-w-[220px] max-w-sm">
+                    <input
+                      value={searchTerm}
+                      onChange={(event) => setSearchTerm(event.target.value)}
+                      placeholder="Search by name, ID, or email"
+                      className="w-full rounded-full border border-gray-200 bg-white px-5 py-3 pl-12 text-sm text-gray-600 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    />
+                    <span className="pointer-events-none absolute inset-y-0 left-4 grid place-items-center text-primary/60">
+                      <SearchIcon />
+                    </span>
+                  </div>
+                  <button
+                    type="submit"
+                    className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-white shadow transition hover:bg-[#030447]"
+                    disabled={loading}
+                  >
+                    Search
+                  </button>
+                </form>
+
+                <DataTable
+                  loading={loading}
+                  errorMessage={errorMessage}
+                  records={records}
+                  pageNumber={pageNumber}
+                  pageSize={PAGE_SIZE}
+                  totalCount={totalCount}
+                  onPageChange={handlePageChange}
+                  onView={handleView}
+                  onEdit={handleEdit}
+                  onToggleStatus={handleStatusToggle}
+                  onDelete={handleDelete}
+                />
+              </div>
+            ) : (
+              <SupervisorForm
+                formData={formData}
+                formErrors={formErrors}
+                onInputChange={handleInputChange}
+                onSubmit={handleFormSubmit}
+                onCancel={handleCancelForm}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Profile modal */}
+      <ProfileModal
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
+      />
+    </div>
   );
 };
 
-const Header = ({ onRefresh, loading }: { onRefresh: () => void; loading: boolean }) => (
-  <div className="flex items-center gap-4 rounded-[28px] border border-gray-200 bg-white px-6 py-5 shadow-sm">
-    <div className="grid h-16 w-16 place-items-center rounded-3xl bg-primary/10 text-primary">
-      <HeaderIcon />
-    </div>
-    <div className="flex flex-1 items-center justify-between gap-4">
-      <div>
-        <h1 className="text-2xl font-semibold text-primary">Supervisor / Employee Management</h1>
-        <p className="text-sm text-gray-400">Manage supervisors and employees</p>
-      </div>
-      <button
-        type="button"
-        onClick={onRefresh}
-        disabled={loading}
-        className="rounded-full border border-gray-200 px-5 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary transition hover:border-primary disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {loading ? "Refreshing..." : "Refresh"}
-      </button>
-    </div>
-  </div>
-);
 
 const StatsRow = ({ stats }: { stats: Array<{ label: string; value: string }> }) => (
   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -410,12 +590,317 @@ const SearchIcon = () => (
   </svg>
 );
 
-const HeaderIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-10 w-10">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4Z" />
-    <path strokeLinecap="round" strokeLinejoin="round" d="M6 20c0-3.3137 2.6863-6 6-6s6 2.6863 6 6" />
-  </svg>
-);
+
+const SupervisorForm = ({
+  formData,
+  formErrors,
+  onInputChange,
+  onSubmit,
+  onCancel,
+}: {
+  formData: any;
+  formErrors: Record<string, string>;
+  onInputChange: (field: string, value: string | number | boolean) => void;
+  onSubmit: (e: React.FormEvent) => void;
+  onCancel: () => void;
+}) => {
+  return (
+    <div className="flex-1 bg-white rounded-[32px] p-8 shadow-sm overflow-y-auto">
+      <div className=" mx-auto">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-2xl font-semibold text-gray-900">Add New Supervisor</h2>
+            <p className="text-sm text-gray-500">Fill in the details below to add a new supervisor</p>
+          </div>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <form onSubmit={onSubmit} className="space-y-8">
+          {/* General Information Section */}
+          <div className="bg-gray-50 p-6 rounded-lg">
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">General Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">First Name *</label>
+                <input
+                  type="text"
+                  value={formData.firstName}
+                  onChange={(e) => onInputChange("firstName", e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${formErrors.firstName ? "border-red-500" : "border-gray-300"
+                    }`}
+                  placeholder="Enter first name"
+                />
+                {formErrors.firstName && <p className="text-red-500 text-xs mt-1">{formErrors.firstName}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Middle Name</label>
+                <input
+                  type="text"
+                  value={formData.middleName}
+                  onChange={(e) => onInputChange("middleName", e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter middle name"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Last Name *</label>
+                <input
+                  type="text"
+                  value={formData.lastName}
+                  onChange={(e) => onInputChange("lastName", e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${formErrors.lastName ? "border-red-500" : "border-gray-300"
+                    }`}
+                  placeholder="Enter last name"
+                />
+                {formErrors.lastName && <p className="text-red-500 text-xs mt-1">{formErrors.lastName}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">ID Number / IQAMA Number *</label>
+                <input
+                  type="text"
+                  value={formData.idNumber}
+                  onChange={(e) => onInputChange("idNumber", e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${formErrors.idNumber ? "border-red-500" : "border-gray-300"
+                    }`}
+                  placeholder="Enter ID number"
+                />
+                {formErrors.idNumber && <p className="text-red-500 text-xs mt-1">{formErrors.idNumber}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">ID Expiry Date</label>
+                <input
+                  type="date"
+                  value={formData.idExpiryDate}
+                  onChange={(e) => onInputChange("idExpiryDate", e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
+                <input
+                  type="date"
+                  value={formData.dateOfBirth}
+                  onChange={(e) => onInputChange("dateOfBirth", e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Graduation Certificate</label>
+                <input
+                  type="text"
+                  value={formData.graduationCertificate}
+                  onChange={(e) => onInputChange("graduationCertificate", e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter graduation certificate"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Acquired Languages</label>
+                <input
+                  type="text"
+                  value={formData.acquiredLanguages}
+                  onChange={(e) => onInputChange("acquiredLanguages", e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter languages"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Telephone *</label>
+                <div className="flex">
+                  <select className="px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option>+966</option>
+                    <option>+1</option>
+                    <option>+44</option>
+                  </select>
+                  <input
+                    type="tel"
+                    value={formData.telephone}
+                    onChange={(e) => onInputChange("telephone", e.target.value)}
+                    className={`flex-1 px-3 py-2 border border-l-0 rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${formErrors.telephone ? "border-red-500" : "border-gray-300"
+                      }`}
+                    placeholder="566 645 122"
+                  />
+                </div>
+                {formErrors.telephone && <p className="text-red-500 text-xs mt-1">{formErrors.telephone}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Official Email *</label>
+                <input
+                  type="email"
+                  value={formData.officialEmail}
+                  onChange={(e) => onInputChange("officialEmail", e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${formErrors.officialEmail ? "border-red-500" : "border-gray-300"
+                    }`}
+                  placeholder="Enter email address"
+                />
+                {formErrors.officialEmail && <p className="text-red-500 text-xs mt-1">{formErrors.officialEmail}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
+                <select
+                  value={formData.type}
+                  onChange={(e) => onInputChange("type", parseInt(e.target.value))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value={0}>Operational Supervisor</option>
+                  <option value={1}>Operational Employee</option>
+                  <option value={2}>Finance Supervisor</option>
+                  <option value={3}>Finance Employee</option>
+                  <option value={4}>IT Support Employee</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Address Section */}
+          <div className="bg-gray-50 p-6 rounded-lg">
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">Address</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Country *</label>
+                <input
+                  type="text"
+                  value={formData.country}
+                  onChange={(e) => onInputChange("country", e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${formErrors.country ? "border-red-500" : "border-gray-300"
+                    }`}
+                  placeholder="Enter country"
+                />
+                {formErrors.country && <p className="text-red-500 text-xs mt-1">{formErrors.country}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Region *</label>
+                <input
+                  type="text"
+                  value={formData.region}
+                  onChange={(e) => onInputChange("region", e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${formErrors.region ? "border-red-500" : "border-gray-300"
+                    }`}
+                  placeholder="Enter region"
+                />
+                {formErrors.region && <p className="text-red-500 text-xs mt-1">{formErrors.region}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">City *</label>
+                <input
+                  type="text"
+                  value={formData.city}
+                  onChange={(e) => onInputChange("city", e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${formErrors.city ? "border-red-500" : "border-gray-300"
+                    }`}
+                  placeholder="Enter city"
+                />
+                {formErrors.city && <p className="text-red-500 text-xs mt-1">{formErrors.city}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">National Address - SPL</label>
+                <input
+                  type="text"
+                  value={formData.nationalAddress}
+                  onChange={(e) => onInputChange("nationalAddress", e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="YADD3344"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Address *</label>
+                <input
+                  type="text"
+                  value={formData.address}
+                  onChange={(e) => onInputChange("address", e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${formErrors.address ? "border-red-500" : "border-gray-300"
+                    }`}
+                  placeholder="Idara St, King Abdul Aziz University, Jeddah"
+                />
+                {formErrors.address && <p className="text-red-500 text-xs mt-1">{formErrors.address}</p>}
+              </div>
+            </div>
+
+            {/* Map placeholder */}
+            <div className="mt-6">
+              <div className="bg-gray-200 h-48 rounded-lg flex items-center justify-center">
+                <div className="text-center">
+                  <div className="w-8 h-8 bg-gray-400 rounded-full mx-auto mb-2"></div>
+                  <p className="text-gray-500">Map Component</p>
+                  <button
+                    type="button"
+                    className="mt-2 px-4 py-2 bg-black text-white rounded-md text-sm"
+                  >
+                    Get Direction
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bank Information Section */}
+          <div className="bg-gray-50 p-6 rounded-lg">
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">Bank Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Bank Name *</label>
+                <input
+                  type="text"
+                  value={formData.bankName}
+                  onChange={(e) => onInputChange("bankName", e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${formErrors.bankName ? "border-red-500" : "border-gray-300"
+                    }`}
+                  placeholder="Enter bank name"
+                />
+                {formErrors.bankName && <p className="text-red-500 text-xs mt-1">{formErrors.bankName}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">IBAN Number *</label>
+                <input
+                  type="text"
+                  value={formData.ibanNumber}
+                  onChange={(e) => onInputChange("ibanNumber", e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${formErrors.ibanNumber ? "border-red-500" : "border-gray-300"
+                    }`}
+                  placeholder="Enter IBAN number"
+                />
+                {formErrors.ibanNumber && <p className="text-red-500 text-xs mt-1">{formErrors.ibanNumber}</p>}
+              </div>
+            </div>
+          </div>
+
+          {/* Form Actions */}
+          <div className="flex justify-center pt-6">
+            <button
+              type="submit"
+              className="px-8 py-3 bg-black text-white font-medium rounded-md hover:bg-gray-800 transition-colors"
+            >
+              Save
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
 
 export default SupervisorPage;
 
