@@ -12,8 +12,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../components/ToastProvider";
-import leftPanelImg from "../assets/leftPanelImg.svg";
-
 const VERIFY_ID_ENDPOINT = "https://apisalwa.rushkarprojects.in/api/SuperAdmin/VerifySuperAdminByIDNumber";
 const VERIFY_MOBILE_ENDPOINT = "https://apisalwa.rushkarprojects.in/api/SuperAdmin/VerifySuperAdminMobile";
 const VERIFY_OTP_ENDPOINT = "https://apisalwa.rushkarprojects.in/api/SuperAdmin/SuperAdminVerifyOtp";
@@ -441,11 +439,11 @@ const Login = () => {
       setVerification((current) =>
         current
           ? {
-              ...current,
-              isPasswordSet: 1,
-              isOtpVerify: 1,
-              isMobileNoVerify: true,
-            }
+            ...current,
+            isPasswordSet: 1,
+            isOtpVerify: 1,
+            isMobileNoVerify: true,
+          }
           : current,
       );
       setLoginPassword(newPassword);
@@ -514,269 +512,273 @@ const Login = () => {
   }, [verification, idNumber]);
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 lg:grid lg:grid-cols-[1.1fr_1fr]">
-      <ArtworkPanel />
-      <section className="flex items-center justify-center px-6 py-16 sm:px-12">
-        <div className="w-full max-w-md space-y-12">
-          <header className="space-y-4 text-left">
-            <h1 className="text-4xl font-semibold text-[#070B68]">Login</h1>
-            <p className="text-lg text-gray-500">
-              {step === "verifyId"
-                ? "Access your account to get started today."
-                : step === "mobile"
-                ? "Verify your registered mobile number."
-                : step === "otp"
-                ? "Enter the OTP sent to your mobile."
-                : step === "setPassword"
-                ? "Create your password to finish setup."
-                : step === "success"
-                ? "Your password has been set successfully."
-                : "Sign in with your ID number and password."}
-            </p>
-          </header>
+    <div className="min-h-screen flex items-center justify-center bg-white text-gray-800 font-sans">
+      <div className="flex flex-col md:flex-row w-full h-auto md:h-screen">
 
-          {step === "verifyId" && (
-            <form onSubmit={handleVerifySubmit} className="space-y-6">
-              <InputField
-                id="idNumber"
-                label="ID Number / IQAMA Number"
-                value={idNumber}
-                onChange={(event) => setIdNumber(event.target.value)}
-                placeholder="ID number / IQAMA number"
-                hideLabel
-                inputClassName="placeholder:text-[#A0A3BD]"
-                autoFocus
-              />
-              <button
-                type="submit"
-                disabled={verifyLoading}
-                className="w-full rounded-[18px] bg-[#070B68] py-4 text-lg font-semibold text-white shadow-[0_20px_40px_rgba(7,11,104,0.25)] transition hover:bg-[#030447] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#070B68]/60 disabled:cursor-not-allowed disabled:bg-[#070B68]/70"
-              >
-                {verifyLoading ? "Verifying..." : "Continue"}
-              </button>
-              <p className="text-center text-sm text-gray-500">
-                Already verified?
-                <button
-                  type="button"
-                  className="ml-2 font-semibold text-primary hover:underline"
-                  onClick={() => goToStep("login")}
-                >
-                  Go to login
-                </button>
+        <ArtworkPanel />
+        <div className="w-full md:flex-1 flex flex-col justify-center items-center px-4 md:px-6 py-12 md:py-0">
+
+          <div className="w-full max-w-md space-y-12">
+            <header className="space-y-4 text-left">
+              <h1 className="text-4xl font-semibold text-[#070B68]">Login</h1>
+              <p className="text-lg text-gray-500">
+                {step === "verifyId"
+                  ? "Access your account to get started today."
+                  : step === "mobile"
+                    ? "Verify your registered mobile number."
+                    : step === "otp"
+                      ? "Enter the OTP sent to your mobile."
+                      : step === "setPassword"
+                        ? "Create your password to finish setup."
+                        : step === "success"
+                          ? "Your password has been set successfully."
+                          : "Sign in with your ID number and password."}
               </p>
-            </form>
-          )}
+            </header>
 
-          {step === "mobile" && (
-            <form onSubmit={handleMobileSubmit} className="space-y-6">
-              <InputField
-                id="verified-id"
-                label="ID Number / IQAMA Number"
-                value={idNumber}
-                placeholder="ID number / IQAMA number"
-                readOnly
-                hideLabel
-                inputClassName="bg-[#F7F8FC] text-[#1F1F1F]"
-              />
-              <label className="block text-left">
-                <span className="sr-only">Registered mobile number</span>
-                <div className="flex overflow-hidden rounded-[18px] border border-[#E4E6EF] bg-white shadow-sm">
-                  <select
-                    value={mobileDialCode}
-                    onChange={(event) => setMobileDialCode(event.target.value)}
-                    className="bg-white px-4 text-sm font-medium text-[#070B68] focus:outline-none"
-                  >
-                    {countryOptions.map((option) => (
-                      <option key={option.code} value={option.code}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                  <input
-                    type="tel"
-                    value={mobileLocalNumber}
-                    onChange={(event) => setMobileLocalNumber(event.target.value.replace(/\D/g, ""))}
-                    placeholder="987 772 299"
-                    className="flex-1 border-l border-[#E4E6EF] px-5 py-4 text-base text-[#1F1F1F] placeholder:text-[#A0A3BD] focus:outline-none"
-                  />
-                </div>
-              </label>
-              <div className="flex items-center justify-between text-sm">
-                <button
-                  type="button"
-                  className="font-semibold text-[#070B68] hover:underline"
-                  onClick={() => goToStep("verifyId")}
-                >
-                  Back
-                </button>
-                <button
-                  type="submit"
-                  disabled={mobileLoading || !mobileLocalNumber}
-                  className="rounded-[18px] bg-[#070B68] px-8 py-3 text-sm font-semibold text-white shadow-[0_20px_40px_rgba(7,11,104,0.25)] transition hover:bg-[#030447] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#070B68]/60 disabled:cursor-not-allowed disabled:bg-[#070B68]/70"
-                >
-                  {mobileLoading ? "Sending..." : "Send OTP"}
-                </button>
-              </div>
-            </form>
-          )}
-
-          {step === "otp" && (
-            <div className="space-y-6">
-              {renderVerificationSummary}
-              <form onSubmit={handleOtpSubmit} className="space-y-6">
-                <div className="space-y-3 text-sm text-gray-500">
-                  <p>
-                    Enter the 6-digit code sent to
-                    <span className="ml-1 font-semibold text-primary">{mobileForOtp ? `+${mobileForOtp}` : " your mobile"}</span>.
-                  </p>
-                  <button
-                    type="button"
-                    className="text-sm font-semibold text-primary hover:underline"
-                    onClick={() => showToast("OTP resend feature coming soon.", "info")}
-                  >
-                    Resend OTP
-                  </button>
-                </div>
-                <OtpInputGroup
-                  values={otpValues}
-                  refs={otpRefs}
-                  onChange={handleOtpChange}
-                  onKeyDown={handleOtpKeyDown}
-                  onPaste={handleOtpPaste}
-                />
-                <div className="flex items-center justify-between text-sm">
-                  <button
-                    type="button"
-                    className="font-semibold text-primary hover:underline"
-                    onClick={() => goToStep("mobile")}
-                  >
-                    Edit Mobile Number
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={otpLoading}
-                    className="rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow transition hover:bg-[#030447] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 disabled:cursor-not-allowed disabled:bg-primary/70"
-                  >
-                    {otpLoading ? "Verifying..." : "Verify OTP"}
-                  </button>
-                </div>
-              </form>
-            </div>
-          )}
-
-          {step === "setPassword" && (
-            <div className="space-y-6">
-              {renderVerificationSummary}
-              <form onSubmit={handleSetPasswordSubmit} className="space-y-6">
+            {step === "verifyId" && (
+              <form onSubmit={handleVerifySubmit} className="space-y-6">
                 <InputField
-                  id="new-password"
-                  label="New Password"
-                  type="password"
-                  value={newPassword}
-                  onChange={(event) => setNewPassword(event.target.value)}
-                  autoFocus
-                />
-                <InputField
-                  id="confirm-password"
-                  label="Confirm Password"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(event) => setConfirmPassword(event.target.value)}
-                />
-                <div className="flex items-center justify-between text-sm">
-                  <button
-                    type="button"
-                    className="font-semibold text-primary hover:underline"
-                    onClick={() => goToStep("otp")}
-                  >
-                    Back to OTP
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={creatingPassword}
-                    className="rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow transition hover:bg-[#030447] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 disabled:cursor-not-allowed disabled:bg-primary/70"
-                  >
-                    {creatingPassword ? "Saving..." : "Set Password"}
-                  </button>
-                </div>
-              </form>
-            </div>
-          )}
-
-          {step === "success" && (
-            <div className="space-y-8">
-              <div className="flex flex-col items-center gap-6 rounded-3xl border border-gray-200 bg-white px-8 py-12 shadow-[0_20px_60px_rgba(7,11,104,0.12)]">
-                <div className="grid h-20 w-20 place-items-center rounded-full bg-primary text-white">
-                  <CheckIcon />
-                </div>
-                <div className="space-y-2 text-center">
-                  <h2 className="text-2xl font-semibold text-primary">Successfully Protected</h2>
-                  <p className="text-sm text-gray-500">Your password has been set successfully.</p>
-                </div>
-                <button
-                  type="button"
-                  className="rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow transition hover:bg-[#030447]"
-                  onClick={() => goToStep("login")}
-                >
-                  Go to Login
-                </button>
-              </div>
-            </div>
-          )}
-
-          {step === "login" && (
-            <div className="space-y-6">
-              {renderVerificationSummary}
-              <form onSubmit={handleLoginSubmit} className="space-y-6">
-                <InputField
-                  id="login-id"
+                  id="idNumber"
                   label="ID Number / IQAMA Number"
                   value={idNumber}
                   onChange={(event) => setIdNumber(event.target.value)}
-                />
-                <InputField
-                  id="login-password"
-                  label="Password"
-                  type="password"
-                  value={loginPassword}
-                  onChange={(event) => setLoginPassword(event.target.value)}
+                  placeholder="ID number / IQAMA number"
+                  hideLabel
+                  inputClassName="placeholder:text-[#A0A3BD]"
                   autoFocus
                 />
+                <button
+                  type="submit"
+                  disabled={verifyLoading}
+                  className="w-full rounded-[18px] bg-[#070B68] py-4 text-lg font-semibold text-white shadow-[0_20px_40px_rgba(7,11,104,0.25)] transition hover:bg-[#030447] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#070B68]/60 disabled:cursor-not-allowed disabled:bg-[#070B68]/70"
+                >
+                  {verifyLoading ? "Verifying..." : "Continue"}
+                </button>
+                <p className="text-center text-sm text-gray-500">
+                  Already verified?
+                  <button
+                    type="button"
+                    className="ml-2 font-semibold text-primary hover:underline"
+                    onClick={() => goToStep("login")}
+                  >
+                    Go to login
+                  </button>
+                </p>
+              </form>
+            )}
+
+            {step === "mobile" && (
+              <form onSubmit={handleMobileSubmit} className="space-y-6">
+                <InputField
+                  id="verified-id"
+                  label="ID Number / IQAMA Number"
+                  value={idNumber}
+                  placeholder="ID number / IQAMA number"
+                  readOnly
+                  hideLabel
+                  inputClassName="bg-[#F7F8FC] text-[#1F1F1F]"
+                />
+                <label className="block text-left">
+                  <span className="sr-only">Registered mobile number</span>
+                  <div className="flex overflow-hidden rounded-[18px] border border-[#E4E6EF] bg-white shadow-sm">
+                    <select
+                      value={mobileDialCode}
+                      onChange={(event) => setMobileDialCode(event.target.value)}
+                      className="bg-white px-4 text-sm font-medium text-[#070B68] focus:outline-none"
+                    >
+                      {countryOptions.map((option) => (
+                        <option key={option.code} value={option.code}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      type="tel"
+                      value={mobileLocalNumber}
+                      onChange={(event) => setMobileLocalNumber(event.target.value.replace(/\D/g, ""))}
+                      placeholder="987 772 299"
+                      className="flex-1 border-l border-[#E4E6EF] px-5 py-4 text-base text-[#1F1F1F] placeholder:text-[#A0A3BD] focus:outline-none"
+                    />
+                  </div>
+                </label>
                 <div className="flex items-center justify-between text-sm">
                   <button
                     type="button"
-                    className="font-semibold text-primary hover:underline"
+                    className="font-semibold text-[#070B68] hover:underline"
                     onClick={() => goToStep("verifyId")}
                   >
-                    Verify ID again
+                    Back
                   </button>
-                  <button type="button" className="font-semibold text-primary/60 hover:text-primary">
-                    Forgot Password?
+                  <button
+                    type="submit"
+                    disabled={mobileLoading || !mobileLocalNumber}
+                    className="rounded-[18px] bg-[#070B68] px-8 py-3 text-sm font-semibold text-white shadow-[0_20px_40px_rgba(7,11,104,0.25)] transition hover:bg-[#030447] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#070B68]/60 disabled:cursor-not-allowed disabled:bg-[#070B68]/70"
+                  >
+                    {mobileLoading ? "Sending..." : "Send OTP"}
                   </button>
                 </div>
-                <button
-                  type="submit"
-                  disabled={loginLoading}
-                  className="w-full rounded-xl bg-primary py-3.5 text-lg font-semibold text-white shadow-[0_20px_40px_rgba(7,11,104,0.25)] transition hover:bg-[#030447] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 disabled:cursor-not-allowed disabled:bg-primary/70"
-                >
-                  {loginLoading ? "Signing in..." : "Login"}
-                </button>
               </form>
-            </div>
-          )}
+            )}
+
+            {step === "otp" && (
+              <div className="space-y-6">
+                {renderVerificationSummary}
+                <form onSubmit={handleOtpSubmit} className="space-y-6">
+                  <div className="space-y-3 text-sm text-gray-500">
+                    <p>
+                      Enter the 6-digit code sent to
+                      <span className="ml-1 font-semibold text-primary">{mobileForOtp ? `+${mobileForOtp}` : " your mobile"}</span>.
+                    </p>
+                    <button
+                      type="button"
+                      className="text-sm font-semibold text-primary hover:underline"
+                      onClick={() => showToast("OTP resend feature coming soon.", "info")}
+                    >
+                      Resend OTP
+                    </button>
+                  </div>
+                  <OtpInputGroup
+                    values={otpValues}
+                    refs={otpRefs}
+                    onChange={handleOtpChange}
+                    onKeyDown={handleOtpKeyDown}
+                    onPaste={handleOtpPaste}
+                  />
+                  <div className="flex items-center justify-between text-sm">
+                    <button
+                      type="button"
+                      className="font-semibold text-primary hover:underline"
+                      onClick={() => goToStep("mobile")}
+                    >
+                      Edit Mobile Number
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={otpLoading}
+                      className="rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow transition hover:bg-[#030447] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 disabled:cursor-not-allowed disabled:bg-primary/70"
+                    >
+                      {otpLoading ? "Verifying..." : "Verify OTP"}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {step === "setPassword" && (
+              <div className="space-y-6">
+                {renderVerificationSummary}
+                <form onSubmit={handleSetPasswordSubmit} className="space-y-6">
+                  <InputField
+                    id="new-password"
+                    label="New Password"
+                    type="password"
+                    value={newPassword}
+                    onChange={(event) => setNewPassword(event.target.value)}
+                    autoFocus
+                  />
+                  <InputField
+                    id="confirm-password"
+                    label="Confirm Password"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(event) => setConfirmPassword(event.target.value)}
+                  />
+                  <div className="flex items-center justify-between text-sm">
+                    <button
+                      type="button"
+                      className="font-semibold text-primary hover:underline"
+                      onClick={() => goToStep("otp")}
+                    >
+                      Back to OTP
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={creatingPassword}
+                      className="rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow transition hover:bg-[#030447] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 disabled:cursor-not-allowed disabled:bg-primary/70"
+                    >
+                      {creatingPassword ? "Saving..." : "Set Password"}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {step === "success" && (
+              <div className="space-y-8">
+                <div className="flex flex-col items-center gap-6 rounded-3xl border border-gray-200 bg-white px-8 py-12 shadow-[0_20px_60px_rgba(7,11,104,0.12)]">
+                  <div className="grid h-20 w-20 place-items-center rounded-full bg-primary text-white">
+                    <CheckIcon />
+                  </div>
+                  <div className="space-y-2 text-center">
+                    <h2 className="text-2xl font-semibold text-primary">Successfully Protected</h2>
+                    <p className="text-sm text-gray-500">Your password has been set successfully.</p>
+                  </div>
+                  <button
+                    type="button"
+                    className="rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow transition hover:bg-[#030447]"
+                    onClick={() => goToStep("login")}
+                  >
+                    Go to Login
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {step === "login" && (
+              <div className="space-y-6">
+                {renderVerificationSummary}
+                <form onSubmit={handleLoginSubmit} className="space-y-2">
+                  <InputField
+                    id="login-id"
+                    label="ID Number / IQAMA Number"
+                    value={idNumber}
+                    disabled
+                    onChange={(event) => setIdNumber(event.target.value)}
+                  />
+                  <InputField
+                    id="login-password"
+                    label="Password"
+                    type="password"
+                    value={loginPassword}
+                    onChange={(event) => setLoginPassword(event.target.value)}
+                    autoFocus
+                  />
+                  <div className="flex items-center justify-between text-sm">
+                    <button
+                      type="button"
+                      className="font-semibold text-primary hover:underline"
+                      onClick={() => goToStep("verifyId")}
+                    >
+                      Verify ID again
+                    </button>
+                    <button type="button" className="font-semibold text-primary/60 hover:text-primary">
+                      Forgot Password?
+                    </button>
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={loginLoading}
+                    className="w-full rounded-xl bg-primary py-3.5 text-lg font-semibold text-white shadow-[0_20px_40px_rgba(7,11,104,0.25)] transition hover:bg-[#030447] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 disabled:cursor-not-allowed disabled:bg-primary/70"
+                  >
+                    {loginLoading ? "Signing in..." : "Login"}
+                  </button>
+                </form>
+              </div>
+            )}
+          </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 };
 
 const StatusBadge = ({ label, active }: { label: string; active: boolean }) => (
   <span
-    className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold ${
-      active
-        ? "border-primary/30 bg-primary/10 text-primary"
-        : "border-gray-200 bg-gray-100 text-gray-500"
-    }`}
+    className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold ${active
+      ? "border-primary/30 bg-primary/10 text-primary"
+      : "border-gray-200 bg-gray-100 text-gray-500"
+      }`}
   >
     <span className={`h-2 w-2 rounded-full ${active ? "bg-primary" : "bg-gray-300"}`} />
     {label}
@@ -856,30 +858,36 @@ const OtpInputGroup = ({
 );
 
 const ArtworkPanel = () => (
-  <section className="relative hidden overflow-hidden lg:flex">
-    <img src={leftPanelImg} alt="Salwa graphic" className="absolute inset-0 h-full w-full object-cover" />
-    <div className="absolute inset-0 bg-[#03024C]/70" />
-    <div className="relative z-10 flex h-full w-full flex-col items-center justify-between px-12 py-16 text-white">
-      <div className="flex flex-1 flex-col items-center justify-center gap-6 text-center">
-        <img src="/theme-icons/salwa_icon.svg" alt="Salwa" className="h-24 w-24" />
-        <div className="space-y-3">
-          <h2 className="text-5xl font-semibold text-[#2ED3C6]">Salwa</h2>
-          <p className="text-lg text-[#2ED3C6]">Towards a Comprehensive Healthcare Future</p>
-        </div>
-        <div className="mt-6 flex flex-col items-center gap-3 text-xs font-semibold uppercase tracking-[0.28em] text-white/80">
-          <span className="flex items-center gap-2 rounded-full border border-white/40 px-5 py-2">
-            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 fill-current"><path d="M2 3.5v17l14-8.5L2 3.5Zm16.5 4.28-1.36.78 1.36.78 3.5-2.06-3.5-2.06ZM17.14 12l-1.64.99 1.64.99 3.36-2.02L17.14 12ZM15.5 16.22l1.36.78 3.5-2.06-1.36-.78-3.5 2.06Z"/></svg>
-            Download it from Google Play
-          </span>
-          <span className="flex items-center gap-2 rounded-full border border-white/40 px-5 py-2">
-            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 fill-current"><path d="M16.365 1.43c0 1.14-.422 2.072-1.267 2.795-.845.723-1.886 1.14-3.125 1.25-.02-.124-.03-.31-.03-.56 0-1.09.39-2.023 1.172-2.8.78-.78 1.77-1.172 2.97-1.172.025 0 .072.012.14.03.027.006.053.01.07.01.046.004.086.006.12.006zM21.2 17.25c-.3.91-.7 1.755-1.2 2.53-.67 1.07-1.215 1.812-1.64 2.23-.65.68-1.35 1.032-2.11 1.06-.54 0-1.195-.154-1.96-.47-.77-.312-1.477-.47-2.12-.47-.66 0-1.387.158-2.18.47-.792.316-1.43.48-1.91.49-.73.03-1.44-.32-2.13-1.05-.45-.43-1.02-1.2-1.72-2.31-.74-1.16-1.35-2.503-1.82-4.03-.51-1.66-.77-3.26-.77-4.8 0-1.77.38-3.3 1.16-4.58.57-.98 1.33-1.75 2.28-2.31.95-.55 1.98-.84 3.08-.86.61 0 1.41.18 2.38.53.97.35 1.6.53 1.9.53.26 0 .93-.2 2.02-.6.99-.35 1.83-.5 2.5-.46 1.85.15 3.25.88 4.2 2.19-1.66 1.01-2.49 2.43-2.49 4.28 0 1.43.52 2.62 1.55 3.55.46.45.98.8 1.57 1.06-.13.2-.27.4-.4.61z"/></svg>
-            Download it from App Store
-          </span>
-        </div>
+  <div className="w-full md:w-1/2  lg:w-1/3 flex flex-col justify-between p-8 md:p-12 text-white relative">
+    <div className="mt-12">
+
+      <img src="/img/leftPanelImg.svg" alt="Left Panel Background"
+        className="absolute inset-0 w-full h-full object-cover opacity-1 pointer-events-none" />
+
+      <div className="relative md:absolute inset-0 flex flex-col items-center justify-center z-10">
+        <img src="/img/logo.svg" alt="Salwa Logo"
+          className="w-[160px] md:w-[320px] md:h-[160px] h-[80px] mb-4" />
+
       </div>
-      <p className="text-xs text-white/70">Copyright © 2025 Bridge Health Business Service. All Rights Reserved.</p>
     </div>
-  </section>
+
+    <div className="relative z-10">
+      <p
+        className="text-accentGreen text-[16px] md:text-[24px] text-center leading-[20px] md:leading-[28px] font-helveticaMedium">
+        Towards a Comprehensive <br /> Healthcare Future
+      </p>
+
+      <div className="flex justify-center space-x-4 items-stretch  my-8">
+        <a href=""><img src="img/Group 1.svg" alt="App Store" /></a>
+        <span className="devider border border-white w-[1px]"></span>
+        <a href=""> <img src="img/Group 2.svg" alt="Google Play" /></a>
+      </div>
+
+      <p className="text-xs text-white text-center font-HelveticaNowTextRegular opacity-50 text-[14px] ">
+        Copyright © 2025 Bridge Health Business Service. All Rights Reserved.
+      </p>
+    </div>
+  </div>
 );
 
 const CheckIcon = () => (
