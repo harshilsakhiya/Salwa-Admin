@@ -999,17 +999,4 @@ const SearchIcon = () => (
   </svg>
 );
 
-const ChevronIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 20 20"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.6"
-    className="h-3 w-3"
-  >
-    <path strokeLinecap="round" strokeLinejoin="round" d="m6 8 4 4 4-4" />
-  </svg>
-);
-
 export default EmployeeCategoryAssignment;
