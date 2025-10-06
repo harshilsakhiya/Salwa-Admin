@@ -1,20 +1,41 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../layouts/DashboardLayout";
 import type { AgentRow, TabKey } from "../data/agents";
 import { businessAgents, individualAgents } from "../data/agents";
+import AgentServices from "../services/AgentServices";
+import { useToast } from "../components/ToastProvider";
+import ComanTable, { type TableColumn, type ActionButton, type SortState } from "../components/common/ComanTable";
 
-const stats: Record<TabKey, { value: string; title: string }[]> = {
-  individual: [
-    { value: "244", title: "Active Agents" },
-    { value: "22", title: "Inactive Agents" },
-    { value: "266", title: "Total Salwa Agents" },
-  ],
-  business: [
-    { value: "310", title: "Active Agents" },
-    { value: "18", title: "Inactive Agents" },
-    { value: "328", title: "Total Salwa Agents" },
-  ],
+// Agent discount record interface
+interface AgentDiscountRecord {
+  id: number;
+  agentName: string;
+  agentCode: string;
+  email: string;
+  phoneNumber: string;
+  country: string;
+  region: string;
+  city: string;
+  status: "Active" | "Inactive" | "On Hold";
+  discountPercentage?: number;
+  discountAmount?: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Calculate real-time stats from API data
+const calculateStats = (data: AgentRow[]) => {
+  const activeCount = data.filter(agent => agent.status === "Active").length;
+  const inactiveCount = data.filter(agent => agent.status === "Inactive").length;
+  const totalCount = data.length;
+
+  return [
+    { value: activeCount.toString(), title: "Active Agents" },
+    { value: inactiveCount.toString(), title: "Inactive Agents" },
+    { value: totalCount.toString(), title: "Total Salwa Agents" },
+  ];
 };
 
 const statusStyles: Record<AgentRow["status"], string> = {
@@ -28,29 +49,143 @@ const data: Record<TabKey, AgentRow[]> = {
   business: businessAgents,
 };
 
-const pageSize = 10;
-
 const ListAgents = () => {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState<TabKey>("individual");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
-  const rows = data[activeTab];
+  // API state for both tabs
+  const [agentsData, setAgentsData] = useState<AgentRow[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [sortState, setSortState] = useState<SortState[]>([]);
 
-  const filteredRows = useMemo(() => {
-    if (!searchTerm.trim()) return rows;
-    const query = searchTerm.trim().toLowerCase();
-    return rows.filter((row) =>
-      [row.id, row.name, row.code, row.email, row.city, row.region].some((field) =>
-        field.toLowerCase().includes(query)
-      )
-    );
-  }, [rows, searchTerm]);
 
-  const pageCount = Math.max(1, Math.ceil(filteredRows.length / pageSize));
+  // Always use API data if available, otherwise fall back to static data
+  const rows = agentsData.length > 0 ? agentsData : data[activeTab];
+
+  // Calculate real-time stats from current data
+  const currentStats = calculateStats(rows);
+
+
+  // Map API data to AgentRow format
+  const mapAgentDiscountToAgentRow = useCallback((apiData: AgentDiscountRecord): AgentRow => {
+    return {
+      id: `#${apiData.id.toString().padStart(4, "0")}`,
+      name: apiData.agentName,
+      code: apiData.agentCode,
+      email: apiData.email,
+      phone: apiData.phoneNumber,
+      country: apiData.country,
+      region: apiData.region,
+      city: apiData.city,
+      status: apiData.status,
+    };
+  }, []);
+
+  // Load agents data from API for both tabs
+  const loadAgents = useCallback(async (page: number = 1, search: string = "", currentPageSize: number = pageSize) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      let response;
+
+      if (activeTab === "business") {
+        response = await AgentServices.GetAllAgentDiscountForBusinessList({
+          pageNumber: page,
+          pageSize: currentPageSize,
+          searchTerm: search || undefined,
+        });
+      } else {
+        response = await AgentServices.GetAllAgentDiscountForIndividualList({
+          pageNumber: page,
+          pageSize: currentPageSize,
+          searchTerm: search || undefined,
+        });
+      }
+
+      // Handle the response structure from AgentServices
+      if (!response) {
+        throw new Error('No response received from API');
+      }
+
+      if (!response.success) {
+        const errorMessage = 'message' in response ? response.message : `Failed to load ${activeTab} agents`;
+        throw new Error(errorMessage);
+      }
+
+      // API response is a direct array, not an object with data property
+      const records = 'data' in response && response.data ? response.data : [];
+
+      // For direct array response, we need to calculate pagination info
+      const recordTotalCount = records.length;
+      const recordTotalPages = Math.ceil(recordTotalCount / currentPageSize);
+
+      // Map the API data to AgentRow format
+      const mappedData = records.map(mapAgentDiscountToAgentRow);
+
+      setAgentsData(mappedData);
+      setTotalCount(recordTotalCount);
+      setTotalPages(recordTotalPages);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : `Failed to load ${activeTab} agents`;
+      setError(errorMessage);
+      showToast(errorMessage, "error");
+      setAgentsData([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [activeTab, mapAgentDiscountToAgentRow, showToast, pageSize]);
+
+
+  // Load data when tab changes or page changes
+  useEffect(() => {
+    void loadAgents(currentPage, searchTerm, pageSize);
+  }, [activeTab, currentPage, searchTerm, pageSize, loadAgents]);
+
+  // Update totalPages when totalCount or pageSize changes
+  useEffect(() => {
+    const calculatedPages = totalCount > 0 ? Math.ceil(totalCount / pageSize) : 1;
+    const finalPages = Math.max(1, calculatedPages);
+    setTotalPages(finalPages);
+  }, [totalCount, pageSize]);
+
+  // For API data, use it directly (API handles pagination and search)
+  // For static data, do client-side filtering and pagination
+  const tableData = useMemo(() => {
+    // If we have API data, return it as-is (API handles pagination and search)
+    if (agentsData.length > 0) {
+      return agentsData;
+    }
+
+    // For static data, do client-side filtering
+    let filteredData = rows;
+    if (searchTerm.trim()) {
+      const query = searchTerm.trim().toLowerCase();
+      filteredData = rows.filter((row) =>
+        [row.id, row.name, row.code, row.email, row.city, row.region].some((field) =>
+          field.toLowerCase().includes(query)
+        )
+      );
+    }
+
+    // For static data, do client-side pagination
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    return filteredData.slice(startIndex, endIndex);
+  }, [agentsData, rows, searchTerm, currentPage, pageSize]);
+
+  // Use API pagination for API data, client-side pagination for static data
+  const pageCount = agentsData.length > 0 ? totalPages : Math.max(1, Math.ceil(rows.length / pageSize));
   const safePage = Math.min(currentPage, pageCount);
-  const paginatedRows = filteredRows.slice((safePage - 1) * pageSize, safePage * pageSize);
+  const displayTotalCount = agentsData.length > 0 ? totalCount : rows.length;
+
 
   const handleTabChange = (tab: TabKey) => {
     setActiveTab(tab);
@@ -58,10 +193,136 @@ const ListAgents = () => {
     setSearchTerm("");
   };
 
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1);
+    void loadAgents(1, value, pageSize);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    void loadAgents(page, searchTerm, pageSize);
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(1);
+    void loadAgents(1, searchTerm, size);
+  };
+
+  const handleSortChange = (newSortState: SortState[]) => {
+    setSortState(newSortState);
+  };
+
   const handleView = (row: AgentRow) => {
     const slug = encodeURIComponent(row.id.replace(/#/g, ""));
     navigate(`/agents/${activeTab}/${slug}`);
   };
+
+  const handleEdit = (_row: AgentRow) => {
+    // Implement edit functionality
+  };
+
+  const handleDelete = (_row: AgentRow) => {
+    // Implement delete functionality
+  };
+
+  // Table columns configuration
+  const tableColumns: TableColumn<AgentRow>[] = useMemo(() => [
+    {
+      label: "ID No",
+      value: (row) => (
+        <span className="font-helveticaBold text-primary">{row.id}</span>
+      ),
+      sortKey: "id",
+      isSort: true,
+    },
+    {
+      label: "Agent Name",
+      value: (row) => (
+        <span className="text-gray-700">{row.name}</span>
+      ),
+      sortKey: "name",
+      isSort: true,
+    },
+    {
+      label: "Agent Code",
+      value: (row) => (
+        <span className="text-gray-500">{row.code}</span>
+      ),
+      sortKey: "code",
+      isSort: true,
+    },
+    {
+      label: "Email",
+      value: (row) => (
+        <span className="text-gray-500">{row.email}</span>
+      ),
+      sortKey: "email",
+      isSort: true,
+    },
+    {
+      label: "Phone Number",
+      value: (row) => (
+        <span className="text-gray-500">{row.phone}</span>
+      ),
+      sortKey: "phone",
+      isSort: true,
+    },
+    {
+      label: "Country",
+      value: (row) => (
+        <span className="text-gray-500">{row.country}</span>
+      ),
+      sortKey: "country",
+      isSort: true,
+    },
+    {
+      label: "Region",
+      value: (row) => (
+        <span className="text-gray-500">{row.region}</span>
+      ),
+      sortKey: "region",
+      isSort: true,
+    },
+    {
+      label: "City",
+      value: (row) => (
+        <span className="text-gray-500">{row.city}</span>
+      ),
+      sortKey: "city",
+      isSort: true,
+    },
+    {
+      label: "Status",
+      value: (row) => (
+        <span className={`inline-flex items-center justify-center rounded-full px-4 py-1 text-xs font-semibold ${statusStyles[row.status]}`}>
+          {row.status}
+        </span>
+      ),
+      sortKey: "status",
+      isSort: true,
+    },
+  ], []);
+
+  // Action buttons configuration
+  const actionButtons: ActionButton<AgentRow>[] = useMemo(() => [
+    {
+      label: "View",
+      iconType: "view",
+      onClick: handleView,
+    },
+    {
+      label: "Edit",
+      iconType: "edit",
+      onClick: handleEdit,
+    },
+    {
+      label: "Delete",
+      iconType: "delete",
+      onClick: handleDelete,
+    },
+  ], [handleView, handleEdit, handleDelete]);
 
   return (
     <DashboardLayout>
@@ -86,10 +347,7 @@ const ListAgents = () => {
             <div className="relative w-full max-w-xs">
               <input
                 value={searchTerm}
-                onChange={(event) => {
-                  setSearchTerm(event.target.value);
-                  setCurrentPage(1);
-                }}
+                onChange={(event) => handleSearchChange(event.target.value)}
                 placeholder="Search"
                 className="w-full rounded-full border border-slate-200 bg-white px-4 py-2.5 pl-11 text-sm text-gray-600 shadow focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
@@ -100,9 +358,11 @@ const ListAgents = () => {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-3">
-            {stats[activeTab].map((item) => (
+            {currentStats.map((item) => (
               <div key={item.title} className="rounded-2xl border border-slate-200 bg-white px-6 py-6 text-center shadow-card">
-                <p className="text-3xl font-helveticaBold text-primary">{item.value}</p>
+                <p className="text-3xl font-helveticaBold text-primary">
+                  {loading ? "..." : item.value}
+                </p>
                 <p className="mt-2 text-xs font-textMedium uppercase tracking-[0.18em] text-gray-500">{item.title}</p>
               </div>
             ))}
@@ -110,77 +370,27 @@ const ListAgents = () => {
 
           <ChartPlaceholder />
 
-          <div className="rounded-2xl border border-slate-200">
-            <div className="overflow-x-auto">
-              <table className="min-w-[1180px] w-full text-left text-sm text-gray-600">
-                <thead className="bg-slate-100 text-xs font-textMedium uppercase tracking-[0.18em] text-gray-500">
-                  <tr>
-                    <th className="px-4 py-3 whitespace-nowrap">ID No</th>
-                    <th className="px-4 py-3 whitespace-nowrap">Agent Name</th>
-                    <th className="px-4 py-3 whitespace-nowrap">Agent Code</th>
-                    <th className="px-4 py-3 whitespace-nowrap">Email</th>
-                    <th className="px-4 py-3 whitespace-nowrap">Phone Number</th>
-                    <th className="px-4 py-3 whitespace-nowrap">Country</th>
-                    <th className="px-4 py-3 whitespace-nowrap">Region</th>
-                    <th className="px-4 py-3 whitespace-nowrap">City</th>
-                    <th className="px-4 py-3 whitespace-nowrap text-center">Status</th>
-                    <th className="px-4 py-3 whitespace-nowrap text-center">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 bg-white">
-                  {paginatedRows.map((row) => (
-                    <tr key={`${activeTab}-${row.id}`}>
-                      <td className="px-4 py-3 whitespace-nowrap font-helveticaBold text-primary">{row.id}</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-gray-700">{row.name}</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-gray-500">{row.code}</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-gray-500">{row.email}</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-gray-500">{row.phone}</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-gray-500">{row.country}</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-gray-500">{row.region}</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-gray-500">{row.city}</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-center">
-                        <span className={`inline-flex items-center justify-center rounded-full px-4 py-1 text-xs font-semibold ${statusStyles[row.status]}`}>
-                          {row.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <div className="flex items-center justify-center gap-3">
-                          <ActionButton label="View" variant="view" onClick={() => handleView(row)}>
-                            <ViewIcon />
-                          </ActionButton>
-                          <ActionButton label="Edit" variant="edit">
-                            <EditIcon />
-                          </ActionButton>
-                          <ActionButton label="Delete" variant="delete">
-                            <DeleteIcon />
-                          </ActionButton>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          {error ? (
+            <div className="rounded-2xl border border-rose-200 bg-rose-50 px-6 py-10 text-center text-sm text-rose-600">
+              {error}
             </div>
-          </div>
+          ) : (
+            <ComanTable
+              columns={tableColumns}
+              data={tableData}
+              actions={actionButtons}
+              page={safePage}
+              totalPages={pageCount}
+              totalCount={displayTotalCount}
+              onPageChange={handlePageChange}
+              sortState={sortState}
+              onSortChange={handleSortChange}
+              pageSize={pageSize}
+              onPageSizeChange={handlePageSizeChange}
+              loading={loading}
+            />
+          )}
 
-          <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-gray-500">
-            <p>
-              Showing data {filteredRows.length === 0 ? 0 : (safePage - 1) * pageSize + 1} to {Math.min(safePage * pageSize, filteredRows.length)} of {filteredRows.length} entries
-            </p>
-            <div className="flex items-center gap-2">
-              <PaginationButton disabled={safePage === 1} onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}>
-                Previous
-              </PaginationButton>
-              {Array.from({ length: pageCount }, (_, index) => index + 1).map((page) => (
-                <PaginationButton key={page} isActive={page === safePage} onClick={() => setCurrentPage(page)}>
-                  {page}
-                </PaginationButton>
-              ))}
-              <PaginationButton disabled={safePage === pageCount} onClick={() => setCurrentPage((page) => Math.min(pageCount, page + 1))}>
-                Next
-              </PaginationButton>
-            </div>
-          </div>
         </section>
       </div>
     </DashboardLayout>
@@ -204,68 +414,11 @@ const ChartPlaceholder = () => (
   </div>
 );
 
-const ActionButton = ({ label, variant, children, onClick }: { label: string; variant: "view" | "edit" | "delete"; children: ReactNode; onClick?: () => void }) => {
-  const styles: Record<"view" | "edit" | "delete", string> = {
-    view: "bg-[#eff2f9] text-[#1d1f2a] border border-transparent hover:bg-white hover:border-primary/40 hover:shadow-md",
-    edit: "bg-white text-[#1d1f2a] border border-gray-200 hover:border-primary hover:text-primary",
-    delete: "bg-[#ff4d4f] text-white border border-transparent hover:bg-[#e34040]",
-  };
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={label}
-      className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors duration-200 shadow-sm ${styles[variant]}`}
-    >
-      {children}
-    </button>
-  );
-};
-
-const PaginationButton = ({ children, isActive, disabled, onClick }: { children: ReactNode; isActive?: boolean; disabled?: boolean; onClick: () => void }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    disabled={disabled}
-    className={`min-w-[40px] rounded-full border px-3 py-1 text-sm font-semibold transition ${disabled
-      ? "cursor-not-allowed border-gray-200 text-gray-300"
-      : isActive
-        ? "border-primary bg-primary text-white"
-        : "border-gray-200 text-gray-500 hover:border-primary hover:text-primary"
-      }`}
-  >
-    {children}
-  </button>
-);
 
 const SearchIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
     <circle cx="11" cy="11" r="7" />
     <path strokeLinecap="round" strokeLinejoin="round" d="M20 20l-3-3" />
-  </svg>
-);
-
-const ViewIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M1.5 12s4-7 10.5-7 10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12Z" />
-    <circle cx="12" cy="12" r="3.5" />
-  </svg>
-);
-
-const EditIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M4 20h4l10.5-10.5a1.5 1.5 0 0 0-2.12-2.12L6 17.88V20Z" />
-    <path strokeLinecap="round" strokeLinejoin="round" d="M14.5 6.5l3 3" />
-  </svg>
-);
-
-const DeleteIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M6 7h12" />
-    <path strokeLinecap="round" strokeLinejoin="round" d="M10 11v6M14 11v6" />
-    <path strokeLinecap="round" strokeLinejoin="round" d="M9 7V5h6v2" />
-    <path strokeLinecap="round" strokeLinejoin="round" d="M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12" />
   </svg>
 );
 
