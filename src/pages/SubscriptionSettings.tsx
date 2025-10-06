@@ -10,10 +10,10 @@ const INDIVIDUAL_CATEGORIES = [
 ];
 
 const BUSINESS_CATEGORIES = [
-  "Service Providers / Food Sector / Healthy Food Business — Small Facilities",
-  "Service Providers / Food Sector / Healthy Food Business — Medium Facilities",
-  "Service Providers / Food Sector / Healthy Food Business — Large Facilities",
-  "Service Providers / Food Sector / Healthy Food Business — Mega Facilities",
+  "Service Providers / Food Sector / Healthy Food Business ï¿½ Small Facilities",
+  "Service Providers / Food Sector / Healthy Food Business ï¿½ Medium Facilities",
+  "Service Providers / Food Sector / Healthy Food Business ï¿½ Large Facilities",
+  "Service Providers / Food Sector / Healthy Food Business ï¿½ Mega Facilities",
 ];
 
 const DURATIONS = ["1 Year", "2 Year", "3 Year"];
@@ -35,7 +35,7 @@ const SubscriptionSettings = () => {
 
   return (
     <DashboardLayout>
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 pb-16">
+      <div className="mx-auto flex w-full  flex-col gap-8 pb-3">
         <Header />
         <section className="space-y-8 rounded-[32px] border border-gray-200 bg-white p-8 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-4">
@@ -93,9 +93,8 @@ const ToggleButton = ({ label, isActive, onClick }: { label: string; isActive: b
   <button
     type="button"
     onClick={onClick}
-    className={`rounded-full px-4 py-2 transition ${
-      isActive ? "bg-white text-primary shadow" : "text-gray-500 hover:text-primary"
-    }`}
+    className={`rounded-full px-4 py-2 transition ${isActive ? "bg-white text-primary shadow" : "text-gray-500 hover:text-primary"
+      }`}
   >
     {label}
   </button>

@@ -282,33 +282,33 @@ const buildDualStatusLeaves = (config: {
   publishTitle?: string;
   publishDescription?: string;
 }): FlowNode[] => [
-  buildFlowLeaf({
-    id: `${config.serviceId}-new`,
-    title: config.newTitle ?? "New Requests",
-    description: config.newDescription ?? "Review new submissions awaiting action.",
-    categoryId: config.categoryId,
-    serviceId: config.serviceId,
-    serviceTitle: config.serviceTitle,
-    optionId: `${config.serviceId}-new`,
-    optionTitle: config.newTitle ?? "New Requests",
-    baseRoute: config.baseRoute,
-    orderPrefix: `${config.orderPrefix}N-`,
-    orderLabel: `${config.orderLabel} - New`,
-  }),
-  buildFlowLeaf({
-    id: `${config.serviceId}-published`,
-    title: config.publishTitle ?? "Published Orders",
-    description: config.publishDescription ?? "Monitor orders that have been accepted and published.",
-    categoryId: config.categoryId,
-    serviceId: config.serviceId,
-    serviceTitle: config.serviceTitle,
-    optionId: `${config.serviceId}-published`,
-    optionTitle: config.publishTitle ?? "Published Orders",
-    baseRoute: config.baseRoute,
-    orderPrefix: `${config.orderPrefix}P-`,
-    orderLabel: `${config.orderLabel} - Published`,
-  }),
-];
+    buildFlowLeaf({
+      id: `${config.serviceId}-new`,
+      title: config.newTitle ?? "New Requests",
+      description: config.newDescription ?? "Review new submissions awaiting action.",
+      categoryId: config.categoryId,
+      serviceId: config.serviceId,
+      serviceTitle: config.serviceTitle,
+      optionId: `${config.serviceId}-new`,
+      optionTitle: config.newTitle ?? "New Requests",
+      baseRoute: config.baseRoute,
+      orderPrefix: `${config.orderPrefix}N-`,
+      orderLabel: `${config.orderLabel} - New`,
+    }),
+    buildFlowLeaf({
+      id: `${config.serviceId}-published`,
+      title: config.publishTitle ?? "Published Orders",
+      description: config.publishDescription ?? "Monitor orders that have been accepted and published.",
+      categoryId: config.categoryId,
+      serviceId: config.serviceId,
+      serviceTitle: config.serviceTitle,
+      optionId: `${config.serviceId}-published`,
+      optionTitle: config.publishTitle ?? "Published Orders",
+      baseRoute: config.baseRoute,
+      orderPrefix: `${config.orderPrefix}P-`,
+      orderLabel: `${config.orderLabel} - Published`,
+    }),
+  ];
 const insuranceFlow: FlowNode[] = [
   {
     id: "insuranceStrategy",
@@ -322,17 +322,17 @@ const insuranceFlow: FlowNode[] = [
         description: "Track corporate policy onboarding and renewals.",
         options: [
           buildFlowLeaf({
-        id: "policyRenewals",
-        title: "Renewal Orders",
-        description: "Review renewal submissions awaiting approval or publishing.",
-        categoryId: "insurance",
-        serviceId: "corporatePortfolio",
-        serviceTitle: "Corporate Policy Portfolio",
-        optionId: "policyRenewals",
-        optionTitle: "Renewal Orders",
-        baseRoute: BASE_ROUTES.insurance,
-        orderPrefix: "INS-",
-        orderLabel: "Corporate Policy Renewal",
+            id: "policyRenewals",
+            title: "Renewal Orders",
+            description: "Review renewal submissions awaiting approval or publishing.",
+            categoryId: "insurance",
+            serviceId: "corporatePortfolio",
+            serviceTitle: "Corporate Policy Portfolio",
+            optionId: "policyRenewals",
+            optionTitle: "Renewal Orders",
+            baseRoute: BASE_ROUTES.insurance,
+            orderPrefix: "INS-",
+            orderLabel: "Corporate Policy Renewal",
           }),
         ],
       },
@@ -863,12 +863,12 @@ const ServiceDashboard = () => {
   const nextLabel = currentSelection?.options?.length
     ? "Next"
     : currentSelection?.payload
-    ? "View Orders"
-    : "Next";
+      ? "View Orders"
+      : "Next";
 
   return (
     <DashboardLayout>
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 pb-16">
+      <div className="mx-auto flex w-full  flex-col gap-8 pb-3">
         <section className="space-y-8 rounded-2xl border border-slate-200 bg-white px-10 py-10 shadow-card">
           <header className="flex flex-wrap items-start justify-between gap-6">
             <div className="space-y-2">

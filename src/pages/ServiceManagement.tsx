@@ -50,7 +50,7 @@ const ServiceManagement = () => {
 
   return (
     <DashboardLayout>
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 pb-16">
+      <div className="mx-auto flex w-full  flex-col gap-8 pb-3">
         <Header />
         <section className="space-y-8 rounded-[32px] border border-gray-200 bg-white p-8 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-4">
@@ -163,8 +163,8 @@ const ServiceTable = ({ services, onDelete }: ServiceTableProps) => (
             <td className="px-6 py-4">
               <span
                 className={`inline-flex items-center justify-center rounded-full px-4 py-1 text-xs font-semibold ${row.status === "Active"
-                    ? "bg-green-100 text-green-600"
-                    : "bg-red-100 text-red-600"
+                  ? "bg-green-100 text-green-600"
+                  : "bg-red-100 text-red-600"
                   }`}
               >
                 {row.status}

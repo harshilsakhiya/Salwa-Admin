@@ -441,7 +441,7 @@ const NonMedicalCompanies = () => {
 
   return (
     <DashboardLayout>
-      <div className="mx-auto flex w-full  flex-col gap-8 pb-16">
+      <div className="mx-auto flex w-full  flex-col gap-8 pb-3">
         <section className="space-y-8 rounded-2xl border border-slate-200 bg-white p-8 shadow-card">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>

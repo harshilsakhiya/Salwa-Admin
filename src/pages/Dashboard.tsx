@@ -82,7 +82,7 @@ const insuranceCards: StatCard[] = [
 const Dashboard = () => {
   return (
     <DashboardLayout>
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 pb-16">
+      <div className="mx-auto flex w-full  flex-col gap-8 pb-3">
         <AnalysisHero />
         <Section title="Subscription Statistics" filters={subscriptionFilters} cards={subscriptionCards} />
         <Section title="User Statistics" filters={userFilters} cards={userCards} />

@@ -425,7 +425,7 @@ const SupervisorForm: FC<SupervisorFormProps> = ({
     return (
         <div className="flex-1 overflow-y-auto overflow-x-hidden main-content-scroll px-2 ">
             <div className="w-full">
-                <div className="bg-white rounded-[32px] p-8 shadow-sm h-full">
+                <div className="bg-white rounded-[32px] p-8 shadow-sm h-full mb-3">
                     <div className="mx-auto">
                         <div className="flex items-center justify-between mb-8">
                             <div>

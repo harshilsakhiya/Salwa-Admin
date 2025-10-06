@@ -8,7 +8,7 @@ const rows = [
 
 const StatementAnalysis = () => (
   <DashboardLayout>
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 pb-16">
+    <div className="mx-auto flex w-full  flex-col gap-8 pb-3">
       <Header />
       <section className="space-y-6 rounded-[32px] border border-gray-200 bg-white p-8 shadow-sm">
         <div className="rounded-[28px] border border-gray-200 bg-[#f6f7fb] px-6 py-10 text-center text-sm text-gray-500">

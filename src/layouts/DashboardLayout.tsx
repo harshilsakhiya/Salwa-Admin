@@ -16,30 +16,30 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ children }) => {
 
   return (
     <div
-      className="salva-main-desh w-full h-screen flex transition-colors duration-300"
+      className="w-full flex transition-colors duration-300"
       style={{ backgroundColor: 'var(--bg-primary)' }}
     >
       {/* Mobile backdrop overlay */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 lg:hidden"
           onClick={closeSidebar}
         />
       )}
 
       {/* Sidebar - Sticky */}
-      <div className="sticky top-0 h-screen z-30">
+      <div className="sticky top-0 !h-[calc(100vh-24px)] z-30 lg:m-3">
         <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
       </div>
 
       {/* Right content area */}
       <div
-        className="salva-right-desh-part-main w-full flex flex-col h-screen overflow-hidden"
+        className="salva-right-desh-part-main w-full flex flex-col overflow-hidden"
         style={{ backgroundColor: 'var(--bg-primary)' }}
       >
         {/* Header section - Sticky */}
         <div className="sticky top-0 z-20 flex-shrink-0 p-2" style={{ backgroundColor: 'var(--bg-primary)' }}>
-          <div className="salva-right-desh-head-search-profile-and-noti w-fit ml-auto flex flex-wrap gap-2 sm:gap-3 lg:gap-4 mb-4 sm:mb-6 lg:mb-8 max-[767px]:w-full">
+          <div className="lg:salva-right-desh-head-search-profile-and-noti ml-auto flex flex-wrap gap-2 sm:gap-3 lg:gap-4 max-[767px]:w-full mb-2 w-full">
             <Header
               onToggleSidebar={toggleSidebar}
               onOpenProfile={() => setIsProfileOpen(true)}
@@ -48,7 +48,7 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ children }) => {
         </div>
 
         {/* Main content area - Scrollable */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden main-content-scroll px-2 sm:px-3 lg:px-5">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden main-content-scroll px-2 sm:px-3 lg:px-3">
           <div className="w-full">
             {children}
           </div>

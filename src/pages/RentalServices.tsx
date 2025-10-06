@@ -425,7 +425,7 @@ const RentalServices = () => {
 
   return (
     <DashboardLayout>
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 pb-16">
+      <div className="mx-auto flex w-full  flex-col gap-8 pb-3">
         <section className="space-y-8 rounded-[32px] border border-gray-200 bg-white p-8 shadow-sm">
           <header className="flex flex-wrap items-start justify-between gap-4">
             <div className="space-y-1">

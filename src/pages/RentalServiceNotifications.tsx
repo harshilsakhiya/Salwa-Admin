@@ -125,7 +125,7 @@ const RentalServiceNotifications = () => {
 
   return (
     <DashboardLayout>
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 pb-16">
+      <div className="mx-auto flex w-full  flex-col gap-8 pb-3">
         <section className="space-y-8 rounded-[32px] border border-gray-200 bg-white p-8 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <button
@@ -290,8 +290,8 @@ const formatDateTime = (isoString: string) => {
   const dateLabel = todayLabel
     ? "Today"
     : yesterdayLabel
-    ? "Yesterday"
-    : value.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+      ? "Yesterday"
+      : value.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 
   const timeLabel = value.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
   return `${dateLabel}, ${timeLabel}`;

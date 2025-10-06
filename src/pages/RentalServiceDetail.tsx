@@ -105,7 +105,7 @@ const RentalServiceDetail = () => {
 
   return (
     <DashboardLayout>
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 pb-16">
+      <div className="mx-auto flex w-full  flex-col gap-8 pb-3">
         <section className="space-y-8 rounded-[32px] border border-gray-200 bg-white p-8 shadow-sm">
           <header className="flex flex-wrap items-start justify-between gap-4">
             <div className="space-y-2">
@@ -145,7 +145,7 @@ const RentalServiceDetail = () => {
                     className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-3 text-primary shadow"
                     onClick={handlePrev}
                   >
-                    ‹
+                    ï¿½
                   </button>
                   <button
                     type="button"
@@ -153,7 +153,7 @@ const RentalServiceDetail = () => {
                     className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-3 text-primary shadow"
                     onClick={handleNext}
                   >
-                    ›
+                    ï¿½
                   </button>
                 </>
               )}

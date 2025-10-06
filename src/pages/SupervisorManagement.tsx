@@ -341,94 +341,89 @@ const SupervisorPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="salva-main-desh p-5 w-full mx-auto flex bg-[#f2f2f2] h-screen">
-        <div className="salva-right-desh-part-main w-full flex flex-col h-screen overflow-hidden">
-          {/* Header section */}
+      <div className="salva-main-desh w-full mx-auto flex bg-[#f2f2f2]">
+        {/* Header section */}
 
+        {/* Main content area */}
+        <div className="w-full">
+          {!showForm ? (
+            <div className="flex-1 space-y-6 rounded-[32px] border border-gray-200 bg-white p-8 shadow-sm">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="grid gap-1 text-primary">
+                  <h2 className="text-2xl font-semibold">Supervisor / Employee Management</h2>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Overview</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-white shadow hover:bg-[#030447]"
+                    onClick={handleAdd}
+                  >
+                    Add
+                  </button>
+                  <button
+                    type="button"
+                    className="rounded-full border border-gray-200 px-6 py-2 text-sm font-semibold text-primary transition hover:border-primary"
+                    onClick={handleRefresh}
+                  >
+                    Refresh
+                  </button>
+                </div>
+              </div>
 
-          {/* Main content area */}
-          <div className="flex-1 overflow-y-auto overflow-x-hidden main-content-scroll px-2 sm:px-3 lg:px-5">
-            <div className="w-full">
-              {!showForm ? (
-                <div className="flex-1 space-y-6 rounded-[32px] border border-gray-200 bg-white p-8 shadow-sm">
-                  <div className="flex flex-wrap items-center justify-between gap-4">
-                    <div className="grid gap-1 text-primary">
-                      <h2 className="text-2xl font-semibold">Supervisor / Employee Management</h2>
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Overview</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <button
-                        type="button"
-                        className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-white shadow hover:bg-[#030447]"
-                        onClick={handleAdd}
-                      >
-                        Add
-                      </button>
-                      <button
-                        type="button"
-                        className="rounded-full border border-gray-200 px-6 py-2 text-sm font-semibold text-primary transition hover:border-primary"
-                        onClick={handleRefresh}
-                      >
-                        Refresh
-                      </button>
-                    </div>
-                  </div>
+              <StatsRow stats={stats} />
+              <ChartPlaceholder />
 
-                  <StatsRow stats={stats} />
-                  <ChartPlaceholder />
+              <form onSubmit={handleSearchSubmit} className="flex flex-wrap items-center justify-between gap-3">
+                <div className="relative flex-1 min-w-[220px] max-w-sm">
+                  <input
+                    value={searchTerm}
+                    onChange={(event) => setSearchTerm(event.target.value)}
+                    placeholder="Search by name, ID, or email"
+                    className="w-full rounded-full border border-gray-200 bg-white px-5 py-3 pl-12 text-sm text-gray-600 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                  <span className="pointer-events-none absolute inset-y-0 left-4 grid place-items-center text-primary/60">
+                    <SearchIcon />
+                  </span>
+                </div>
+                <button
+                  type="submit"
+                  className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-white shadow transition hover:bg-[#030447]"
+                  disabled={loading}
+                >
+                  Search
+                </button>
+              </form>
 
-                  <form onSubmit={handleSearchSubmit} className="flex flex-wrap items-center justify-between gap-3">
-                    <div className="relative flex-1 min-w-[220px] max-w-sm">
-                      <input
-                        value={searchTerm}
-                        onChange={(event) => setSearchTerm(event.target.value)}
-                        placeholder="Search by name, ID, or email"
-                        className="w-full rounded-full border border-gray-200 bg-white px-5 py-3 pl-12 text-sm text-gray-600 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                      />
-                      <span className="pointer-events-none absolute inset-y-0 left-4 grid place-items-center text-primary/60">
-                        <SearchIcon />
-                      </span>
-                    </div>
-                    <button
-                      type="submit"
-                      className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-white shadow transition hover:bg-[#030447]"
-                      disabled={loading}
-                    >
-                      Search
-                    </button>
-                  </form>
-
-                  {errorMessage ? (
-                    <div className="rounded-[28px] border border-rose-200 bg-rose-50 px-6 py-10 text-center text-sm text-rose-600">
-                      {errorMessage}
-                    </div>
-                  ) : (
-                    <ComanTable
-                      columns={tableColumns}
-                      data={records}
-                      actions={actionButtons}
-                      page={pageNumber}
-                      totalPages={totalPages}
-                      totalCount={totalCount}
-                      onPageChange={handlePageChange}
-                      sortState={sortState}
-                      onSortChange={handleSortChange}
-                      pageSize={pageSize}
-                      onPageSizeChange={handlePageSizeChange}
-                      loading={loading}
-                    />
-                  )}
+              {errorMessage ? (
+                <div className="rounded-[28px] border border-rose-200 bg-rose-50 px-6 py-10 text-center text-sm text-rose-600">
+                  {errorMessage}
                 </div>
               ) : (
-                <SupervisorForm
-                  mode={formMode}
-                  record={selectedRecord || undefined}
-                  onCancel={handleCancelForm}
-                  onSuccess={handleFormSuccess}
+                <ComanTable
+                  columns={tableColumns}
+                  data={records}
+                  actions={actionButtons}
+                  page={pageNumber}
+                  totalPages={totalPages}
+                  totalCount={totalCount}
+                  onPageChange={handlePageChange}
+                  sortState={sortState}
+                  onSortChange={handleSortChange}
+                  pageSize={pageSize}
+                  onPageSizeChange={handlePageSizeChange}
+                  loading={loading}
                 />
               )}
             </div>
-          </div>
+          ) : (
+            <SupervisorForm
+              mode={formMode}
+              record={selectedRecord || undefined}
+              onCancel={handleCancelForm}
+              onSuccess={handleFormSuccess}
+            />
+          )}
         </div>
 
 

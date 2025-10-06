@@ -343,7 +343,7 @@ body {
 
 /* Main content scrolling */
 .main-content-scroll {
-  scrollbar-width: thin;
+  scrollbar-width: none;
   scrollbar-color: var(--text-tertiary) var(--bg-tertiary);
   height: 100%;
   overflow-y: auto;

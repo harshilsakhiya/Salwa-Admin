@@ -30,8 +30,8 @@ const Sidebar: FC<SidebarProps> = ({ isOpen, onClose }) => {
   return (
     <div
       className={clsx(
-        "salva-sidebar-left-main w-[280px] sm:w-[320px] lg:w-[400px] min-w-[280px] sm:min-w-[320px] lg:min-w-[400px] rounded-[20px] z-50 transition-all duration-300 ease-in-out flex flex-col",
-        "fixed lg:sticky top-0 left-0 h-screen lg:h-screen",
+        "salva-sidebar-left-main w-[280px] sm:w-[320px] lg:w-[400px] min-w-[280px] sm:min-w-[320px] lg:min-w-[400px] lg:rounded-[20px] z-50 transition-all duration-300 ease-in-out flex flex-col",
+        "fixed lg:sticky top-0 left-0 h-full lg:h-full",
         isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       )}
       style={{
@@ -49,15 +49,15 @@ const Sidebar: FC<SidebarProps> = ({ isOpen, onClose }) => {
         <img src="/img/salva-logo.png" alt="Salwa" />
         <button
           onClick={onClose}
-          className="salva-toggle-bars absolute top-4 right-0 w-[30px] h-30 bg-white m-auto rounded-full text-[#15159b] text-[18px] lg:hidden hover:bg-gray-100 transition-colors"
+          className="salva-toggle-bars absolute top-1 right-1 w-[30px] h-30 bg-white m-auto text-[#15159b] text-[18px] lg:hidden hover:bg-gray-100 transition-colors"
         >
           <i className="fa-solid fa-xmark"></i>
         </button>
       </div>
 
-      <div className="service-sidebar-insd-mn flex flex-col flex-1 overflow-y-auto">
+      <div className="service-sidebar-insd-mn flex flex-col flex-1 overflow-y-auto sidebar-scroll">
         {/* Scrollable navigation area */}
-        <div className="flex-1 px-[40px] pt-[20px] sidebar-scroll">
+        <div className="flex-1 lg:px-[40px] px-5 pt-[20px]">
           <ul className="space-y-1">
             {menuItems.map((item) => (
               <li key={item.label}>
@@ -120,9 +120,9 @@ const Sidebar: FC<SidebarProps> = ({ isOpen, onClose }) => {
 
         {/* Fixed bottom section */}
         <div className="flex-shrink-0">
-          <div className="salva-sidebar-button-main px-[40px] py-0 flex justify-between gap-[8px] w-full max-[480px]:flex-col">
+          <div className="salva-sidebar-button-main lg:px-[40px] px-5 py-0 flex justify-between gap-[8px] w-full max-[800px]:flex-col">
             <a href="javascript:;"
-              className="group w-full flex items-center justify-center gap-[10px] font-medium text-[17px] rounded-[12px] py-[18px] px-[22px] transition-all duration-200"
+              className="group w-full flex items-center justify-center gap-1  font-medium text-[17px] rounded-[12px] py-4 px-4 transition-all duration-200"
               style={{
                 color: 'var(--sidebar-text)',
                 backgroundColor: 'var(--sidebar-accent)'
@@ -141,7 +141,7 @@ const Sidebar: FC<SidebarProps> = ({ isOpen, onClose }) => {
             </a>
             <button
               onClick={toggleTheme}
-              className="group w-full flex items-center justify-center gap-[10px] font-medium text-[17px] rounded-[12px] py-[18px] px-[22px] transition-all duration-200"
+              className="group w-full flex items-center justify-center gap-1  font-medium text-[17px] rounded-[12px] py-4 px-4 transition-all duration-200"
               style={{
                 color: 'var(--sidebar-text)',
                 backgroundColor: 'var(--sidebar-accent)'
@@ -159,7 +159,7 @@ const Sidebar: FC<SidebarProps> = ({ isOpen, onClose }) => {
                 src={theme === 'dark' ? "./img/darkmode.png" : "./img/darkmode.png"}
                 className="w-6 h-6 transition"
               />
-              <span className="font-medium transition">
+              <span className="font-medium leading-none transition">
                 {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
               </span>
             </button>
