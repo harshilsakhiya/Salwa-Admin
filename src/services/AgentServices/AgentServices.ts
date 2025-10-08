@@ -147,7 +147,7 @@ class AgentServices {
   // Update agent business status (PUT API)
   static UpdateAgentBusinessStatus = async (id: number, isActive: boolean) => {
     try {
-      const res = await axiosInstance.put(
+      const res = await axiosInstance.post(
         `AgentDiscountForBusinessAndIndividual/UpdateAgentBusinessStatus?id=${id}&isActive=${isActive}`
       );
       return successHandler(res);
@@ -185,7 +185,7 @@ class AgentServices {
   // Update individual agent status (PUT API)
   static UpdateIndividualAgentStatus = async (id: number, isActive: boolean) => {
     try {
-      const res = await axiosInstance.put(
+      const res = await axiosInstance.post(
         `AgentDiscountForBusinessAndIndividual/UpdateIndividualAgentStatus?id=${id}&isActive=${isActive}`
       );
       return successHandler(res);

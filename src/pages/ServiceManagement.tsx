@@ -1,52 +1,157 @@
-import { useState } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import DashboardLayout from "../layouts/DashboardLayout";
-import { ModalOverlay, DeleteConfirmModal } from "../components/rentalServices/Modals";
+import ComanTable, {
+  type TableColumn,
+  type SortState,
+} from "../components/common/ComanTable";
+import NonMedicalServices from "../services/NonMedicalServices";
+import { useToast } from "../components/ToastProvider";
 
 const ServiceManagement = () => {
-  const [services, setServices] = useState(rows);
-  const [deleteModal, setDeleteModal] = useState<{
-    isOpen: boolean;
-    item: { category: string; service: string; subService: string; status: string } | null;
-  }>({
-    isOpen: false,
-    item: null,
-  });
-  const [isDeleting, setIsDeleting] = useState(false);
+  const { showToast } = useToast();
 
-  const handleDeleteClick = (item: { category: string; service: string; subService: string; status: string }) => {
-    setDeleteModal({
-      isOpen: true,
-      item,
-    });
+  // Menu data state
+  const [menuData, setMenuData] = useState<any[]>([]);
+  const [menuLoading, setMenuLoading] = useState(false);
+  const [menuError, setMenuError] = useState<string | null>(null);
+  const [menuTotalCount, setMenuTotalCount] = useState(0);
+  const [menuTotalPages, setMenuTotalPages] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [sortState, setSortState] = useState<SortState[]>([]);
+
+  // Load menu data from API
+  const loadMenuData = useCallback(
+    async (page: number = 1, currentPageSize: number = pageSize) => {
+      setMenuLoading(true);
+      setMenuError(null);
+
+      try {
+        const response = await NonMedicalServices.GetAllBusinessUserMenu({
+          pageNumber: page,
+          pageSize: currentPageSize,
+          sortColumn: "CategoryName",
+          sortOrder: "ASC",
+        });
+
+        if (!response) {
+          throw new Error("No response received from menu API");
+        }
+
+        if ((response as any)?.status !== 200) {
+          const errorMessage =
+            "message" in response
+              ? response.message
+              : "Failed to load menu data";
+          throw new Error(errorMessage);
+        }
+
+        // Handle menu API response structure
+        const responseData = (response as any).data;
+        console.log("Menu API Response:", response);
+
+        let records = [];
+        let recordTotalCount = 0;
+
+        if (responseData?.data) {
+          records = responseData.data;
+          recordTotalCount = responseData.totalRecords || records.length;
+          console.log(
+            "Using nested data structure for menu, totalRecords:",
+            recordTotalCount
+          );
+        } else {
+          records = [];
+          recordTotalCount = 0;
+          console.log("No valid data structure found for menu");
+        }
+
+        const recordTotalPages = Math.ceil(recordTotalCount / currentPageSize);
+
+        console.log("records", records);
+        console.log("recordTotalCount", recordTotalCount);
+        console.log("recordTotalPages", recordTotalPages);
+
+        setMenuData(records);
+        setMenuTotalCount(recordTotalCount);
+        setMenuTotalPages(recordTotalPages);
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : "Failed to load menu data";
+        setMenuError(errorMessage);
+        showToast(errorMessage, "error");
+        setMenuData([]);
+      } finally {
+        setMenuLoading(false);
+      }
+    },
+    [showToast, pageSize]
+  );
+
+  // Table handlers
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
-  const handleDeleteConfirm = async () => {
-    if (!deleteModal.item) return;
-
-    setIsDeleting(true);
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Remove the item from the list
-      setServices(prev => prev.filter(service =>
-        service.category !== deleteModal.item?.category ||
-        service.service !== deleteModal.item?.service ||
-        service.subService !== deleteModal.item?.subService
-      ));
-
-      // Close modal
-      setDeleteModal({ isOpen: false, item: null });
-    } catch (error) {
-      console.error("Failed to delete service:", error);
-    } finally {
-      setIsDeleting(false);
-    }
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPageSize(newPageSize);
+    setCurrentPage(1);
   };
 
-  const handleDeleteCancel = () => {
-    setDeleteModal({ isOpen: false, item: null });
+  const handleSortChange = (newSortState: SortState[]) => {
+    setSortState(newSortState);
   };
+
+  // Load menu data when component first mounts
+  useEffect(() => {
+    loadMenuData(1, pageSize);
+  }, []); // Empty dependency array means this runs only once on mount
+
+  // Load menu data when pagination changes
+  useEffect(() => {
+    loadMenuData(currentPage, pageSize);
+  }, [currentPage, pageSize, loadMenuData]);
+
+  // Menu table columns configuration
+  const menuTableColumns: TableColumn<any>[] = useMemo(
+    () => [
+      {
+        label: "Category ID",
+        value: (row) => (
+          <span className="font-helveticaBold text-primary">
+            {row.categoryId || "N/A"}
+          </span>
+        ),
+        sortKey: "categoryId",
+        isSort: true,
+      },
+      {
+        label: "Category Name",
+        value: (row) => (
+          <span className="text-gray-700">{row.categoryName || "N/A"}</span>
+        ),
+        sortKey: "categoryName",
+        isSort: true,
+      },
+      {
+        label: "Service Name",
+        value: (row) => (
+          <span className="text-gray-500">{row.serviceName || "N/A"}</span>
+        ),
+        sortKey: "serviceName",
+        isSort: true,
+      },
+      {
+        label: "Sub Service Name",
+        value: (row) => (
+          <span className="text-gray-500">{row.subServiceName || "N/A"}</span>
+        ),
+        sortKey: "subServiceName",
+        isSort: true,
+      },
+    ],
+    []
+  );
 
   return (
     <DashboardLayout>
@@ -55,8 +160,12 @@ const ServiceManagement = () => {
         <section className="space-y-8 rounded-[32px] border border-gray-200 bg-white p-8 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="grid gap-2">
-              <h2 className="text-2xl font-semibold text-primary">Service Management</h2>
-              <p className="text-sm text-gray-400">Monitor categories, services, and activity states</p>
+              <h2 className="text-2xl font-semibold text-primary">
+                Service Management
+              </h2>
+              <p className="text-sm text-gray-400">
+                Monitor categories, services, and activity states
+              </p>
             </div>
             <div className="flex items-center gap-3">
               <button className="rounded-full border border-gray-200 px-6 py-2 text-sm font-semibold text-primary shadow-sm transition hover:border-primary">
@@ -70,22 +179,30 @@ const ServiceManagement = () => {
 
           <StatsRow />
           <ChartPlaceholder />
-          <ServiceTable services={services} onDelete={handleDeleteClick} />
+
+          {/* Menu Table with API Data */}
+
+          {menuError ? (
+            <div className="rounded-2xl border border-rose-200 bg-rose-50 px-6 py-10 text-center text-sm text-rose-600">
+              {menuError}
+            </div>
+          ) : (
+            <ComanTable
+              columns={menuTableColumns}
+              data={menuData}
+              page={currentPage}
+              totalPages={menuTotalPages}
+              totalCount={menuTotalCount}
+              onPageChange={handlePageChange}
+              sortState={sortState}
+              onSortChange={handleSortChange}
+              pageSize={pageSize}
+              onPageSizeChange={handlePageSizeChange}
+              loading={menuLoading}
+            />
+          )}
         </section>
       </div>
-
-      {/* Delete Confirmation Modal */}
-      {deleteModal.isOpen && deleteModal.item && (
-        <ModalOverlay>
-          <DeleteConfirmModal
-            itemName={`${deleteModal.item.service}${deleteModal.item.subService !== "-" ? ` (${deleteModal.item.subService})` : ""}`}
-            itemType="Service"
-            onCancel={handleDeleteCancel}
-            onConfirm={handleDeleteConfirm}
-            isDeleting={isDeleting}
-          />
-        </ModalOverlay>
-      )}
     </DashboardLayout>
   );
 };
@@ -94,27 +211,6 @@ const stats = [
   { label: "Total Business", value: "244" },
   { label: "Total Unique B2B Query", value: "22" },
   { label: "Total B2B Query", value: "266" },
-];
-
-const rows = [
-  { category: "Insurance Services", service: "Evaluate Insurance Medical Network", subService: "-", status: "Active" },
-  { category: "Rental Services", service: "Rent Medical Equipment and Facilities", subService: "-", status: "Inactive" },
-  { category: "Rental Services", service: "Clinic Rental", subService: "-", status: "Active" },
-  { category: "Sell Services", service: "Used Medical Devices", subService: "-", status: "Active" },
-  { category: "Medical Legal Services", service: "Medical Yearly Contracts", subService: "-", status: "Active" },
-  { category: "Medical Staff Services", service: "Medical Recruitment", subService: "-", status: "Inactive" },
-  { category: "Health Market Place Services", service: "Office Stationary Sector", subService: "-", status: "Inactive" },
-  { category: "Health Market Place Services", service: "Hygiene Sector", subService: "-", status: "Active" },
-  { category: "Health Market Place Services", service: "Uniform Clothing Sector", subService: "-", status: "Inactive" },
-  { category: "Medical Real Estate Services", service: "Clinic on Work Site", subService: "Commercial Towers", status: "Inactive" },
-  { category: "Medical Real Estate Services", service: "Clinic on Work Site", subService: "Construction Site", status: "Active" },
-  { category: "Medical Real Estate Services", service: "Clinic on Work Site", subService: "Malls", status: "Active" },
-  { category: "Medical Real Estate Services", service: "Medical Warehouses", subService: "-", status: "Active" },
-  { category: "Medical Real Estate Services", service: "Rent and Sell", subService: "-", status: "Active" },
-  { category: "General Services", service: "Medical Waste", subService: "-", status: "Active" },
-  { category: "General Services", service: "Medical Factories", subService: "-", status: "Active" },
-  { category: "General Services", service: "Medical Reports Translation", subService: "-", status: "Inactive" },
-  { category: "Food Services", service: "Food Supplies", subService: "-", status: "Inactive" },
 ];
 
 const StatsRow = () => (
@@ -137,77 +233,29 @@ const ChartPlaceholder = () => (
   </div>
 );
 
-interface ServiceTableProps {
-  services: Array<{ category: string; service: string; subService: string; status: string }>;
-  onDelete: (item: { category: string; service: string; subService: string; status: string }) => void;
-}
-
-const ServiceTable = ({ services, onDelete }: ServiceTableProps) => (
-  <div className="overflow-hidden rounded-[28px] border border-gray-200">
-    <table className="w-full text-left text-sm text-gray-600">
-      <thead className="bg-[#f6f7fb] text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">
-        <tr>
-          <th className="px-6 py-4">Categories</th>
-          <th className="px-6 py-4">Service</th>
-          <th className="px-6 py-4">Sub-Service</th>
-          <th className="px-6 py-4">Status</th>
-          <th className="px-6 py-4 text-center">Actions</th>
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-gray-100 bg-white">
-        {services.map((row, index) => (
-          <tr key={`${row.category}-${row.service}-${index}`}>
-            <td className="px-6 py-4 font-semibold text-primary">{row.category}</td>
-            <td className="px-6 py-4 text-gray-700">{row.service}</td>
-            <td className="px-6 py-4 text-gray-500">{row.subService}</td>
-            <td className="px-6 py-4">
-              <span
-                className={`inline-flex items-center justify-center rounded-full px-4 py-1 text-xs font-semibold ${row.status === "Active"
-                  ? "bg-green-100 text-green-600"
-                  : "bg-red-100 text-red-600"
-                  }`}
-              >
-                {row.status}
-              </span>
-            </td>
-            <td className="px-6 py-4">
-              <div className="flex items-center justify-center gap-2">
-                <button
-                  type="button"
-                  className="rounded-full border border-gray-200 px-3 py-1 text-xs font-semibold text-gray-500 transition hover:border-primary hover:text-primary"
-                >
-                  Edit
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onDelete(row)}
-                  className="rounded-full border border-red-200 px-3 py-1 text-xs font-semibold text-red-600 transition hover:border-red-500 hover:bg-red-50"
-                >
-                  Delete
-                </button>
-              </div>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-);
-
 const Header = () => (
   <div className="flex items-center gap-4 rounded-[28px] border border-gray-200 bg-white px-6 py-5 shadow-sm">
     <div className="grid h-16 w-16 place-items-center rounded-3xl bg-primary/10 text-primary">
       <Icon />
     </div>
     <div>
-      <h1 className="text-2xl font-semibold text-primary">Service Management</h1>
-      <p className="text-sm text-gray-400">Track service categories and performance</p>
+      <h1 className="text-2xl font-semibold text-primary">
+        Service Management
+      </h1>
+      <p className="text-sm text-gray-400">
+        Track service categories and performance
+      </p>
     </div>
   </div>
 );
 
 const Icon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72" className="h-10 w-10" fill="#050668">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 72 72"
+    className="h-10 w-10"
+    fill="#050668"
+  >
     <path d="M36 12a3 3 0 0 0-3 3v6h-6V15a3 3 0 0 0-6 0v12H9a3 3 0 0 0 0 6h12v12H9a3 3 0 0 0 0 6h12v12a3 3 0 0 0 6 0V45h12v12a3 3 0 0 0 6 0V45h12a3 3 0 0 0 0-6H45V27h12a3 3 0 0 0 0-6H45V15a3 3 0 0 0-6 0v6h-6V15a3 3 0 0 0-3-3Z" />
   </svg>
 );

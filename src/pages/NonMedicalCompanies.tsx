@@ -3,25 +3,11 @@ import type { ReactNode } from "react";
 import DashboardLayout from "../layouts/DashboardLayout";
 import NonMedicalServices from "../services/NonMedicalServices";
 import { useToast } from "../components/ToastProvider";
-import ComanTable, { type TableColumn, type ActionButton, type SortState } from "../components/common/ComanTable";
-
-// NonMedical record interface
-interface NonMedicalRecord {
-  id: number;
-  businessName: string;
-  subscription: string;
-  subscriptionStartDate: string;
-  subscriptionEndDate: string;
-  subscriptionAmount: number;
-  country: string;
-  region: string;
-  city: string;
-  district: string;
-  status: "Active" | "Inactive";
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+import ComanTable, {
+  type TableColumn,
+  type ActionButton,
+  type SortState,
+} from "../components/common/ComanTable";
 
 type CompanyRow = {
   id: string;
@@ -56,8 +42,12 @@ interface FormState {
 
 // Calculate real-time stats from API data
 const calculateStats = (data: CompanyRow[]) => {
-  const activeCount = data.filter(company => company.status === "Active").length;
-  const inactiveCount = data.filter(company => company.status === "Inactive").length;
+  const activeCount = data.filter(
+    (company) => company.status === "Active"
+  ).length;
+  const inactiveCount = data.filter(
+    (company) => company.status === "Inactive"
+  ).length;
   const totalCount = data.length;
 
   return [
@@ -71,6 +61,64 @@ const statusStyles: Record<CompanyRow["status"], string> = {
   Active: "bg-[#e9fbf3] text-[#09a66d]",
   Inactive: "bg-[#fff1f0] text-[#e23939]",
 };
+
+const DeleteConfirmModal = ({
+  isSubmitting,
+  onCancel,
+  onConfirm,
+}: {
+  isSubmitting: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) => (
+  <ModalShell title="Delete Business User" onClose={onCancel}>
+    <div className="space-y-6 text-center">
+      <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-red-100 text-red-600">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          className="h-12 w-12"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+          />
+        </svg>
+      </div>
+      <div className="space-y-2">
+        <p className="text-lg font-semibold text-gray-900">
+          Delete Business User
+        </p>
+        <p className="text-sm text-gray-600">
+          This action will permanently delete the business user. This action
+          cannot be undone.
+        </p>
+      </div>
+      <div className="flex justify-center gap-3">
+        <button
+          type="button"
+          className="rounded-full border border-gray-300 px-6 py-2 text-sm font-semibold text-gray-500 transition hover:border-primary hover:text-primary"
+          onClick={onCancel}
+          disabled={isSubmitting}
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          className="rounded-full bg-red-600 px-6 py-2 text-sm font-semibold text-white shadow transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+          onClick={onConfirm}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Deleting..." : "Delete"}
+        </button>
+      </div>
+    </div>
+  </ModalShell>
+);
 
 const NonMedicalCompanies = () => {
   const { showToast } = useToast();
@@ -86,6 +134,14 @@ const NonMedicalCompanies = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [sortState, setSortState] = useState<SortState[]>([]);
+
+  // Menu data state
+  const [menuData, setMenuData] = useState<any[]>([]);
+  const [menuLoading, setMenuLoading] = useState(false);
+  const [menuError, setMenuError] = useState<string | null>(null);
+  const [menuTotalCount, setMenuTotalCount] = useState(0);
+  const [menuTotalPages, setMenuTotalPages] = useState(1);
+  const [showMenuTable, setShowMenuTable] = useState(false);
 
   // Modal state
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -105,83 +161,245 @@ const NonMedicalCompanies = () => {
   });
   const [formSubmitting, setFormSubmitting] = useState(false);
 
+  // Delete modal state
+  const [deleteModal, setDeleteModal] = useState<{
+    isOpen: boolean;
+    record: CompanyRow | null;
+  }>({
+    isOpen: false,
+    record: null,
+  });
+  const [isDeleting, setIsDeleting] = useState(false);
+
   // Always use API data if available, otherwise fall back to static data
   const rows = companiesData.length > 0 ? companiesData : [];
 
   // Calculate real-time stats from current data
   const currentStats = calculateStats(rows);
 
-  // Map API data to CompanyRow format
-  const mapNonMedicalToCompanyRow = useCallback((apiData: NonMedicalRecord): CompanyRow => {
-    return {
-      id: `#${apiData.id.toString().padStart(4, "0")}`,
-      name: apiData.businessName,
-      subscription: apiData.subscription,
-      subscriptionStart: apiData.subscriptionStartDate,
-      subscriptionEnd: apiData.subscriptionEndDate,
-      amount: apiData.subscriptionAmount.toString(),
-      country: apiData.country,
-      region: apiData.region,
-      city: apiData.city,
-      district: apiData.district,
-      status: apiData.status,
-    };
-  }, []);
-
-  // Load companies data from API for both tabs
-  const loadCompanies = useCallback(async (page: number = 1, search: string = "", currentPageSize: number = pageSize) => {
-    setLoading(true);
-    setError(null);
+  // Helper function to format dates
+  const formatDate = (dateString: string | null | undefined): string => {
+    if (!dateString) return "N/A";
 
     try {
-      let response;
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "N/A";
 
-      if (activeTab === "business") {
-        response = await NonMedicalServices.GetAllBusinessUserNonMedical({
-          pageNumber: page,
-          pageSize: currentPageSize,
-          searchTerm: search || undefined,
-        });
-      } else {
-        response = await NonMedicalServices.GetAllIndividualUserNonMedical({
-          pageNumber: page,
-          pageSize: currentPageSize,
-          searchTerm: search || undefined,
-        });
-      }
+      // Format as DD/MM/YYYY
+      const day = date.getDate().toString().padStart(2, "0");
+      const month = (date.getMonth() + 1).toString().padStart(2, "0");
+      const year = date.getFullYear();
 
-      // Handle the response structure
-      if (!response) {
-        throw new Error('No response received from API');
-      }
-
-      if (!response.success) {
-        const errorMessage = 'message' in response ? response.message : `Failed to load ${activeTab} companies`;
-        throw new Error(errorMessage);
-      }
-
-      // API response is a direct array
-      const records = 'data' in response && response.data ? response.data : [];
-
-      // For direct array response, calculate pagination info
-      const recordTotalCount = records.length;
-      const recordTotalPages = Math.ceil(recordTotalCount / currentPageSize);
-
-      // Map the API data to CompanyRow format
-      const mappedData = records.map(mapNonMedicalToCompanyRow);
-
-      setCompaniesData(mappedData);
-      setTotalCount(recordTotalCount);
-      setTotalPages(recordTotalPages);
+      return `${day}/${month}/${year}`;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : `Failed to load ${activeTab} companies`;
-      setError(errorMessage);
-      showToast(errorMessage, "error");
-      setCompaniesData([]);
-    } finally {
-      setLoading(false);
+      console.error("Error formatting date:", dateString, error);
+      return "N/A";
     }
-  }, [activeTab, mapNonMedicalToCompanyRow, showToast, pageSize]);
+  };
+
+  // Helper function to format currency
+  const formatCurrency = (
+    amount: string | number | null | undefined
+  ): string => {
+    if (!amount && amount !== 0) return "0";
+
+    try {
+      const numAmount =
+        typeof amount === "string" ? parseFloat(amount) : amount;
+      if (isNaN(numAmount)) return "0";
+
+      // Format with commas for thousands
+      return numAmount.toLocaleString();
+    } catch (error) {
+      console.error("Error formatting currency:", amount, error);
+      return "0";
+    }
+  };
+
+  // Map API data to CompanyRow format
+  const mapNonMedicalToCompanyRow = useCallback(
+    (apiData: any): CompanyRow => {
+      console.log("Mapping API data:", apiData);
+
+      if (activeTab === "individual") {
+        // Individual user data structure: { UserId: 864, FirstName: null, LastName: null, MiddleName: null, Gender: null, ... }
+        const fullName =
+          [apiData.FirstName, apiData.MiddleName, apiData.LastName]
+            .filter(Boolean)
+            .join(" ") || "N/A";
+
+        return {
+          id: `#${apiData.UserId?.toString().padStart(4, "0") || "0000"}`,
+          name: fullName,
+          subscription: apiData.SubscriptionType || "N/A",
+          subscriptionStart: formatDate(apiData.SubscriptionStartDate),
+          subscriptionEnd: formatDate(apiData.SubscriptionEndDate),
+          amount: formatCurrency(apiData.SubscriptionAmount),
+          country: apiData.Country || "N/A",
+          region: apiData.Region || "N/A",
+          city: apiData.City || "N/A",
+          district: apiData.District || "N/A",
+          status: apiData.IsActive ? "Active" : "Inactive",
+        };
+      } else {
+        // Business request list data structure - new API
+        return {
+          id: `#${
+            apiData.id?.toString().padStart(4, "0") ||
+            apiData.requestId?.toString().padStart(4, "0") ||
+            "0000"
+          }`,
+          name: apiData.businessName || apiData.companyName || "N/A",
+          subscription:
+            apiData.subscriptionType || apiData.subscription || "N/A",
+          subscriptionStart: formatDate(
+            apiData.subscriptionStartDate || apiData.startDate
+          ),
+          subscriptionEnd: formatDate(
+            apiData.subscriptionEndDate || apiData.endDate
+          ),
+          amount: formatCurrency(apiData.subscriptionAmount || apiData.amount),
+          country: apiData.country || "N/A",
+          region: apiData.region || "N/A",
+          city: apiData.city || "N/A",
+          district: apiData.district || "N/A",
+          status: apiData.isActive
+            ? "Active"
+            : apiData.status === "Active"
+            ? "Active"
+            : "Inactive",
+        };
+      }
+    },
+    [activeTab]
+  );
+
+  // Load companies data from API for both tabs
+  const loadCompanies = useCallback(
+    async (
+      page: number = 1,
+      search: string = "",
+      currentPageSize: number = pageSize
+    ) => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        let response;
+
+        if (activeTab === "business") {
+          response =
+            await NonMedicalServices.GetAllBusinessUserNonMedicalRequestList({
+              userId: 0, // You can pass a specific userId if needed
+              pageNumber: page,
+              pageSize: currentPageSize,
+              sortColumn: "CreatedDate",
+              sortDirection: "DESC",
+            });
+        } else {
+          response = await NonMedicalServices.GetAllIndividualUserNonMedical({
+            pageNumber: page,
+            pageSize: currentPageSize,
+            searchTerm: search || undefined,
+          });
+        }
+
+        // Handle the response structure
+        if (!response) {
+          throw new Error("No response received from API");
+        }
+
+        if (!response.success) {
+          const errorMessage =
+            "message" in response
+              ? response.message
+              : `Failed to load ${activeTab} companies`;
+          throw new Error(errorMessage);
+        }
+
+        // Handle different API response structures
+        let records = [];
+        let recordTotalCount = 0;
+        let recordTotalPages = 1;
+
+        if (activeTab === "individual") {
+          // Individual API returns { totalRecords: 66, individualUsers: [...], insuranceMembers: [...] }
+          const responseData = (response as { success: boolean; data: any })
+            .data;
+          console.log("Individual API Response:", responseData);
+
+          if (responseData?.individualUsers) {
+            records = responseData.individualUsers;
+            recordTotalCount = responseData.totalRecords || records.length;
+            console.log(
+              "Using individualUsers array, totalRecords:",
+              recordTotalCount
+            );
+          } else {
+            // Fallback: direct array
+            records = responseData || [];
+            recordTotalCount = records.length;
+            console.log(
+              "Using direct array structure, totalRecords:",
+              recordTotalCount
+            );
+          }
+        } else {
+          // Business API response structure - new request list API
+          const responseData = (response as { success: boolean; data: any })
+            .data;
+          console.log("Business Request List API Response:", responseData);
+
+          if (Array.isArray(responseData)) {
+            records = responseData;
+            recordTotalCount = records.length;
+            console.log(
+              "Using direct array structure, totalRecords:",
+              recordTotalCount
+            );
+          } else if (responseData?.requests) {
+            records = responseData.requests;
+            recordTotalCount = responseData.totalRecords || records.length;
+            console.log(
+              "Using requests array structure, totalRecords:",
+              recordTotalCount
+            );
+          } else if (responseData?.data) {
+            records = responseData.data;
+            recordTotalCount = responseData.totalRecords || records.length;
+            console.log(
+              "Using nested data structure, totalRecords:",
+              recordTotalCount
+            );
+          } else {
+            records = [];
+            recordTotalCount = 0;
+            console.log("No valid data structure found for business requests");
+          }
+        }
+
+        recordTotalPages = Math.ceil(recordTotalCount / currentPageSize);
+
+        // Map the API data to CompanyRow format
+        const mappedData = records.map(mapNonMedicalToCompanyRow);
+
+        setCompaniesData(mappedData);
+        setTotalCount(recordTotalCount);
+        setTotalPages(recordTotalPages);
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : `Failed to load ${activeTab} companies`;
+        setError(errorMessage);
+        showToast(errorMessage, "error");
+        setCompaniesData([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [activeTab, mapNonMedicalToCompanyRow, showToast, pageSize]
+  );
 
   // Load data when tab changes or page changes
   useEffect(() => {
@@ -190,7 +408,8 @@ const NonMedicalCompanies = () => {
 
   // Update totalPages when totalCount or pageSize changes
   useEffect(() => {
-    const calculatedPages = totalCount > 0 ? Math.ceil(totalCount / pageSize) : 1;
+    const calculatedPages =
+      totalCount > 0 ? Math.ceil(totalCount / pageSize) : 1;
     const finalPages = Math.max(1, calculatedPages);
     setTotalPages(finalPages);
   }, [totalCount, pageSize]);
@@ -208,9 +427,14 @@ const NonMedicalCompanies = () => {
     if (searchTerm.trim()) {
       const query = searchTerm.trim().toLowerCase();
       filteredData = rows.filter((row) =>
-        [row.id, row.name, row.subscription, row.country, row.city, row.region].some((field) =>
-          field.toLowerCase().includes(query)
-        )
+        [
+          row.id,
+          row.name,
+          row.subscription,
+          row.country,
+          row.city,
+          row.region,
+        ].some((field) => field.toLowerCase().includes(query))
       );
     }
 
@@ -221,7 +445,10 @@ const NonMedicalCompanies = () => {
   }, [companiesData, rows, searchTerm, currentPage, pageSize]);
 
   // Use API pagination for API data, client-side pagination for static data
-  const pageCount = companiesData.length > 0 ? totalPages : Math.max(1, Math.ceil(rows.length / pageSize));
+  const pageCount =
+    companiesData.length > 0
+      ? totalPages
+      : Math.max(1, Math.ceil(rows.length / pageSize));
   const safePage = Math.min(currentPage, pageCount);
   const displayTotalCount = companiesData.length > 0 ? totalCount : rows.length;
 
@@ -270,44 +497,50 @@ const NonMedicalCompanies = () => {
     setIsFormOpen(true);
   };
 
-  const handleEdit = (row: CompanyRow) => {
-    setFormMode("edit");
-    setFormValues({
-      id: row.id,
-      businessName: row.name,
-      subscription: row.subscription,
-      subscriptionStartDate: row.subscriptionStart,
-      subscriptionEndDate: row.subscriptionEnd,
-      subscriptionAmount: row.amount,
-      country: row.country,
-      region: row.region,
-      city: row.city,
-      district: row.district,
-      status: row.status,
+  const handleDelete = (row: CompanyRow) => {
+    setDeleteModal({
+      isOpen: true,
+      record: row,
     });
-    setIsFormOpen(true);
   };
 
-  const handleDelete = (_row: CompanyRow) => {
-    // Implement delete functionality
+  const handleDeleteConfirm = async () => {
+    if (!deleteModal.record) return;
+
+    setIsDeleting(true);
+    try {
+      // Extract ID from the row (remove # prefix and convert to number)
+      const recordId = parseInt(deleteModal.record.id.replace("#", ""));
+
+      const response = await NonMedicalServices.DeleteBusinessUserNonMedical(
+        recordId
+      );
+
+      if (response?.success) {
+        showToast("Business user deleted successfully", "success");
+
+        // Refresh the data
+        await loadCompanies(currentPage, searchTerm, pageSize);
+
+        // Close modal
+        setDeleteModal({ isOpen: false, record: null });
+      } else {
+        showToast("Failed to delete business user", "error");
+      }
+    } catch (error) {
+      console.error("Error deleting business user:", error);
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Failed to delete business user";
+      showToast(message, "error");
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
-  const handleAddNew = () => {
-    setFormMode("create");
-    setFormValues({
-      id: "",
-      businessName: "",
-      subscription: "",
-      subscriptionStartDate: "",
-      subscriptionEndDate: "",
-      subscriptionAmount: "",
-      country: "",
-      region: "",
-      city: "",
-      district: "",
-      status: "Active",
-    });
-    setIsFormOpen(true);
+  const handleDeleteCancel = () => {
+    setDeleteModal({ isOpen: false, record: null });
   };
 
   const handleFormSubmit = async () => {
@@ -327,117 +560,173 @@ const NonMedicalCompanies = () => {
   };
 
   // Table columns configuration
-  const tableColumns: TableColumn<CompanyRow>[] = useMemo(() => [
-    {
-      label: "SO NO",
-      value: (row) => (
-        <span className="font-helveticaBold text-primary">{row.id}</span>
-      ),
-      sortKey: "id",
-      isSort: true,
-    },
-    {
-      label: "Business Name",
-      value: (row) => (
-        <span className="text-gray-700">{row.name}</span>
-      ),
-      sortKey: "name",
-      isSort: true,
-    },
-    {
-      label: "Subscription",
-      value: (row) => (
-        <span className="text-gray-500">{row.subscription}</span>
-      ),
-      sortKey: "subscription",
-      isSort: true,
-    },
-    {
-      label: "Subscription Start Date",
-      value: (row) => (
-        <span className="text-gray-500">{row.subscriptionStart}</span>
-      ),
-      sortKey: "subscriptionStart",
-      isSort: true,
-    },
-    {
-      label: "Subscription End Date",
-      value: (row) => (
-        <span className="text-gray-500">{row.subscriptionEnd}</span>
-      ),
-      sortKey: "subscriptionEnd",
-      isSort: true,
-    },
-    {
-      label: "Subscription Amount",
-      value: (row) => (
-        <span className="text-gray-500">{row.amount}</span>
-      ),
-      sortKey: "amount",
-      isSort: true,
-    },
-    {
-      label: "Country",
-      value: (row) => (
-        <span className="text-gray-500">{row.country}</span>
-      ),
-      sortKey: "country",
-      isSort: true,
-    },
-    {
-      label: "Region",
-      value: (row) => (
-        <span className="text-gray-500">{row.region}</span>
-      ),
-      sortKey: "region",
-      isSort: true,
-    },
-    {
-      label: "City",
-      value: (row) => (
-        <span className="text-gray-500">{row.city}</span>
-      ),
-      sortKey: "city",
-      isSort: true,
-    },
-    {
-      label: "District",
-      value: (row) => (
-        <span className="text-gray-500">{row.district}</span>
-      ),
-      sortKey: "district",
-      isSort: true,
-    },
-    {
-      label: "Status",
-      value: (row) => (
-        <span className={`inline-flex items-center justify-center rounded-full px-4 py-1 text-xs font-semibold ${statusStyles[row.status]}`}>
-          {row.status}
-        </span>
-      ),
-      sortKey: "status",
-      isSort: true,
-    },
-  ], []);
+  const tableColumns: TableColumn<CompanyRow>[] = useMemo(
+    () => [
+      {
+        label: "SO NO",
+        value: (row) => (
+          <span className="font-helveticaBold text-primary">{row.id}</span>
+        ),
+        sortKey: "id",
+        isSort: true,
+      },
+      {
+        label: "Business Name",
+        value: (row) => <span className="text-gray-700">{row.name}</span>,
+        sortKey: "name",
+        isSort: true,
+      },
+      {
+        label: "Subscription",
+        value: (row) => (
+          <span className="text-gray-500">{row.subscription}</span>
+        ),
+        sortKey: "subscription",
+        isSort: true,
+      },
+      {
+        label: "Subscription Start Date",
+        value: (row) => (
+          <span className="text-gray-500">{row.subscriptionStart}</span>
+        ),
+        sortKey: "subscriptionStart",
+        isSort: true,
+      },
+      {
+        label: "Subscription End Date",
+        value: (row) => (
+          <span className="text-gray-500">{row.subscriptionEnd}</span>
+        ),
+        sortKey: "subscriptionEnd",
+        isSort: true,
+      },
+      {
+        label: "Subscription Amount",
+        value: (row) => <span className="text-gray-500">{row.amount}</span>,
+        sortKey: "amount",
+        isSort: true,
+      },
+      {
+        label: "Country",
+        value: (row) => <span className="text-gray-500">{row.country}</span>,
+        sortKey: "country",
+        isSort: true,
+      },
+      {
+        label: "Region",
+        value: (row) => <span className="text-gray-500">{row.region}</span>,
+        sortKey: "region",
+        isSort: true,
+      },
+      {
+        label: "City",
+        value: (row) => <span className="text-gray-500">{row.city}</span>,
+        sortKey: "city",
+        isSort: true,
+      },
+      {
+        label: "District",
+        value: (row) => <span className="text-gray-500">{row.district}</span>,
+        sortKey: "district",
+        isSort: true,
+      },
+      {
+        label: "Status",
+        value: (row) => (
+          <span
+            className={`inline-flex items-center justify-center rounded-full px-4 py-1 text-xs font-semibold ${
+              statusStyles[row.status]
+            }`}
+          >
+            {row.status}
+          </span>
+        ),
+        sortKey: "status",
+        isSort: true,
+      },
+    ],
+    []
+  );
 
-  // Action buttons configuration
-  const actionButtons: ActionButton<CompanyRow>[] = useMemo(() => [
-    {
-      label: "View",
-      iconType: "view",
-      onClick: handleView,
-    },
-    {
-      label: "Edit",
-      iconType: "edit",
-      onClick: handleEdit,
-    },
-    {
-      label: "Delete",
-      iconType: "delete",
-      onClick: handleDelete,
-    },
-  ], [handleView, handleEdit, handleDelete]);
+  // Action buttons configuration - Only View and Delete
+  const actionButtons: ActionButton<CompanyRow>[] = useMemo(
+    () => [
+      {
+        label: "View",
+        iconType: "view",
+        onClick: handleView,
+      },
+      {
+        label: "Delete",
+        iconType: "delete",
+        onClick: handleDelete,
+      },
+    ],
+    [handleView, handleDelete]
+  );
+
+  // Menu table columns configuration
+  const menuTableColumns: TableColumn<any>[] = useMemo(
+    () => [
+      {
+        label: "ID",
+        value: (row) => (
+          <span className="font-helveticaBold text-primary">
+            {row.id || row.categoryId || "N/A"}
+          </span>
+        ),
+        sortKey: "id",
+        isSort: true,
+      },
+      {
+        label: "Category Name",
+        value: (row) => (
+          <span className="text-gray-700">
+            {row.categoryName || row.name || "N/A"}
+          </span>
+        ),
+        sortKey: "categoryName",
+        isSort: true,
+      },
+      {
+        label: "Description",
+        value: (row) => (
+          <span className="text-gray-500">{row.description || "N/A"}</span>
+        ),
+        sortKey: "description",
+        isSort: true,
+      },
+      {
+        label: "Status",
+        value: (row) => (
+          <span
+            className={`inline-flex items-center justify-center rounded-full px-4 py-1 text-xs font-semibold ${
+              row.isActive || row.status === "Active"
+                ? "bg-[#e9fbf3] text-[#09a66d]"
+                : "bg-[#fff1f0] text-[#e23939]"
+            }`}
+          >
+            {row.isActive || row.status === "Active" ? "Active" : "Inactive"}
+          </span>
+        ),
+        sortKey: "isActive",
+        isSort: true,
+      },
+    ],
+    []
+  );
+
+  // Menu action buttons (if needed)
+  const menuActionButtons: ActionButton<any>[] = useMemo(
+    () => [
+      {
+        label: "View",
+        iconType: "view",
+        onClick: (row) => console.log("View menu item:", row),
+      },
+    ],
+    []
+  );
 
   return (
     <DashboardLayout>
@@ -445,26 +734,27 @@ const NonMedicalCompanies = () => {
         <section className="space-y-8 rounded-2xl border border-slate-200 bg-white p-8 shadow-card">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-semibold text-primary">Non Medical Companies</h1>
-              <p className="text-sm text-gray-500">Monitor non-medical companies and their subscription details.</p>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={handleAddNew}
-                className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-white shadow hover:bg-[#030447]"
-              >
-                Add New
-              </button>
-              <button className="rounded-full bg-gray-500 px-6 py-2 text-sm font-semibold text-white shadow hover:bg-gray-600">
-                Export
-              </button>
+              <h1 className="text-3xl font-semibold text-primary">
+                Non Medical Companies
+              </h1>
+              <p className="text-sm text-gray-500">
+                Monitor non-medical companies and their subscription details.
+              </p>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3 rounded-full bg-slate-100 p-1 text-sm font-textMedium text-gray-600">
-              <TabButton label="Individual" isActive={activeTab === "individual"} onClick={() => handleTabChange("individual")} />
-              <TabButton label="Business" isActive={activeTab === "business"} onClick={() => handleTabChange("business")} />
+              <TabButton
+                label="Individual"
+                isActive={activeTab === "individual"}
+                onClick={() => handleTabChange("individual")}
+              />
+              <TabButton
+                label="Business"
+                isActive={activeTab === "business"}
+                onClick={() => handleTabChange("business")}
+              />
             </div>
             <div className="relative w-full max-w-xs">
               <input
@@ -481,38 +771,73 @@ const NonMedicalCompanies = () => {
 
           <div className="grid gap-4 sm:grid-cols-3">
             {currentStats.map((item) => (
-              <div key={item.title} className="rounded-2xl border border-slate-200 bg-white px-6 py-6 text-center shadow-card">
+              <div
+                key={item.title}
+                className="rounded-2xl border border-slate-200 bg-white px-6 py-6 text-center shadow-card"
+              >
                 <p className="text-3xl font-helveticaBold text-primary">
                   {loading ? "..." : item.value}
                 </p>
-                <p className="mt-2 text-xs font-textMedium uppercase tracking-[0.18em] text-gray-500">{item.title}</p>
+                <p className="mt-2 text-xs font-textMedium uppercase tracking-[0.18em] text-gray-500">
+                  {item.title}
+                </p>
               </div>
             ))}
           </div>
 
+          {/* Debug: Show API response info */}
+
           <ChartPlaceholder />
 
-          {error ? (
-            <div className="rounded-2xl border border-rose-200 bg-rose-50 px-6 py-10 text-center text-sm text-rose-600">
-              {error}
-            </div>
+          {showMenuTable ? (
+            // Menu Table
+            <>
+              {menuError ? (
+                <div className="rounded-2xl border border-rose-200 bg-rose-50 px-6 py-10 text-center text-sm text-rose-600">
+                  {menuError}
+                </div>
+              ) : (
+                <ComanTable
+                  columns={menuTableColumns}
+                  data={menuData}
+                  actions={menuActionButtons}
+                  page={safePage}
+                  totalPages={menuTotalPages}
+                  totalCount={menuTotalCount}
+                  onPageChange={handlePageChange}
+                  sortState={sortState}
+                  onSortChange={handleSortChange}
+                  pageSize={pageSize}
+                  onPageSizeChange={handlePageSizeChange}
+                  loading={menuLoading}
+                />
+              )}
+            </>
           ) : (
-            <ComanTable
-              columns={tableColumns}
-              data={tableData}
-              actions={actionButtons}
-              page={safePage}
-              totalPages={pageCount}
-              totalCount={displayTotalCount}
-              onPageChange={handlePageChange}
-              sortState={sortState}
-              onSortChange={handleSortChange}
-              pageSize={pageSize}
-              onPageSizeChange={handlePageSizeChange}
-              loading={loading}
-            />
+            // Companies Table
+            <>
+              {error ? (
+                <div className="rounded-2xl border border-rose-200 bg-rose-50 px-6 py-10 text-center text-sm text-rose-600">
+                  {error}
+                </div>
+              ) : (
+                <ComanTable
+                  columns={tableColumns}
+                  data={tableData}
+                  actions={actionButtons}
+                  page={safePage}
+                  totalPages={pageCount}
+                  totalCount={displayTotalCount}
+                  onPageChange={handlePageChange}
+                  sortState={sortState}
+                  onSortChange={handleSortChange}
+                  pageSize={pageSize}
+                  onPageSizeChange={handlePageSizeChange}
+                  loading={loading}
+                />
+              )}
+            </>
           )}
-
         </section>
       </div>
 
@@ -533,16 +858,38 @@ const NonMedicalCompanies = () => {
           />
         </ModalOverlay>
       )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal.isOpen && deleteModal.record && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 backdrop-blur-[6px] px-4">
+          <DeleteConfirmModal
+            isSubmitting={isDeleting}
+            onCancel={handleDeleteCancel}
+            onConfirm={handleDeleteConfirm}
+          />
+        </div>
+      )}
     </DashboardLayout>
   );
 };
 
-const TabButton = ({ label, isActive, onClick }: { label: string; isActive: boolean; onClick: () => void }) => (
+const TabButton = ({
+  label,
+  isActive,
+  onClick,
+}: {
+  label: string;
+  isActive: boolean;
+  onClick: () => void;
+}) => (
   <button
     type="button"
     onClick={onClick}
-    className={`rounded-full px-5 py-2 text-sm font-semibold transition ${isActive ? "bg-white text-primary shadow" : "text-gray-400 hover:text-primary"
-      }`}
+    className={`rounded-full px-5 py-2 text-sm font-semibold transition ${
+      isActive
+        ? "bg-white text-primary shadow"
+        : "text-gray-400 hover:text-primary"
+    }`}
   >
     {label}
   </button>
@@ -555,7 +902,14 @@ const ChartPlaceholder = () => (
 );
 
 const SearchIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.6"
+    className="h-4 w-4"
+  >
     <circle cx="11" cy="11" r="7" />
     <path strokeLinecap="round" strokeLinejoin="round" d="M20 20l-3-3" />
   </svg>
@@ -580,7 +934,9 @@ const FormModal = ({
 }) => {
   return (
     <ModalShell
-      title={`${mode === "edit" ? "Edit" : mode === "view" ? "View" : "Add"} Non Medical Company`}
+      title={`${
+        mode === "edit" ? "Edit" : mode === "view" ? "View" : "Add"
+      } Non Medical Company`}
       onClose={onClose}
     >
       {isLoading ? (
@@ -598,21 +954,27 @@ const FormModal = ({
           {/* General Information Section */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <h4 className="text-lg font-semibold text-primary">General Information</h4>
+              <h4 className="text-lg font-semibold text-primary">
+                General Information
+              </h4>
               <ChevronIcon />
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <LabeledInput
                 label="Business Name"
                 value={values.businessName}
-                onChange={(e) => onChange({ ...values, businessName: e.target.value })}
+                onChange={(e) =>
+                  onChange({ ...values, businessName: e.target.value })
+                }
                 disabled={mode === "view"}
                 required
               />
               <LabeledInput
                 label="Subscription"
                 value={values.subscription}
-                onChange={(e) => onChange({ ...values, subscription: e.target.value })}
+                onChange={(e) =>
+                  onChange({ ...values, subscription: e.target.value })
+                }
                 disabled={mode === "view"}
                 required
               />
@@ -620,7 +982,9 @@ const FormModal = ({
                 label="Subscription Start Date"
                 type="date"
                 value={values.subscriptionStartDate}
-                onChange={(e) => onChange({ ...values, subscriptionStartDate: e.target.value })}
+                onChange={(e) =>
+                  onChange({ ...values, subscriptionStartDate: e.target.value })
+                }
                 disabled={mode === "view"}
                 required
               />
@@ -628,21 +992,30 @@ const FormModal = ({
                 label="Subscription End Date"
                 type="date"
                 value={values.subscriptionEndDate}
-                onChange={(e) => onChange({ ...values, subscriptionEndDate: e.target.value })}
+                onChange={(e) =>
+                  onChange({ ...values, subscriptionEndDate: e.target.value })
+                }
                 disabled={mode === "view"}
                 required
               />
               <LabeledInput
                 label="Subscription Amount"
                 value={values.subscriptionAmount}
-                onChange={(e) => onChange({ ...values, subscriptionAmount: e.target.value })}
+                onChange={(e) =>
+                  onChange({ ...values, subscriptionAmount: e.target.value })
+                }
                 disabled={mode === "view"}
                 required
               />
               <LabeledSelect
                 label="Status"
                 value={values.status}
-                onChange={(e) => onChange({ ...values, status: e.target.value as "Active" | "Inactive" })}
+                onChange={(e) =>
+                  onChange({
+                    ...values,
+                    status: e.target.value as "Active" | "Inactive",
+                  })
+                }
                 disabled={mode === "view"}
                 required
               >
@@ -662,14 +1035,18 @@ const FormModal = ({
               <LabeledInput
                 label="Country"
                 value={values.country}
-                onChange={(e) => onChange({ ...values, country: e.target.value })}
+                onChange={(e) =>
+                  onChange({ ...values, country: e.target.value })
+                }
                 disabled={mode === "view"}
                 required
               />
               <LabeledInput
                 label="Region"
                 value={values.region}
-                onChange={(e) => onChange({ ...values, region: e.target.value })}
+                onChange={(e) =>
+                  onChange({ ...values, region: e.target.value })
+                }
                 disabled={mode === "view"}
                 required
               />
@@ -683,7 +1060,9 @@ const FormModal = ({
               <LabeledInput
                 label="District"
                 value={values.district}
-                onChange={(e) => onChange({ ...values, district: e.target.value })}
+                onChange={(e) =>
+                  onChange({ ...values, district: e.target.value })
+                }
                 disabled={mode === "view"}
                 required
               />
@@ -706,7 +1085,11 @@ const FormModal = ({
                 disabled={isSubmitting}
                 className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-white shadow hover:bg-[#030447] disabled:opacity-50"
               >
-                {isSubmitting ? "Saving..." : mode === "edit" ? "Update" : "Create"}
+                {isSubmitting
+                  ? "Saving..."
+                  : mode === "edit"
+                  ? "Update"
+                  : "Create"}
               </button>
             </div>
           )}
@@ -815,13 +1198,31 @@ const ModalShell = ({
 );
 
 const CloseIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6L6 18" />
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    className="h-4 w-4"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M6 6l12 12M18 6L6 18"
+    />
   </svg>
 );
 
 const ChevronIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-3 w-3">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 20 20"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.6"
+    className="h-3 w-3"
+  >
     <path strokeLinecap="round" strokeLinejoin="round" d="m6 8 4 4 4-4" />
   </svg>
 );
