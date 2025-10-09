@@ -2,35 +2,60 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import DashboardLayout from "../layouts/DashboardLayout";
 import OfficeStationaryService from "../services/OfficeStationaryService";
+import { StatusEnum } from "../utils/statusEnum";
+import { useToast } from "../components/ToastProvider";
 
 interface OrderDetail {
   id: string;
+  requestId: number;
+  requestNumber: string;
+  categoryId: number;
+  serviceId: number;
   orderTitle: string;
-  location: string;
-  daysLeft: number;
   contactPersonName: string;
   contactPersonEmail: string;
-  items: OrderItem[];
+  choosePostTimeValidityTime: number;
+  postTimeValidityName: string;
+  locationId: number;
   otherDetails: string;
+  confirmedFlag: boolean;
+  sterilizationEquipmentFlag: boolean;
+  isTermCondition: boolean;
+  serviceType: number;
+  statusId: number;
+  statusName: string;
+  isActive: boolean;
+  createdBy: number;
+  createdDate: string;
+  updatedBy: number;
+  updatedDate: string;
+  totalQuantity: number;
+  items: OrderItem[];
 }
 
 interface OrderItem {
-  orderNo: string;
-  orderTitle: string;
-  uniformType: string;
-  gender: string;
-  size: string;
-  color: string;
+  id: number;
+  requestNumber: string;
+  requestId: number;
+  name: string;
+  quantity: number;
+  isActive: boolean;
+  createdBy: number;
+  createdDate: string;
 }
 
 const OrderDetailPage = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const [orderDetail, setOrderDetail] = useState<OrderDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  console.log(orderDetail);
 
   useEffect(() => {
     const fetchOrderDetail = async () => {
@@ -40,30 +65,33 @@ const OrderDetailPage = () => {
       }
 
       setLoading(true);
-      
+
       try {
         // Call the actual API with the request number
-        const response = await OfficeStationaryService.OfficeStationarySectorGetByRequestNumber(orderId);
-        
-        if (response && response.success && 'data' in response && response.data) {
+        const response =
+          await OfficeStationaryService.OfficeStationarySectorGetByRequestNumber(
+            orderId
+          );
+
+        if (
+          response &&
+          response.success &&
+          "data" in response &&
+          response.data
+        ) {
           // Map the API response to our OrderDetail interface
-          // You may need to adjust this mapping based on the actual API response structure
-          const apiData = response.data;
-          
-          const orderDetail: OrderDetail = {
-            id: apiData.requestId || orderId,
-            orderTitle: apiData.orderTitle || "Order Details",
-            location: apiData.location || "Location not specified",
-            daysLeft: apiData.daysLeft || 30,
-            contactPersonName: apiData.contactPersonName || "Contact person",
-            contactPersonEmail: apiData.contactPersonEmail || "contact@example.com",
-            items: apiData.items || [],
-            otherDetails: apiData.otherDetails || "No additional details provided",
-          };
-          
-          setOrderDetail(orderDetail);
+          console.log("API Response:", response);
+          console.log("Response Data:", response.data);
+          console.log("First Item:", response.data[0]);
+
+          setOrderDetail(response.data[0]);
         } else {
-          console.error("Failed to fetch order details:", response && 'message' in response ? response.message : 'Unknown error');
+          console.error(
+            "Failed to fetch order details:",
+            response && "message" in response
+              ? response.message
+              : "Unknown error"
+          );
           // Handle error case - maybe show an error message
         }
       } catch (error) {
@@ -77,29 +105,77 @@ const OrderDetailPage = () => {
     fetchOrderDetail();
   }, [orderId]);
 
-  const handleApprove = () => {
-    alert("Order approved successfully!");
-    navigate(-1); // Go back to previous page
+  const handleApprove = async () => {
+    if (!orderDetail) return;
+
+    try {
+      setIsSubmitting(true);
+
+      const requestData = {
+        requestId: orderDetail.requestId,
+        newStatusId: StatusEnum.APPROVED, // 100
+        userId: 0, // You may need to get this from auth context
+        requestNumber: orderDetail.requestNumber,
+        reason: "", // No reason needed for approval
+      };
+
+      const response = await OfficeStationaryService.UpdateOfficeStationaryStatus(requestData);
+
+      if (response?.success) {
+        showToast("Order approved successfully!", "success");
+        navigate(-1); // Go back to previous page
+      } else {
+        showToast((response as any)?.message || "Failed to approve order", "error");
+      }
+    } catch (error) {
+      console.error("Error approving order:", error);
+      showToast("An error occurred while approving the order", "error");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleReject = () => {
     setShowRejectModal(true);
   };
 
-  const handleRejectSubmit = () => {
+  const handleRejectSubmit = async () => {
     if (!rejectionReason.trim()) {
-      alert("Please provide a reason for rejection.");
+      showToast("Please provide a reason for rejection.", "error");
       return;
     }
 
-    // Here you would typically send the rejection reason to your API
-    console.log("Order rejected with reason:", rejectionReason);
-    alert(`Order rejected successfully!\nReason: ${rejectionReason}`);
+    if (!orderDetail) return;
 
-    // Reset and close modal
-    setRejectionReason("");
-    setShowRejectModal(false);
-    navigate(-1); // Go back to previous page
+    try {
+      setIsSubmitting(true);
+
+      const requestData = {
+        requestId: orderDetail.requestId,
+        newStatusId: StatusEnum.REJECTED, // 101
+        userId: 0, // You may need to get this from auth context
+        requestNumber: orderDetail.requestNumber,
+        reason: rejectionReason,
+      };
+
+      const response = await OfficeStationaryService.UpdateOfficeStationaryStatus(requestData);
+
+      if (response?.success) {
+        showToast("Order rejected successfully!", "success");
+        
+        // Reset and close modal
+        setRejectionReason("");
+        setShowRejectModal(false);
+        navigate(-1); // Go back to previous page
+      } else {
+        showToast((response as any)?.message || "Failed to reject order", "error");
+      }
+    } catch (error) {
+      console.error("Error rejecting order:", error);
+      showToast("An error occurred while rejecting the order", "error");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleRejectCancel = () => {
@@ -164,10 +240,10 @@ const OrderDetailPage = () => {
 
           {/* Order Title */}
           <h1 className="text-3xl font-bold text-gray-900 mb-6">
-            {orderDetail.orderTitle}
+            {orderDetail.postTimeValidityName}
           </h1>
 
-          {/* Location and Days Left */}
+          {/* Request Number and Status */}
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-2 text-gray-600">
               <svg
@@ -180,33 +256,25 @@ const OrderDetailPage = () => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                 />
               </svg>
-              {orderDetail.location}
+              Request Number: {orderId}
             </div>
             <div className="flex items-center gap-2">
-              <svg
-                className="w-5 h-5 text-red-500"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-              </svg>
-              <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                {orderDetail.daysLeft} Days Left
+              <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                {orderDetail?.statusName || "Unknown"}
+              </span>
+              <span className="text-xs text-gray-500">
+                (ID: {orderDetail?.statusId})
               </span>
             </div>
           </div>
 
           {/* Divider */}
           <hr className="border-gray-200 mb-8" />
+
+          {/* Debug Section - Remove this after debugging */}
 
           {/* Key Details */}
           <div className="mb-8">
@@ -228,17 +296,45 @@ const OrderDetailPage = () => {
                   {orderDetail.contactPersonEmail}
                 </span>
               </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-gray-900 rounded-full"></div>
+                <span className="text-gray-700">
+                  <strong>Category ID :</strong> {orderDetail.categoryId}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-gray-900 rounded-full"></div>
+                <span className="text-gray-700">
+                  <strong>Service ID :</strong> {orderDetail.serviceId}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-gray-900 rounded-full"></div>
+                <span className="text-gray-700">
+                  <strong>Total Quantity :</strong> {orderDetail.totalQuantity}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-gray-900 rounded-full"></div>
+                <span className="text-gray-700">
+                  <strong>Validity Period :</strong>{" "}
+                  {orderDetail.choosePostTimeValidityTime} Days
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* Uniform Items Table */}
+          {/* Items Table */}
           <div className="mb-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              Requested Items:
+            </h2>
             <table className="w-full border-collapse border border-gray-300">
               <thead>
                 <tr className="bg-gray-50">
                   <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-900">
                     <div className="flex items-center gap-2">
-                      Order No
+                      Item ID
                       <div className="flex flex-col">
                         <svg
                           className="w-3 h-3"
@@ -270,45 +366,53 @@ const OrderDetailPage = () => {
                     </div>
                   </th>
                   <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-900">
-                    Order Title
+                    Item Name
                   </th>
                   <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-900">
-                    Uniform Type
+                    Quantity
                   </th>
                   <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-900">
-                    Gender
+                    Request Number
                   </th>
                   <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-900">
-                    Size
+                    Created Date
                   </th>
                   <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-900">
-                    Color
+                    Status
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {orderDetail.items.map((item, index) => (
+                {orderDetail?.items?.map((item, index) => (
                   <tr
-                    key={item.orderNo}
-                    className={index === 2 ? "bg-purple-50" : ""}
+                    key={item.id}
+                    className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
                   >
                     <td className="border border-gray-300 px-4 py-3 text-gray-900">
-                      {item.orderNo}
+                      {item.id}
                     </td>
                     <td className="border border-gray-300 px-4 py-3 text-gray-900">
-                      {item.orderTitle}
+                      {item.name}
                     </td>
                     <td className="border border-gray-300 px-4 py-3 text-gray-900">
-                      {item.uniformType}
+                      {item.quantity}
                     </td>
                     <td className="border border-gray-300 px-4 py-3 text-gray-900">
-                      {item.gender}
+                      {item.requestNumber}
                     </td>
                     <td className="border border-gray-300 px-4 py-3 text-gray-900">
-                      {item.size}
+                      {new Date(item.createdDate).toLocaleDateString()}
                     </td>
                     <td className="border border-gray-300 px-4 py-3 text-gray-900">
-                      {item.color}
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          item.isActive
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {item.isActive ? "Active" : "Inactive"}
+                      </span>
                     </td>
                   </tr>
                 ))}
@@ -331,21 +435,26 @@ const OrderDetailPage = () => {
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex justify-center gap-4">
-            <button
-              onClick={handleReject}
-              className="px-8 py-3 bg-white border-2 border-gray-900 text-gray-900 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Reject
-            </button>
-            <button
-              onClick={handleApprove}
-              className="px-8 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors"
-            >
-              Approve
-            </button>
-          </div>
+           {orderDetail?.statusId === StatusEnum.PENDING && (
+             <>
+               <div className="flex justify-center gap-4">
+                 <button
+                   onClick={handleReject}
+                   disabled={isSubmitting}
+                   className="px-8 py-3 bg-white border-2 border-gray-900 text-gray-900 font-semibold rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                 >
+                   {isSubmitting ? "Processing..." : "Reject"}
+                 </button>
+                 <button
+                   onClick={handleApprove}
+                   disabled={isSubmitting}
+                   className="px-8 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                 >
+                   {isSubmitting ? "Processing..." : "Approve"}
+                 </button>
+               </div>
+             </>
+           )}
         </div>
       </div>
 
@@ -396,9 +505,10 @@ const OrderDetailPage = () => {
             <div className="flex justify-center">
               <button
                 onClick={handleRejectSubmit}
-                className="px-8 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors"
+                disabled={isSubmitting}
+                className="px-8 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Send
+                {isSubmitting ? "Sending..." : "Send"}
               </button>
             </div>
           </div>

@@ -4,10 +4,10 @@ import DashboardLayout from "../layouts/DashboardLayout";
 import IndividualClinicService from "../services/IndividualClinicService";
 import { useToast } from "../components/ToastProvider";
 import {
-  StatusEnum,
-  getStatusName,
   getStatusBadgeClass,
-} from "./Service2ManagementPage";
+  getStatusName,
+  StatusEnum,
+} from "../utils/statusEnum";
 
 interface ServiceDetails {
   RequestId: number;
@@ -153,7 +153,7 @@ const SubServicesDetails7 = () => {
       if (response && response.success) {
         // Refetch the data to get updated information
         await fetchServiceDetails();
-        
+
         showToast(
           `Request ${serviceDetails.RequestNumber} has been approved successfully!`,
           "success"
@@ -196,7 +196,7 @@ const SubServicesDetails7 = () => {
       if (response && response.success) {
         // Refetch the data to get updated information
         await fetchServiceDetails();
-        
+
         showToast(
           `Request ${serviceDetails.RequestNumber} has been rejected`,
           "success"

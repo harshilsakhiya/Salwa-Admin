@@ -2,30 +2,50 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import DashboardLayout from "../layouts/DashboardLayout";
 import OfficeStationaryService from "../services/OfficeStationaryService";
+import { StatusEnum } from "../utils/statusEnum";
+import { useToast } from "../components/ToastProvider";
 
 interface Service2Detail {
   id: string;
+  requestId: number;
+  requestNumber: string;
+  categoryId: number;
+  serviceId: number;
   serviceTitle: string;
-  location: string;
-  daysLeft: number;
   contactPersonName: string;
   contactPersonEmail: string;
-  priority: number;
-  duration: number;
-  assignedTo: string;
-  services: Service2Item[];
+  choosePostTimeValidityTime: number;
+  locationId: number;
   otherDetails: string;
+  confirmedFlag: boolean;
+  sterilizationEquipmentFlag: boolean;
+  isTermCondition: boolean;
+  serviceType: number;
+  statusId: number;
+  isActive: boolean;
+  createdBy: number;
+  createdDate: string;
+  updatedBy: number | null;
+  updatedDate: string | null;
+  totalQuantity: number;
+  items: Service2Item[];
 }
 
 interface Service2Item {
-  serviceNo: string;
-  serviceName: string;
-  serviceDuration: number;
+  Id: number;
+  RequestNumber: string;
+  RequestId: number;
+  Name: string;
+  Quantity: number;
+  IsActive: boolean;
+  CreatedBy: number;
+  CreatedDate: string;
 }
 
 const Service2DetailPage = () => {
   const { serviceId } = useParams<{ serviceId: string }>();
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const [serviceDetail, setServiceDetail] = useState<Service2Detail | null>(
     null
@@ -33,6 +53,7 @@ const Service2DetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchServiceDetail = async () => {
@@ -45,35 +66,71 @@ const Service2DetailPage = () => {
 
       try {
         // Call the actual API with the service ID (request number)
-        const response = await OfficeStationaryService.GetHealthMarketPlaceServiceByRequestNumber(serviceId);
+        const response =
+          await OfficeStationaryService.GetHealthMarketPlaceServiceByRequestNumber(
+            serviceId
+          );
 
-        if (response && response.success && 'data' in response && response.data) {
+        if (
+          response &&
+          response.success &&
+          "data" in response &&
+          response.data
+        ) {
           // Map the API response to our Service2Detail interface
           const apiData = response.data;
 
+          // Parse Items JSON string if it's a string
+          let parsedItems: Service2Item[] = [];
+          if (typeof apiData.Items === "string") {
+            try {
+              parsedItems = JSON.parse(apiData.Items);
+            } catch (error) {
+              console.error("Error parsing Items JSON:", error);
+              parsedItems = [];
+            }
+          } else if (Array.isArray(apiData.Items)) {
+            parsedItems = apiData.Items;
+          }
+
           const serviceDetail: Service2Detail = {
-            id: apiData.requestId || serviceId,
-            serviceTitle: apiData.serviceTitle || apiData.itemName || "Service Details",
-            location: apiData.location || "Location not specified",
-            daysLeft: apiData.daysLeft || 30,
-            contactPersonName: apiData.contactPersonName || "Contact person",
-            contactPersonEmail: apiData.contactPersonEmail || "contact@example.com",
-            priority: apiData.priority || 1,
-            duration: apiData.duration || 120,
-            assignedTo: apiData.assignedTo || "Not assigned",
-            services: apiData.services || apiData.items || [
-              {
-                serviceNo: "S001",
-                serviceName: apiData.itemName || "Service Item",
-                serviceDuration: 30,
-              }
-            ],
-            otherDetails: apiData.otherDetails || apiData.description || "No additional details provided",
+            id: apiData.RequestId?.toString() || serviceId,
+            requestId: apiData.RequestId || 0,
+            requestNumber: apiData.RequestNumber || serviceId,
+            categoryId: apiData.CategoryId || 0,
+            serviceId: apiData.ServiceId || 0,
+            serviceTitle: apiData.OrderTitle || "Service Details",
+            contactPersonName: apiData.ContactPersonName || "Contact person",
+            contactPersonEmail:
+              apiData.ContactPersonEmail || "contact@example.com",
+            choosePostTimeValidityTime:
+              apiData.ChoosePostTimeValidityTime || 30,
+            locationId: apiData.LocationId || 0,
+            otherDetails:
+              apiData.OtherDetails || "No additional details provided",
+            confirmedFlag: apiData.ConfirmedFlag || false,
+            sterilizationEquipmentFlag:
+              apiData.SterilizationEquipmentFlag || false,
+            isTermCondition: apiData.IsTermCondition || false,
+            serviceType: apiData.ServiceType || 0,
+            statusId: apiData.StatusId || 99,
+            isActive: apiData.IsActive || true,
+            createdBy: apiData.CreatedBy || 0,
+            createdDate: apiData.CreatedDate || new Date().toISOString(),
+            updatedBy: apiData.UpdatedBy || null,
+            updatedDate: apiData.UpdatedDate || null,
+            totalQuantity: apiData.TotalQuantity || 0,
+            items: parsedItems,
           };
 
           setServiceDetail(serviceDetail);
         } else {
-          console.error("Failed to fetch service details:", response && 'message' in response ? response.message : 'Unknown error');
+          console.error(
+            "Failed to fetch service details:",
+            response && "message" in response
+              ? response.message
+              : "Unknown error"
+          );
           // Handle error case - maybe show an error message
         }
       } catch (error) {
@@ -87,29 +144,88 @@ const Service2DetailPage = () => {
     fetchServiceDetail();
   }, [serviceId]);
 
-  const handleApprove = () => {
-    alert("Service approved successfully!");
-    navigate(-1); // Go back to previous page
+  const handleApprove = async () => {
+    if (!serviceDetail) return;
+
+    try {
+      setIsSubmitting(true);
+
+      const requestData = {
+        requestId: serviceDetail.requestId,
+        newStatusId: StatusEnum.APPROVED, // 100
+        userId: 0,
+        requestNumber: serviceDetail.requestNumber,
+        reason: "",
+      };
+
+      const response =
+        await OfficeStationaryService.UpdateHealthMarketPlaceServicesStatus(
+          requestData
+        );
+
+      if (response?.success) {
+        showToast("Service approved successfully!", "success");
+        navigate(-1);
+      } else {
+        showToast(
+          (response as any)?.message || "Failed to approve service",
+          "error"
+        );
+      }
+    } catch (error) {
+      console.error("Error approving service:", error);
+      showToast("An error occurred while approving the service", "error");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleReject = () => {
     setShowRejectModal(true);
   };
 
-  const handleRejectSubmit = () => {
+  const handleRejectSubmit = async () => {
     if (!rejectionReason.trim()) {
-      alert("Please provide a reason for rejection.");
+      showToast("Please provide a reason for rejection.", "error");
       return;
     }
 
-    // Here you would typically send the rejection reason to your API
-    console.log("Service rejected with reason:", rejectionReason);
-    alert(`Service rejected successfully!\nReason: ${rejectionReason}`);
+    if (!serviceDetail) return;
 
-    // Reset and close modal
-    setRejectionReason("");
-    setShowRejectModal(false);
-    navigate(-1); // Go back to previous page
+    try {
+      setIsSubmitting(true);
+
+      const requestData = {
+        requestId: serviceDetail.requestId,
+        newStatusId: StatusEnum.REJECTED, // 101
+        userId: 0,
+        requestNumber: serviceDetail.requestNumber,
+        reason: rejectionReason,
+      };
+
+      const response =
+        await OfficeStationaryService.UpdateHealthMarketPlaceServicesStatus(
+          requestData
+        );
+
+      if (response?.success) {
+        showToast("Service rejected successfully!", "success");
+
+        setRejectionReason("");
+        setShowRejectModal(false);
+        navigate(-1);
+      } else {
+        showToast(
+          (response as any)?.message || "Failed to reject service",
+          "error"
+        );
+      }
+    } catch (error) {
+      console.error("Error rejecting service:", error);
+      showToast("An error occurred while rejecting the service", "error");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleRejectCancel = () => {
@@ -174,10 +290,10 @@ const Service2DetailPage = () => {
 
           {/* Service Title */}
           <h1 className="text-3xl font-bold text-gray-900 mb-6">
-            {serviceDetail.serviceTitle}
+            {serviceDetail.serviceTitle || "Service Request"}
           </h1>
 
-          {/* Location and Days Left */}
+          {/* Request Number and Validity */}
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-2 text-gray-600">
               <svg
@@ -190,27 +306,14 @@ const Service2DetailPage = () => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                 />
               </svg>
-              {serviceDetail.location}
+              Request Number: {serviceDetail.requestNumber}
             </div>
             <div className="flex items-center gap-2">
-              <svg
-                className="w-5 h-5 text-red-500"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-              </svg>
-              <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                {serviceDetail.daysLeft} Days Left
+              <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                {serviceDetail.choosePostTimeValidityTime} Days Validity
               </span>
             </div>
           </div>
@@ -241,97 +344,90 @@ const Service2DetailPage = () => {
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-gray-900 rounded-full"></div>
                 <span className="text-gray-700">
-                  <strong>Priority Level :</strong> Level{" "}
-                  {serviceDetail.priority}
+                  <strong>Category ID :</strong> {serviceDetail.categoryId}
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-gray-900 rounded-full"></div>
                 <span className="text-gray-700">
-                  <strong>Assigned To :</strong> {serviceDetail.assignedTo}
+                  <strong>Service ID :</strong> {serviceDetail.serviceId}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-gray-900 rounded-full"></div>
+                <span className="text-gray-700">
+                  <strong>Total Quantity :</strong>{" "}
+                  {serviceDetail.totalQuantity}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-gray-900 rounded-full"></div>
+                <span className="text-gray-700">
+                  <strong>Location ID :</strong> {serviceDetail.locationId}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Service Items Table */}
+          {/* Items Table */}
           <div className="mb-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              Requested Items:
+            </h2>
             <table className="w-full border-collapse border border-gray-300">
               <thead>
                 <tr className="bg-gray-50">
                   <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-900">
-                    <div className="flex items-center gap-2">
-                      Order No
-                      <div className="flex flex-col">
-                        <svg
-                          className="w-3 h-3"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M5 15l7-7 7 7"
-                          />
-                        </svg>
-                        <svg
-                          className="w-3 h-3"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M19 9l-7 7-7-7"
-                          />
-                        </svg>
-                      </div>
-                    </div>
+                    Item ID
                   </th>
                   <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-900">
-                    Order Title
+                    Item Name
                   </th>
                   <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-900">
-                    Uniform Type
+                    Quantity
                   </th>
                   <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-900">
-                    Gender
+                    Request Number
                   </th>
                   <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-900">
-                    Size
+                    Created Date
                   </th>
                   <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-900">
-                    Color
+                    Status
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {serviceDetail.services.map((service, index) => (
+                {serviceDetail.items.map((item, index) => (
                   <tr
-                    key={service.serviceNo}
-                    className={index === 2 ? "bg-purple-50" : ""}
+                    key={item.Id}
+                    className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
                   >
                     <td className="border border-gray-300 px-4 py-3 text-gray-900">
-                      {service.serviceNo}
+                      {item.Id}
                     </td>
                     <td className="border border-gray-300 px-4 py-3 text-gray-900">
-                      Uniform Cloths
+                      {item.Name}
                     </td>
                     <td className="border border-gray-300 px-4 py-3 text-gray-900">
-                      {service.serviceName}
+                      {item.Quantity}
                     </td>
                     <td className="border border-gray-300 px-4 py-3 text-gray-900">
-                      {index % 2 === 0 ? "Male" : "Female"}
+                      {item.RequestNumber}
                     </td>
                     <td className="border border-gray-300 px-4 py-3 text-gray-900">
-                      {["L", "S", "XXL", "M"][index]}
+                      {new Date(item.CreatedDate).toLocaleDateString()}
                     </td>
                     <td className="border border-gray-300 px-4 py-3 text-gray-900">
-                      White (#DDDDDD)
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          item.IsActive
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {item.IsActive ? "Active" : "Inactive"}
+                      </span>
                     </td>
                   </tr>
                 ))}
@@ -354,21 +450,25 @@ const Service2DetailPage = () => {
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex justify-center gap-4">
-            <button
-              onClick={handleReject}
-              className="px-8 py-3 bg-white border-2 border-gray-900 text-gray-900 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Reject
-            </button>
-            <button
-              onClick={handleApprove}
-              className="px-8 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors"
-            >
-              Approve
-            </button>
-          </div>
+          {/* Action Buttons - Only show for Pending status */}
+          {serviceDetail?.statusId === StatusEnum.PENDING && (
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={handleReject}
+                disabled={isSubmitting}
+                className="px-8 py-3 bg-white border-2 border-gray-900 text-gray-900 font-semibold rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? "Processing..." : "Reject"}
+              </button>
+              <button
+                onClick={handleApprove}
+                disabled={isSubmitting}
+                className="px-8 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? "Processing..." : "Approve"}
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -419,9 +519,10 @@ const Service2DetailPage = () => {
             <div className="flex justify-center">
               <button
                 onClick={handleRejectSubmit}
-                className="px-8 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors"
+                disabled={isSubmitting}
+                className="px-8 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Send
+                {isSubmitting ? "Sending..." : "Send"}
               </button>
             </div>
           </div>

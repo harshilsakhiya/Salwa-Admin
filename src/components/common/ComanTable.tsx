@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Eye, Edit, Trash2, Download, Send } from "lucide-react";
+import { Eye, Edit, Trash2, Download, Send, MessageCircle } from "lucide-react";
 export type TableColumn<T> = {
     label: string;
     value: (row: T) => React.ReactNode;
@@ -261,6 +261,20 @@ function ComanTable<T extends object>({
                                                                 title="View"
                                                             >
                                                                 <Eye size={16} className="text-gray-600" />
+                                                            </button>
+                                                        );
+                                                    }
+
+                                                    if (action.iconType === "advice") {
+                                                        return (
+                                                            <button
+                                                                key={action.label}
+                                                                data-tooltip-id="advice-tooltip"
+                                                                onClick={() => action.onClick(row)}
+                                                                className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-blue-100 transition-colors"
+                                                                title="Advice"
+                                                            >
+                                                                <MessageCircle size={16} className="text-blue-600" />
                                                             </button>
                                                         );
                                                     }

@@ -8,11 +8,7 @@ import ComanTable, {
 } from "../components/common/ComanTable";
 import IndividualClinicService from "../services/IndividualClinicService";
 import { useToast } from "../components/ToastProvider";
-import {
-  StatusEnum,
-  getStatusName,
-  getStatusBadgeClass,
-} from "./Service2ManagementPage";
+import { getStatusBadgeClass, getStatusName, StatusEnum } from "../utils/statusEnum";
 
 interface Service {
   id: string;
@@ -217,7 +213,7 @@ const NewDashboardPage = () => {
       if (response && response.success) {
         // Refetch the data to get updated information
         await fetchDataFromAPI();
-        
+
         // Show success toast notification
         showToast(
           `Request ${row.RequestNumber} has been published successfully!`,

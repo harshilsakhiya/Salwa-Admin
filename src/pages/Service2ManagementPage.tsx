@@ -11,75 +11,11 @@ import ComanTable, {
   type ActionButton,
   type SortState,
 } from "../components/common/ComanTable";
-
-// Common Status Enum with ID mappings
-export const StatusEnum = {
-  PENDING: 99,
-  APPROVED: 100,
-  REJECTED: 101,
-  PUBLISHED: 102,
-  EXPIRED: 103,
-  FULLFILLED: 104,
-  APPROVED_BY_GOVERNMENT: 105,
-  CHECK_IN: 115,
-  CHECK_OUT: 116,
-  REJECTED_BY_GOVERNMENT: 128,
-} as const;
-
-export type StatusEnum = (typeof StatusEnum)[keyof typeof StatusEnum];
-
-// Status helper functions
-export const getStatusName = (statusId: number): string => {
-  switch (statusId) {
-    case StatusEnum.PENDING:
-      return "Pending";
-    case StatusEnum.APPROVED:
-      return "Approved";
-    case StatusEnum.REJECTED:
-      return "Rejected";
-    case StatusEnum.PUBLISHED:
-      return "Published";
-    case StatusEnum.EXPIRED:
-      return "Expired";
-    case StatusEnum.FULLFILLED:
-      return "FullFilled";
-    case StatusEnum.APPROVED_BY_GOVERNMENT:
-      return "Approved By Government";
-    case StatusEnum.CHECK_IN:
-      return "Check In";
-    case StatusEnum.CHECK_OUT:
-      return "Check Out";
-    case StatusEnum.REJECTED_BY_GOVERNMENT:
-      return "Rejected by Government";
-    default:
-      return "Unknown";
-  }
-};
-
-export const getStatusBadgeClass = (statusId: number): string => {
-  switch (statusId) {
-    case StatusEnum.PENDING:
-      return "border border-amber-200 bg-amber-50 text-amber-700";
-    case StatusEnum.APPROVED:
-    case StatusEnum.APPROVED_BY_GOVERNMENT:
-      return "border border-emerald-200 bg-emerald-50 text-emerald-700";
-    case StatusEnum.REJECTED:
-    case StatusEnum.REJECTED_BY_GOVERNMENT:
-      return "border border-rose-200 bg-rose-50 text-rose-700";
-    case StatusEnum.PUBLISHED:
-      return "border border-blue-200 bg-blue-50 text-blue-700";
-    case StatusEnum.EXPIRED:
-      return "border border-gray-200 bg-gray-50 text-gray-700";
-    case StatusEnum.FULLFILLED:
-      return "border border-green-200 bg-green-50 text-green-700";
-    case StatusEnum.CHECK_IN:
-      return "border border-indigo-200 bg-indigo-50 text-indigo-700";
-    case StatusEnum.CHECK_OUT:
-      return "border border-purple-200 bg-purple-50 text-purple-700";
-    default:
-      return "border border-gray-200 bg-gray-50 text-gray-700";
-  }
-};
+import {
+  StatusEnum,
+  getStatusName,
+  getStatusBadgeClass,
+} from "../utils/statusEnum";
 
 interface Service {
   id: string;
@@ -160,7 +96,7 @@ const Service2ManagementPage = () => {
         await OfficeStationaryService.HealthMarketPlaceServicesGetAll(params);
 
       if (response?.success && response?.data) {
-        const data = response.data;
+        const data = response.data?.data;
 
         if (Array.isArray(data)) {
           // Transform API data to match our OrderRecord interface
@@ -184,18 +120,15 @@ const Service2ManagementPage = () => {
                 updatedDate: item.updatedDate || item.modifiedDate,
               };
 
-              // Debug log to check status values
-              console.log(
-                `Order ${order.requestId}: StatusId=${item.StatusId}, status=${order.status}, StatusEnum.APPROVED=${StatusEnum.APPROVED}`
-              );
-
               return order;
             }
           );
 
           setOrders(transformedOrders);
-          setTotalCount(transformedOrders.length);
-          setTotalPages(Math.ceil(transformedOrders.length / currentPageSize));
+          setTotalCount(response.data.totalRecords);
+          setTotalPages(
+            Math.ceil(response.data.totalRecords / currentPageSize)
+          );
         } else {
           setOrders([]);
           setTotalCount(0);
@@ -358,7 +291,7 @@ const Service2ManagementPage = () => {
       iconType: "view",
       onClick: (row: OrderRecord) => {
         // Navigate to service detail page
-        navigate(`/service2-detail/${row.id}`, {
+        navigate(`/service2-detail/${row.RequestNumber}`, {
           state: { serviceData: row },
         });
       },

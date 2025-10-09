@@ -60,7 +60,10 @@ class OfficeStationaryService {
       const res = await axiosInstance.get(
         `OfficeStationary/OfficeStationarySectorGetAll?${queryParams.toString()}`
       );
-      return successHandler(res);
+      return {
+        success: true,
+        data: res.data,
+      };
     } catch (error: any) {
       return errorHandler(error);
     }
@@ -80,10 +83,12 @@ class OfficeStationaryService {
     }
   };
 
-  static UpdateOfficeStationaryStatus = async (data: any) => {
+  static UpdateOfficeStationaryStatus = async (
+    data: UpdateHealthMarketPlaceStatusParams
+  ) => {
     try {
-      // Use GET request with query parameters
-      const res = await axiosInstance.get(
+      // Use POST request with data in body
+      const res = await axiosInstance.post(
         `OfficeStationary/UpdateOfficeStationaryStatus`,
         data
       );
@@ -122,7 +127,10 @@ class OfficeStationaryService {
       const res = await axiosInstance.get(
         `OfficeStationary/HealthMarketPlaceServicesGetAll?${queryParams.toString()}`
       );
-      return successHandler(res);
+      return {
+        success: true,
+        data: res.data,
+      };
     } catch (error: any) {
       return errorHandler(error);
     }
@@ -165,4 +173,8 @@ class OfficeStationaryService {
 }
 
 export default OfficeStationaryService;
-export type { OfficeStationaryParams, CreateOrderParams, UpdateHealthMarketPlaceStatusParams };
+export type {
+  OfficeStationaryParams,
+  CreateOrderParams,
+  UpdateHealthMarketPlaceStatusParams,
+};
