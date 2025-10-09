@@ -28,6 +28,8 @@ import Service3ManagementPage from "./pages/Service3ManagementPage";
 import OrderDetailPage from "./pages/OrderDetailPage";
 import Service2DetailPage from "./pages/Service2DetailPage";
 import Service3DetailPage from "./pages/Service3DetailPage";
+import NewDashboardPage from "./pages/NewDashboardPage";
+import SubServicesDetails7 from "./pages/SubServicesDetails7";
 
 const App = () => {
   return (
@@ -40,74 +42,209 @@ const App = () => {
         <Route path="/service-dashboard" element={<ServiceDashboard />} />
 
         {/* Specific routes for Category ID 6, different service indices */}
-        <Route path="/service-dashboard/category/6/service/1/action/order" element={<OrderManagementPage />} />
-        <Route path="/service-dashboard/category/6/service/2/action/order" element={<Service2ManagementPage />} />
-        <Route path="/service-dashboard/category/6/service/3/action/order" element={<Service3ManagementPage />} />
+        <Route
+          path="/service-dashboard/category/6/service/1/action/order"
+          element={<OrderManagementPage />}
+        />
+        <Route
+          path="/service-dashboard/category/6/service/2/action/order"
+          element={<Service2ManagementPage />}
+        />
+        <Route
+          path="/service-dashboard/category/6/service/3/action/order"
+          element={<Service3ManagementPage />}
+        />
+
+        {/* Specific route for Category ID 7, service index 0 */}
+
+        <Route
+          path="/service-dashboard/category/7/service/1/action/order/subservice/:subserviceIndex"
+          element={<NewDashboardPage />}
+        />
 
         {/* Detail Pages */}
         <Route path="/order-detail/:orderId" element={<OrderDetailPage />} />
-        <Route path="/service2-detail/:serviceId" element={<Service2DetailPage />} />
-        <Route path="/service3-detail/:projectId" element={<Service3DetailPage />} />
+        <Route
+          path="/service2-detail/:serviceId"
+          element={<Service2DetailPage />}
+        />
+        <Route
+          path="/service3-detail/:projectId"
+          element={<Service3DetailPage />}
+        />
 
-        <Route path="/service-dashboard/insurance-services" element={<RentalServices />} />
-        <Route path="/service-dashboard/insurance-services/:orderId" element={<RentalServiceDetail />} />
-        <Route path="/service-dashboard/insurance-services/notifications" element={<RentalServiceNotifications />} />
+        {/* SubServices Details Route */}
+        <Route
+          path="/subservices-details7/:requestId"
+          element={<SubServicesDetails7 />}
+        />
 
-        <Route path="/service-dashboard/rental-services" element={<RentalServices />} />
-        <Route path="/service-dashboard/rental-services/:orderId" element={<RentalServiceDetail />} />
-        <Route path="/service-dashboard/rental-services/notifications" element={<RentalServiceNotifications />} />
+        <Route
+          path="/service-dashboard/insurance-services"
+          element={<RentalServices />}
+        />
+        <Route
+          path="/service-dashboard/insurance-services/:orderId"
+          element={<RentalServiceDetail />}
+        />
+        <Route
+          path="/service-dashboard/insurance-services/notifications"
+          element={<RentalServiceNotifications />}
+        />
 
-        <Route path="/service-dashboard/sell-services" element={<RentalServices />} />
-        <Route path="/service-dashboard/sell-services/:orderId" element={<RentalServiceDetail />} />
-        <Route path="/service-dashboard/sell-services/notifications" element={<RentalServiceNotifications />} />
+        <Route
+          path="/service-dashboard/rental-services"
+          element={<RentalServices />}
+        />
+        <Route
+          path="/service-dashboard/rental-services/:orderId"
+          element={<RentalServiceDetail />}
+        />
+        <Route
+          path="/service-dashboard/rental-services/notifications"
+          element={<RentalServiceNotifications />}
+        />
 
-        <Route path="/service-dashboard/medical-legal-services" element={<RentalServices />} />
-        <Route path="/service-dashboard/medical-legal-services/:orderId" element={<RentalServiceDetail />} />
-        <Route path="/service-dashboard/medical-legal-services/notifications" element={<RentalServiceNotifications />} />
+        <Route
+          path="/service-dashboard/sell-services"
+          element={<RentalServices />}
+        />
+        <Route
+          path="/service-dashboard/sell-services/:orderId"
+          element={<RentalServiceDetail />}
+        />
+        <Route
+          path="/service-dashboard/sell-services/notifications"
+          element={<RentalServiceNotifications />}
+        />
 
-        <Route path="/service-dashboard/medical-staff-services" element={<RentalServices />} />
-        <Route path="/service-dashboard/medical-staff-services/:orderId" element={<RentalServiceDetail />} />
-        <Route path="/service-dashboard/medical-staff-services/notifications" element={<RentalServiceNotifications />} />
+        <Route
+          path="/service-dashboard/medical-legal-services"
+          element={<RentalServices />}
+        />
+        <Route
+          path="/service-dashboard/medical-legal-services/:orderId"
+          element={<RentalServiceDetail />}
+        />
+        <Route
+          path="/service-dashboard/medical-legal-services/notifications"
+          element={<RentalServiceNotifications />}
+        />
 
-        <Route path="/service-dashboard/health-marketplace-services" element={<RentalServices />} />
-        <Route path="/service-dashboard/health-marketplace-services/:orderId" element={<RentalServiceDetail />} />
-        <Route path="/service-dashboard/health-marketplace-services/notifications" element={<RentalServiceNotifications />} />
+        <Route
+          path="/service-dashboard/medical-staff-services"
+          element={<RentalServices />}
+        />
+        <Route
+          path="/service-dashboard/medical-staff-services/:orderId"
+          element={<RentalServiceDetail />}
+        />
+        <Route
+          path="/service-dashboard/medical-staff-services/notifications"
+          element={<RentalServiceNotifications />}
+        />
 
-        <Route path="/service-dashboard/medical-real-estate-services" element={<RentalServices />} />
-        <Route path="/service-dashboard/medical-real-estate-services/:orderId" element={<RentalServiceDetail />} />
-        <Route path="/service-dashboard/medical-real-estate-services/notifications" element={<RentalServiceNotifications />} />
+        <Route
+          path="/service-dashboard/health-marketplace-services"
+          element={<RentalServices />}
+        />
+        <Route
+          path="/service-dashboard/health-marketplace-services/:orderId"
+          element={<RentalServiceDetail />}
+        />
+        <Route
+          path="/service-dashboard/health-marketplace-services/notifications"
+          element={<RentalServiceNotifications />}
+        />
 
-        <Route path="/service-dashboard/general-services" element={<RentalServices />} />
-        <Route path="/service-dashboard/general-services/:orderId" element={<RentalServiceDetail />} />
-        <Route path="/service-dashboard/general-services/notifications" element={<RentalServiceNotifications />} />
+        <Route
+          path="/service-dashboard/medical-real-estate-services"
+          element={<RentalServices />}
+        />
+        <Route
+          path="/service-dashboard/medical-real-estate-services/:orderId"
+          element={<RentalServiceDetail />}
+        />
+        <Route
+          path="/service-dashboard/medical-real-estate-services/notifications"
+          element={<RentalServiceNotifications />}
+        />
 
-        <Route path="/service-dashboard/food-services" element={<RentalServices />} />
-        <Route path="/service-dashboard/food-services/:orderId" element={<RentalServiceDetail />} />
-        <Route path="/service-dashboard/food-services/notifications" element={<RentalServiceNotifications />} />
+        <Route
+          path="/service-dashboard/general-services"
+          element={<RentalServices />}
+        />
+        <Route
+          path="/service-dashboard/general-services/:orderId"
+          element={<RentalServiceDetail />}
+        />
+        <Route
+          path="/service-dashboard/general-services/notifications"
+          element={<RentalServiceNotifications />}
+        />
 
-        <Route path="/service-dashboard/non-medical-services" element={<RentalServices />} />
-        <Route path="/service-dashboard/non-medical-services/:orderId" element={<RentalServiceDetail />} />
-        <Route path="/service-dashboard/non-medical-services/notifications" element={<RentalServiceNotifications />} />
+        <Route
+          path="/service-dashboard/food-services"
+          element={<RentalServices />}
+        />
+        <Route
+          path="/service-dashboard/food-services/:orderId"
+          element={<RentalServiceDetail />}
+        />
+        <Route
+          path="/service-dashboard/food-services/notifications"
+          element={<RentalServiceNotifications />}
+        />
+
+        <Route
+          path="/service-dashboard/non-medical-services"
+          element={<RentalServices />}
+        />
+        <Route
+          path="/service-dashboard/non-medical-services/:orderId"
+          element={<RentalServiceDetail />}
+        />
+        <Route
+          path="/service-dashboard/non-medical-services/notifications"
+          element={<RentalServiceNotifications />}
+        />
 
         <Route path="/advanced-options" element={<AdvancedOptions />} />
         <Route path="/statement-analysis" element={<StatementAnalysis />} />
         <Route path="/subscribers" element={<ListSubscribers />} />
         <Route path="/agents" element={<ListAgents />} />
-        <Route path="/agents/individual/:id" element={<AgentIndividualDetail />} />
+        <Route
+          path="/agents/individual/:id"
+          element={<AgentIndividualDetail />}
+        />
         <Route path="/agents/business/:id" element={<AgentBusinessDetail />} />
-        <Route path="/supervisor-management/:id" element={<SupervisorDetail />} />
+        <Route
+          path="/supervisor-management/:id"
+          element={<SupervisorDetail />}
+        />
         <Route path="/reports" element={<Reports />} />
-        <Route path="/supervisor-management" element={<SupervisorManagement />} />
+        <Route
+          path="/supervisor-management"
+          element={<SupervisorManagement />}
+        />
         {/* <Route path="/supervisor-management/add" element={<AddSupervisor />} />
         <Route path="/supervisor-management/:employeeId" element={<AddSupervisor />} />
         <Route path="/supervisor-management/:employeeId/edit" element={<AddSupervisor />} /> */}
-        <Route path="/subscription-settings" element={<SubscriptionSettings />} />
+        <Route
+          path="/subscription-settings"
+          element={<SubscriptionSettings />}
+        />
         <Route path="/service-management" element={<ServiceManagement />} />
-        <Route path="/employee-category" element={<EmployeeCategoryAssignment />} />
+        <Route
+          path="/employee-category"
+          element={<EmployeeCategoryAssignment />}
+        />
         <Route path="/terms-master" element={<TermsConditionsMaster />} />
         <Route path="/promocode-settings" element={<PromocodeSettings />} />
-        <Route path="/non-medical-companies" element={<NonMedicalCompanies />} />
-
+        <Route
+          path="/non-medical-companies"
+          element={<NonMedicalCompanies />}
+        />
       </Route>
 
       <Route path="*" element={<Navigate to="/login" replace />} />
@@ -116,4 +253,3 @@ const App = () => {
 };
 
 export default App;
-

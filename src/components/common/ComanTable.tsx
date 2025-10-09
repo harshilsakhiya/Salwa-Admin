@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Eye, Edit, Trash2 } from "lucide-react";
+import { Eye, Edit, Trash2, Download, Send } from "lucide-react";
 export type TableColumn<T> = {
     label: string;
     value: (row: T) => React.ReactNode;
@@ -218,16 +218,10 @@ function ComanTable<T extends object>({
                                                                 data-tooltip-id="publish-tooltip"
                                                                 key={action.label}
                                                                 onClick={() => action.onClick(row)}
-                                                                className="w-[30px] h-[30px] rounded-2xl  flex items-center justify-center bg-blue-500"
+                                                                className="w-8 h-8 rounded-md flex items-center justify-center bg-blue-500 hover:bg-blue-600 transition-colors"
+                                                                title="Publish"
                                                             >
-                                                                <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
-                                                                    <path d="M14 2v6h6"/>
-                                                                    <path d="M16 13H8"/>
-                                                                    <path d="M16 17H8"/>
-                                                                    <path d="M10 9H8"/>
-                                                                    <path d="M20 12l-3 3 3 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-                                                                </svg>
+                                                                <Send size={16} className="text-white" />
                                                             </button>
                                                         );
                                                     }
@@ -267,6 +261,29 @@ function ComanTable<T extends object>({
                                                                 title="View"
                                                             >
                                                                 <Eye size={16} className="text-gray-600" />
+                                                            </button>
+                                                        );
+                                                    }
+
+                                                    if (action.iconType === "download") {
+                                                        const disabled = typeof action.isDisabled === "function"
+                                                            ? action.isDisabled(row)
+                                                            : action.isDisabled;
+
+                                                        return (
+                                                            <button
+                                                                key={action.label}
+                                                                data-tooltip-id="download-tooltip"
+                                                                onClick={() => !disabled && action.onClick(row)}
+                                                                disabled={disabled}
+                                                                className={`w-8 h-8 flex items-center justify-center rounded-md transition-colors ${
+                                                                    disabled 
+                                                                        ? "opacity-50 cursor-not-allowed" 
+                                                                        : "hover:bg-green-100"
+                                                                }`}
+                                                                title="Download"
+                                                            >
+                                                                <Download size={16} className={disabled ? "text-gray-400" : "text-green-600"} />
                                                             </button>
                                                         );
                                                     }

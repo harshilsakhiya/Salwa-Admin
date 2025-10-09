@@ -354,6 +354,28 @@ const ServiceDashboard = () => {
       }
     }
 
+    // Check if this is the specific case: categoryId 7, serviceIndex 0, action order
+    if (selectedService?.categoryId == "7" && selectedServiceIndex == 0 && action === "order") {
+      let targetRoute = '/service-dashboard/category/7/service/1/action/order';
+      
+      // Add subservice index if selected
+      if (selectedSubServiceIndex !== null) {
+        targetRoute += `/subservice/${selectedSubServiceIndex + 1}`;
+      }
+      
+      // Redirect to the specific service management page
+      navigate(targetRoute, {
+        state: {
+          category: activeCategory,
+          service: selectedService,
+          subService: selectedSubService,
+          action: action,
+          logData: logData
+        }
+      });
+      return;
+    }
+
     // For other cases, navigate to dashboard or handle differently
     navigate('/dashboard', {
       state: {
