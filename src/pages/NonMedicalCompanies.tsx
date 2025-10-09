@@ -136,12 +136,12 @@ const NonMedicalCompanies = () => {
   const [sortState, setSortState] = useState<SortState[]>([]);
 
   // Menu data state
-  const [menuData, setMenuData] = useState<any[]>([]);
-  const [menuLoading, setMenuLoading] = useState(false);
-  const [menuError, setMenuError] = useState<string | null>(null);
-  const [menuTotalCount, setMenuTotalCount] = useState(0);
-  const [menuTotalPages, setMenuTotalPages] = useState(1);
-  const [showMenuTable, setShowMenuTable] = useState(false);
+  const [menuData] = useState<any[]>([]);
+  const [menuLoading] = useState(false);
+  const [menuError] = useState<string | null>(null);
+  const [menuTotalCount] = useState(0);
+  const [menuTotalPages] = useState(1);
+  const [showMenuTable] = useState(false);
 
   // Modal state
   const [isFormOpen, setIsFormOpen] = useState(false);

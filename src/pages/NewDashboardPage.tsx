@@ -215,19 +215,9 @@ const NewDashboardPage = () => {
       });
 
       if (response && response.success) {
-        // Update the local state to reflect the status change
-        setRecords((prevRecords) =>
-          prevRecords.map((record) =>
-            record.RequestId === row.RequestId
-              ? {
-                  ...record,
-                  StatusId: StatusEnum.PUBLISHED,
-                  StatusName: getStatusName(StatusEnum.PUBLISHED),
-                }
-              : record
-          )
-        );
-
+        // Refetch the data to get updated information
+        await fetchDataFromAPI();
+        
         // Show success toast notification
         showToast(
           `Request ${row.RequestNumber} has been published successfully!`,
