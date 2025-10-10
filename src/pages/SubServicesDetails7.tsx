@@ -135,11 +135,8 @@ const SubServicesDetails7 = () => {
   const handleApprove = async () => {
     if (!serviceDetails) return;
 
-    const confirmed = window.confirm(
-      `Are you sure you want to approve request ${serviceDetails.RequestNumber}?`
-    );
 
-    if (!confirmed) return;
+
 
     try {
       setLoading(true);
@@ -178,11 +175,7 @@ const SubServicesDetails7 = () => {
   const handleReject = async () => {
     if (!serviceDetails) return;
 
-    const confirmed = window.confirm(
-      `Are you sure you want to reject request ${serviceDetails.RequestNumber}?`
-    );
-
-    if (!confirmed) return;
+  
 
     try {
       setLoading(true);
@@ -336,8 +329,8 @@ const SubServicesDetails7 = () => {
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
                     className={`flex-shrink-0 w-16 h-12 rounded-lg overflow-hidden border-2 transition-all duration-200 ${index === currentImageIndex
-                        ? "border-blue-500 shadow-md scale-105"
-                        : "border-gray-200 hover:border-gray-300"
+                      ? "border-blue-500 shadow-md scale-105"
+                      : "border-gray-200 hover:border-gray-300"
                       }`}
                   >
                     <img

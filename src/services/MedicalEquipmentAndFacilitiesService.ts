@@ -126,18 +126,69 @@ export interface MedicalFactoriesSectorApproveRejectParams {
   Reason: string;
 }
 
+export interface GetAllMedicalSellServicesParams {
+  pageNumber?: number;
+  pageSize?: number;
+  orderByColumn?: string;
+  orderDirection?: string;
+}
+
+export interface MedicalSellServiceRecord {
+  requestId: number;
+  requestNumber: string;
+  orderTitle: string;
+  buildingLicenseNumber: string;
+  medicalLicenseNumber: string;
+  workingEmp: number;
+  contactPersonName: string;
+  contactEmail: string;
+  clinicHours: string;
+  rentPeriod: number;
+  rentPeriodType: string;
+  serviceType: string;
+  provideWith: string;
+  statusId: number;
+  statusName: string;
+  createdDate: string;
+  updatedDate: string;
+  createdBy: number;
+  updatedBy: number;
+  clinicSiteId: number;
+  categoryId: number;
+  serviceId: number;
+  confirmedFlag: boolean;
+  isActive: boolean;
+  isAdminApprove: boolean;
+  sterilizationEquipmentFlag: boolean;
+  otherTermsAndCon: string;
+  reason: string;
+  media: string;
+  validityTime: number;
+  transactionId: string | null;
+  quotation: string | null;
+  deletedBy: number | null;
+  deletedDate: string | null;
+  rowNum: number;
+}
+
 class MedicalEquipmentAndFacilitiesService {
   /**
    * Get all medical factories sector for admin
    * Uses the exact API endpoint: /api/MedicalFactoriesSector/GetAllMedicalFactoriesSectorforAdmin
    */
-  static GetAllMedicalFactoriesSectorforAdmin = async (params: GetAllMedicalFactoriesSectorParams) => {
+  static GetAllMedicalFactoriesSectorforAdmin = async (
+    params: GetAllMedicalFactoriesSectorParams
+  ) => {
     try {
       const queryParams = new URLSearchParams();
-      if (params.pageNumber) queryParams.append("pageNumber", params.pageNumber.toString());
-      if (params.pageSize) queryParams.append("pageSize", params.pageSize.toString());
-      if (params.orderByColumn) queryParams.append("orderByColumn", params.orderByColumn);
-      if (params.orderDirection) queryParams.append("orderDirection", params.orderDirection);
+      if (params.pageNumber)
+        queryParams.append("pageNumber", params.pageNumber.toString());
+      if (params.pageSize)
+        queryParams.append("pageSize", params.pageSize.toString());
+      if (params.orderByColumn)
+        queryParams.append("orderByColumn", params.orderByColumn);
+      if (params.orderDirection)
+        queryParams.append("orderDirection", params.orderDirection);
 
       const res = await axiosInstance.get(
         `MedicalFactoriesSector/GetAllMedicalFactoriesSectorforAdmin?${queryParams.toString()}`
@@ -167,7 +218,9 @@ class MedicalEquipmentAndFacilitiesService {
    * Approve or reject medical factories sector request by admin
    * Uses the exact API endpoint: /api/MedicalFactoriesSector/MedicalFactoriesSectorAdminApproveReject
    */
-  static MedicalFactoriesSectorAdminApproveReject = async (params: MedicalFactoriesSectorApproveRejectParams) => {
+  static MedicalFactoriesSectorAdminApproveReject = async (
+    params: MedicalFactoriesSectorApproveRejectParams
+  ) => {
     try {
       const formData = new FormData();
       formData.append("RequestId", params.RequestId.toString());
@@ -219,6 +272,79 @@ class MedicalEquipmentAndFacilitiesService {
       const res = await axiosInstance.post(
         `MedicalEquipmentAndFacilities/UpdateMedicalRealEstateServiceStatus`,
         data
+      );
+      return successHandler(res);
+    } catch (error: any) {
+      return errorHandler(error);
+    }
+  };
+
+  /**
+   * Get all medical sell services for admin
+   * Uses the exact API endpoint: /api/MedicalEquipmentAndFacilities/GetAllMedicalSellServices
+   */
+  static GetAllMedicalSellServices = async (
+    params: GetAllMedicalSellServicesParams = {}
+  ) => {
+    try {
+      const {
+        pageNumber = 1,
+        pageSize = 10,
+        orderByColumn = "RequestId",
+        orderDirection = "ASC",
+      } = params;
+
+      // Build query parameters for GET request
+      const queryParams = new URLSearchParams({
+        pageNumber: pageNumber.toString(),
+        pageSize: pageSize.toString(),
+        orderByColumn: orderByColumn,
+        orderDirection: orderDirection,
+      });
+
+      const res = await axiosInstance.get(
+        `MedicalEquipmentAndFacilities/GetAllMedicalSellServices?${queryParams.toString()}`
+      );
+      return {
+        success: true,
+        data: res.data,
+      };
+    } catch (error: any) {
+      return errorHandler(error);
+    }
+  };
+
+  /**
+   * Update medical sell service status
+   * Uses the exact API endpoint: /api/MedicalEquipmentAndFacilities/UpdateMedicalSellServiceStatus
+   */
+  static UpdateMedicalSellServiceStatus = async (data: {
+    requestId: number;
+    newStatusId: number;
+    requestNumber: string;
+    reason: string;
+  }) => {
+    try {
+      const res = await axiosInstance.post(
+        `MedicalEquipmentAndFacilities/UpdateMedicalSellServiceStatus`,
+        data
+      );
+      return successHandler(res);
+    } catch (error: any) {
+      return errorHandler(error);
+    }
+  };
+
+  /**
+   * Get medical sell service by request number
+   * Uses the exact API endpoint: /api/MedicalEquipmentAndFacilities/GetMedicalSellServiceByRequestNumber
+   */
+  static GetMedicalSellServiceByRequestNumber = async (
+    requestNumber: string
+  ) => {
+    try {
+      const res = await axiosInstance.get(
+        `MedicalEquipmentAndFacilities/GetMedicalSellServiceByRequestNumber?requestNumber=${requestNumber}`
       );
       return successHandler(res);
     } catch (error: any) {

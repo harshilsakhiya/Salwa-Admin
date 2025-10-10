@@ -130,11 +130,6 @@ const Service51Details = () => {
   const handleApprove = async () => {
     if (!serviceDetails) return;
 
-    const confirmed = window.confirm(
-      `Are you sure you want to approve request ${serviceDetails.RequestNumber}?`
-    );
-
-    if (!confirmed) return;
 
     try {
       setLoading(true);
@@ -171,11 +166,7 @@ const Service51Details = () => {
   const handleReject = async () => {
     if (!serviceDetails) return;
 
-    const confirmed = window.confirm(
-      `Are you sure you want to reject request ${serviceDetails.RequestNumber}?`
-    );
 
-    if (!confirmed) return;
 
     try {
       setLoading(true);
@@ -344,11 +335,10 @@ const Service51Details = () => {
                   <button
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
-                    className={`flex-shrink-0 w-20 h-16 rounded-lg overflow-hidden border-2 ${
-                      index === currentImageIndex
-                        ? "border-primary"
-                        : "border-gray-200"
-                    }`}
+                    className={`flex-shrink-0 w-20 h-16 rounded-lg overflow-hidden border-2 ${index === currentImageIndex
+                      ? "border-primary"
+                      : "border-gray-200"
+                      }`}
                   >
                     <img
                       src={image}

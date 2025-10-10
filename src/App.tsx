@@ -43,7 +43,7 @@ import Service91Details from "./pages/service9-1/Service91Details";
 import Service51Dashboard from "./pages/service5-1/Service51Dashboard";
 import Service51Details from "./pages/service5-1/Service51Details";
 import Service41Dashboard from "./pages/service4-1/Service41Dashboard";
-import Service41Details from "./pages/service4-1/Service41Details";
+import Service41MedicalLegalDetails from "./pages/service4-1/Service41MedicalLegalDetails";
 import Service31Dashboard from "./pages/service3-1/Service31Dashboard";
 import Service31Details from "./pages/service3-1/Service31Details";
 import Service21Dashboard from "./pages/service2-1/Service21Dashboard";
@@ -176,7 +176,8 @@ const App = () => {
 
         {/* Service 4-1 Routes */}
         <Route path="/service4-1" element={<Service41Dashboard />} />
-        <Route path="/service4-1/:id" element={<Service41Details />} />
+        <Route path="/service4-1/:requestNumber" element={<Service41MedicalLegalDetails />} />
+
 
         {/* Service 3-1 Routes */}
         <Route path="/service3-1" element={<Service31Dashboard />} />

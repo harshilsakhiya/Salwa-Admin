@@ -156,13 +156,6 @@ const NewDashboardPage = () => {
   // Handle publish action
   const handlePublishAction = async (row: DashboardRecord) => {
     // Show confirmation dialog
-    const confirmed = window.confirm(
-      `Are you sure you want to publish request ${row.RequestNumber}?\n\nThis action will make the request visible to other users.`
-    );
-
-    if (!confirmed) {
-      return;
-    }
 
     try {
       setLoading(true);

@@ -110,11 +110,7 @@ const Service21Details = () => {
   const handleApprove = async () => {
     if (!serviceDetails) return;
 
-    const confirmed = window.confirm(
-      `Are you sure you want to approve request ${serviceDetails.RequestNumber}?`
-    );
 
-    if (!confirmed) return;
 
     try {
       setLoading(true);
@@ -149,12 +145,6 @@ const Service21Details = () => {
 
   const handleReject = async () => {
     if (!serviceDetails) return;
-
-    const confirmed = window.confirm(
-      `Are you sure you want to reject request ${serviceDetails.RequestNumber}?`
-    );
-
-    if (!confirmed) return;
 
     try {
       setLoading(true);

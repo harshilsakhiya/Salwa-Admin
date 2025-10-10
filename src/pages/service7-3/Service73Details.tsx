@@ -67,6 +67,7 @@ const Service73Details = () => {
   const [error, setError] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [images, setImages] = useState<string[]>([]);
+  const [searchRequestNumber, setSearchRequestNumber] = useState("");
 
   // Reject reason modal state
   const [showRejectModal, setShowRejectModal] = useState(false);
@@ -130,6 +131,57 @@ const Service73Details = () => {
     }
   };
 
+  // Fetch service details by request number
+  const fetchServiceDetailsByRequestNumber = async (requestNumber: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response: any =
+        await MedicalEquipmentAndFacilitiesService.GetMedicalSellServiceByRequestNumber(
+          requestNumber
+        );
+
+      if (response && response.success) {
+        setServiceDetails(response.data);
+
+        // Handle images from mediaFilesArray with API base URL prefix
+        if (response.data?.mediaFilesArray && Array.isArray(response.data?.mediaFilesArray)) {
+          const apiBaseUrl = axiosInstance.defaults.baseURL?.replace("/api/", "") || "";
+          const fullImageUrls = response.data.mediaFilesArray.map((imagePath: string) => {
+            if (imagePath.startsWith("http")) {
+              return imagePath;
+            }
+            return `${apiBaseUrl}/${imagePath}`;
+          });
+          setImages(fullImageUrls);
+        } else if (response.data?.mediaFilePath) {
+          const apiBaseUrl = axiosInstance.defaults.baseURL?.replace("/api/", "") || "";
+          const fullImageUrl = response.data.mediaFilePath.startsWith("http")
+            ? response.data.mediaFilePath
+            : `${apiBaseUrl}/${response.data.mediaFilePath}`;
+          setImages([fullImageUrl]);
+        }
+      } else {
+        throw new Error(response?.message || "Failed to fetch service details");
+      }
+    } catch (err) {
+      console.error("Error fetching service details by request number:", err);
+      setError("Failed to load service details");
+      showToast("Failed to load service details", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearchByRequestNumber = () => {
+    if (searchRequestNumber.trim()) {
+      fetchServiceDetailsByRequestNumber(searchRequestNumber.trim());
+    } else {
+      showToast("Please enter a request number", "error");
+    }
+  };
+
   useEffect(() => {
     fetchServiceDetails();
   }, [id, showToast]);
@@ -147,11 +199,7 @@ const Service73Details = () => {
   const handleApprove = async () => {
     if (!serviceDetails) return;
 
-    const confirmed = window.confirm(
-      `Are you sure you want to approve request ${serviceDetails.requestId}?`
-    );
 
-    if (!confirmed) return;
 
     try {
       setLoading(true);
@@ -313,6 +361,30 @@ const Service73Details = () => {
             </h1>
             <div className="w-20"></div> {/* Spacer for centering */}
           </div>
+
+          {/* Search by Request Number */}
+          <div className="mt-4 flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <label htmlFor="requestNumber" className="text-sm font-medium text-gray-700">
+                Search by Request Number:
+              </label>
+              <input
+                id="requestNumber"
+                type="text"
+                value={searchRequestNumber}
+                onChange={(e) => setSearchRequestNumber(e.target.value)}
+                placeholder="Enter request number"
+                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              />
+              <button
+                onClick={handleSearchByRequestNumber}
+                disabled={loading}
+                className="px-4 py-2 bg-primary text-white text-sm rounded-md hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Search
+              </button>
+            </div>
+          </div>
         </header>
 
         {/* Main Content */}
@@ -382,11 +454,10 @@ const Service73Details = () => {
                     <button
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
-                      className={`w-full h-32 rounded-lg overflow-hidden border-2 transition-all ${
-                        index === currentImageIndex
-                          ? "border-blue-500"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
+                      className={`w-full h-32 rounded-lg overflow-hidden border-2 transition-all ${index === currentImageIndex
+                        ? "border-blue-500"
+                        : "border-gray-200 hover:border-gray-300"
+                        }`}
                     >
                       <img
                         src={image}
@@ -698,55 +769,50 @@ const Service73Details = () => {
 
                     <div className="flex items-center gap-3">
                       <div
-                        className={`w-3 h-3 rounded-full ${
-                          serviceDetails.electricityService
-                            ? "bg-green-500"
-                            : "bg-red-500"
-                        }`}
+                        className={`w-3 h-3 rounded-full ${serviceDetails.electricityService
+                          ? "bg-green-500"
+                          : "bg-red-500"
+                          }`}
                       ></div>
                       <span className="text-black">Electricity Service</span>
                     </div>
 
                     <div className="flex items-center gap-3">
                       <div
-                        className={`w-3 h-3 rounded-full ${
-                          serviceDetails.waterService
-                            ? "bg-green-500"
-                            : "bg-red-500"
-                        }`}
+                        className={`w-3 h-3 rounded-full ${serviceDetails.waterService
+                          ? "bg-green-500"
+                          : "bg-red-500"
+                          }`}
                       ></div>
                       <span className="text-black">Water Service</span>
                     </div>
 
                     <div className="flex items-center gap-3">
                       <div
-                        className={`w-3 h-3 rounded-full ${
-                          serviceDetails.sewageService
-                            ? "bg-green-500"
-                            : "bg-red-500"
-                        }`}
+                        className={`w-3 h-3 rounded-full ${serviceDetails.sewageService
+                          ? "bg-green-500"
+                          : "bg-red-500"
+                          }`}
                       ></div>
                       <span className="text-black">Sewage Service</span>
                     </div>
 
                     <div className="flex items-center gap-3">
                       <div
-                        className={`w-3 h-3 rounded-full ${
-                          serviceDetails.internetFiberOptic
-                            ? "bg-green-500"
-                            : "bg-red-500"
-                        }`}
+                        className={`w-3 h-3 rounded-full ${serviceDetails.internetFiberOptic
+                          ? "bg-green-500"
+                          : "bg-red-500"
+                          }`}
                       ></div>
                       <span className="text-black">Internet Fiber Optic</span>
                     </div>
 
                     <div className="flex items-center gap-3">
                       <div
-                        className={`w-3 h-3 rounded-full ${
-                          serviceDetails.telephoneInternetService
-                            ? "bg-green-500"
-                            : "bg-red-500"
-                        }`}
+                        className={`w-3 h-3 rounded-full ${serviceDetails.telephoneInternetService
+                          ? "bg-green-500"
+                          : "bg-red-500"
+                          }`}
                       ></div>
                       <span className="text-black">
                         Telephone Internet Service
@@ -762,11 +828,10 @@ const Service73Details = () => {
 
                     <div className="flex items-center gap-3">
                       <div
-                        className={`w-3 h-3 rounded-full ${
-                          serviceDetails.buildingConstructionLicense
-                            ? "bg-green-500"
-                            : "bg-red-500"
-                        }`}
+                        className={`w-3 h-3 rounded-full ${serviceDetails.buildingConstructionLicense
+                          ? "bg-green-500"
+                          : "bg-red-500"
+                          }`}
                       ></div>
                       <span className="text-black">
                         Building Construction License
@@ -775,11 +840,10 @@ const Service73Details = () => {
 
                     <div className="flex items-center gap-3">
                       <div
-                        className={`w-3 h-3 rounded-full ${
-                          serviceDetails.landSoilTestsCompleted
-                            ? "bg-green-500"
-                            : "bg-red-500"
-                        }`}
+                        className={`w-3 h-3 rounded-full ${serviceDetails.landSoilTestsCompleted
+                          ? "bg-green-500"
+                          : "bg-red-500"
+                          }`}
                       ></div>
                       <span className="text-black">
                         Land Soil Tests Completed
@@ -788,11 +852,10 @@ const Service73Details = () => {
 
                     <div className="flex items-center gap-3">
                       <div
-                        className={`w-3 h-3 rounded-full ${
-                          serviceDetails.isTermCondition
-                            ? "bg-green-500"
-                            : "bg-red-500"
-                        }`}
+                        className={`w-3 h-3 rounded-full ${serviceDetails.isTermCondition
+                          ? "bg-green-500"
+                          : "bg-red-500"
+                          }`}
                       ></div>
                       <span className="text-black">
                         Terms and Conditions Accepted
@@ -801,11 +864,10 @@ const Service73Details = () => {
 
                     <div className="flex items-center gap-3">
                       <div
-                        className={`w-3 h-3 rounded-full ${
-                          serviceDetails.isActive
-                            ? "bg-green-500"
-                            : "bg-red-500"
-                        }`}
+                        className={`w-3 h-3 rounded-full ${serviceDetails.isActive
+                          ? "bg-green-500"
+                          : "bg-red-500"
+                          }`}
                       ></div>
                       <span className="text-black">Property Active</span>
                     </div>

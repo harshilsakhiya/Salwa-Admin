@@ -129,13 +129,7 @@ const Service51Dashboard = () => {
   };
 
   const handlePublishAction = async (row: DashboardRecord) => {
-    const confirmed = window.confirm(
-      `Are you sure you want to publish job "${row.jobTitle}"?\n\nThis action will make the job posting visible to candidates.`
-    );
 
-    if (!confirmed) {
-      return;
-    }
 
     try {
       setLoading(true);
@@ -245,7 +239,7 @@ const Service51Dashboard = () => {
       label: "Application Deadline",
       value: (row) => (
         <span className="text-gray-500">
-          {row.applicationDeadline 
+          {row.applicationDeadline
             ? new Date(row.applicationDeadline).toLocaleDateString()
             : "No deadline"
           }

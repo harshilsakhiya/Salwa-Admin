@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import IndividualClinicService from "../../services/IndividualClinicService";
+import MedicalEquipmentAndFacilitiesService from "../../services/MedicalEquipmentAndFacilitiesService";
 import { useToast } from "../../components/ToastProvider";
 import {
   getStatusBadgeClass,
@@ -12,39 +13,50 @@ import {
 interface ServiceDetails {
   RequestId: number;
   RequestNumber: string;
-  OrderTitle: string;
-  BuildingLicenseNumber: string;
-  MedicalLicenseNumber: string;
-  WorkingEmp: number;
   ContactPersonName: string;
-  ContactEmail: string;
-  ClinicHours: string;
-  RentPeriod: number;
-  RentPeriodType: string;
-  ServiceType: string;
-  ProvideWith: string;
-  StatusId: number;
-  StatusName: string;
-  CreatedDate: string;
-  UpdatedDate: string;
+  ContactPersonEmail: string;
+  OrderPostValidityTime: number;
+  OrderPostValidityTimeName: string;
+  LocationId: number;
+  DiscountType: boolean;
+  DiscountValue: number;
+  OrderTitle: string;
+  DeviceName: string;
+  DeviceServiceType: number;
+  FDANumber: string;
+  PostValidityTime: number;
+  PostValidityTimeName: string;
+  DeviceApprovalNumber: string;
+  OtherTermsAndConditions: string;
+  EquipmentDamageInfo: string;
+  SellValue: number;
+  MediaFilePath: string;
+  IsConfirmedOwner: boolean;
+  IsSterilizationConfirmed: boolean;
   CreatedBy: number;
+  CreatedDate: string;
   UpdatedBy: number;
-  ClinicSiteId: number;
-  CategoryId: number;
-  SerevieceId: number;
-  ConfirmedFlag: boolean;
-  IsActive: boolean;
-  IsAdminApprove: boolean;
-  SterilizationEquipmentFlag: boolean;
-  OtherTermsAndCon: string;
-  Reason: string;
-  Media: string;
-  ValidityTime: number;
-  TransactionId: string | null;
-  Quotation: string | null;
+  UpdatedDate: string;
   DeletedBy: number | null;
   DeletedDate: string | null;
-  RowNum: number;
+  IsActive: boolean;
+  CategoryId: number;
+  ServiceId: number;
+  IsTermCondition: boolean;
+  ServiceType: number;
+  StatusId: number;
+  StatusName: string;
+  Country: string;
+  Region: string;
+  City: string;
+  District: string;
+  NationalAddress: string;
+  Address: string;
+  Latitude: string;
+  Longitude: string;
+  BusinessName: string;
+  DeviceTypeName: string;
+  DayLeft: string;
 }
 
 const sampleImages = [
@@ -63,35 +75,34 @@ const Service31Details = () => {
   const [error, setError] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [images, setImages] = useState<string[]>(sampleImages);
+  const [searchRequestNumber, setSearchRequestNumber] = useState("");
 
-  const fetchServiceDetails = async () => {
-    if (!id) {
-      setError("Request ID not provided");
-      setLoading(false);
-      return;
-    }
 
+
+  const fetchServiceDetailsByRequestNumber = async (requestNumber?: string) => {
     try {
       setLoading(true);
       setError(null);
 
+      const searchParam = requestNumber || id;
+      if (!searchParam) {
+        setError("Request ID or Request Number not provided");
+        setLoading(false);
+        return;
+      }
+
       const response: any =
-        await IndividualClinicService.GetIndividualClinicServiceRequestById(
-          parseInt(id)
+        await MedicalEquipmentAndFacilitiesService.GetMedicalSellServiceByRequestNumber(
+          searchParam as string
         );
 
       if (response && response.success) {
         setServiceDetails(response.data);
 
-        if (response.data.Media) {
-          try {
-            const mediaUrls = JSON.parse(response.data.Media);
-            if (Array.isArray(mediaUrls) && mediaUrls.length > 0) {
-              setImages(mediaUrls);
-            }
-          } catch (e) {
-            console.log("Could not parse media, using sample images");
-          }
+        if (response.data.MediaFilePath) {
+          setImages([response.data.MediaFilePath]);
+        } else {
+          setImages(sampleImages);
         }
       } else {
         throw new Error(
@@ -99,7 +110,7 @@ const Service31Details = () => {
         );
       }
     } catch (err) {
-      console.error("Error fetching service details:", err);
+      console.error("Error fetching service details by request number:", err);
       setError("Failed to load service details");
       showToast("Failed to load service details", "error");
     } finally {
@@ -107,8 +118,17 @@ const Service31Details = () => {
     }
   };
 
+  const handleSearchByRequestNumber = () => {
+    if (searchRequestNumber.trim()) {
+      fetchServiceDetailsByRequestNumber(searchRequestNumber.trim());
+    } else {
+      showToast("Please enter a request number", "error");
+    }
+  };
+
+
   useEffect(() => {
-    fetchServiceDetails();
+    fetchServiceDetailsByRequestNumber();
   }, [id, showToast]);
 
   const nextImage = () => {
@@ -122,11 +142,7 @@ const Service31Details = () => {
   const handleApprove = async () => {
     if (!serviceDetails) return;
 
-    const confirmed = window.confirm(
-      `Are you sure you want to approve request ${serviceDetails.RequestNumber}?`
-    );
 
-    if (!confirmed) return;
 
     try {
       setLoading(true);
@@ -138,7 +154,8 @@ const Service31Details = () => {
       });
 
       if (response && response.success) {
-        await fetchServiceDetails();
+        await fetchServiceDetailsByRequestNumber();
+
         showToast(
           `Request ${serviceDetails.RequestNumber} has been approved successfully!`,
           "success"
@@ -162,11 +179,7 @@ const Service31Details = () => {
   const handleReject = async () => {
     if (!serviceDetails) return;
 
-    const confirmed = window.confirm(
-      `Are you sure you want to reject request ${serviceDetails.RequestNumber}?`
-    );
 
-    if (!confirmed) return;
 
     try {
       setLoading(true);
@@ -178,7 +191,8 @@ const Service31Details = () => {
       });
 
       if (response && response.success) {
-        await fetchServiceDetails();
+        await fetchServiceDetailsByRequestNumber();
+
         showToast(
           `Request ${serviceDetails.RequestNumber} has been rejected`,
           "success"
@@ -263,21 +277,47 @@ const Service31Details = () => {
               <h1 className="text-2xl font-bold text-gray-900">
                 Service 3-1 Details
               </h1>
-              <div className="flex items-center gap-2">
-                <div className="h-6 w-px bg-gray-300"></div>
-                <span
-                  className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${getStatusBadgeClass(
-                    serviceDetails.StatusId
-                  )}`}
-                >
-                  {getStatusName(serviceDetails.StatusId)}
-                </span>
-              </div>
+              {serviceDetails && (
+                <div className="flex items-center gap-2">
+                  <div className="h-6 w-px bg-gray-300"></div>
+                  <span
+                    className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${getStatusBadgeClass(
+                      serviceDetails.StatusId
+                    )}`}
+                  >
+                    {getStatusName(serviceDetails.StatusId)}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Search by Request Number */}
+          <div className="mt-4 flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <label htmlFor="requestNumber" className="text-sm font-medium text-gray-700">
+                Search by Request Number:
+              </label>
+              <input
+                id="requestNumber"
+                type="text"
+                value={searchRequestNumber}
+                onChange={(e) => setSearchRequestNumber(e.target.value)}
+                placeholder="Enter request number"
+                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              />
+              <button
+                onClick={handleSearchByRequestNumber}
+                disabled={loading}
+                className="px-4 py-2 bg-primary text-white text-sm rounded-md hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Search
+              </button>
             </div>
           </div>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1  gap-8">
           <div className="space-y-6">
             <div className="relative">
               <div className="relative h-96 bg-gray-100 rounded-lg overflow-hidden">
@@ -334,11 +374,10 @@ const Service31Details = () => {
                   <button
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
-                    className={`flex-shrink-0 w-20 h-16 rounded-lg overflow-hidden border-2 ${
-                      index === currentImageIndex
-                        ? "border-primary"
-                        : "border-gray-200"
-                    }`}
+                    className={`flex-shrink-0 w-20 h-16 rounded-lg overflow-hidden border-2 ${index === currentImageIndex
+                      ? "border-primary"
+                      : "border-gray-200"
+                      }`}
                   >
                     <img
                       src={image}
@@ -354,6 +393,9 @@ const Service31Details = () => {
               </div>
             </div>
 
+
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="bg-white rounded-lg border border-gray-200 p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">
                 {serviceDetails.OrderTitle}
@@ -379,9 +421,9 @@ const Service31Details = () => {
                       d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                     />
                   </svg>
-                  <span className="text-gray-700">Jeddah, Saudi Arabia</span>
+                  <span className="text-gray-700">{serviceDetails.City}, {serviceDetails.Country}</span>
                   <span className="ml-auto bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                    {serviceDetails.ValidityTime} Days Left
+                    {serviceDetails.DayLeft} Days Left
                   </span>
                 </div>
 
@@ -401,90 +443,131 @@ const Service31Details = () => {
                   <div className="flex justify-between">
                     <span className="text-gray-600">Contact Email:</span>
                     <span className="font-medium">
-                      {serviceDetails.ContactEmail}
+                      {serviceDetails.ContactPersonEmail}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Service Type:</span>
+                    <span className="text-gray-600">Device Name:</span>
                     <span className="font-medium">
-                      {serviceDetails.ServiceType}
+                      {serviceDetails.DeviceName}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Device Type:</span>
+                    <span className="font-medium">
+                      {serviceDetails.DeviceTypeName}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">FDA Number:</span>
+                    <span className="font-medium">
+                      {serviceDetails.FDANumber}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Sell Value:</span>
+                    <span className="font-medium">
+                      {serviceDetails.SellValue} SAR
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Business Name:</span>
+                    <span className="font-medium">
+                      {serviceDetails.BusinessName}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Address:</span>
+                    <span className="font-medium">
+                      {serviceDetails.Address}
                     </span>
                   </div>
                 </div>
 
-                {serviceDetails.OtherTermsAndCon && (
+                {serviceDetails.OtherTermsAndConditions && (
                   <div className="mt-4">
                     <h3 className="font-semibold text-gray-900 mb-2">
                       Terms & Conditions:
                     </h3>
                     <p className="text-gray-700 text-sm">
-                      {serviceDetails.OtherTermsAndCon}
+                      {serviceDetails.OtherTermsAndConditions}
+                    </p>
+                  </div>
+                )}
+
+                {serviceDetails.EquipmentDamageInfo && (
+                  <div className="mt-4">
+                    <h3 className="font-semibold text-gray-900 mb-2">
+                      Equipment Damage Info:
+                    </h3>
+                    <p className="text-gray-700 text-sm">
+                      {serviceDetails.EquipmentDamageInfo}
                     </p>
                   </div>
                 )}
               </div>
             </div>
-          </div>
-
-          <div className="space-y-6">
-            <div className="bg-white rounded-lg border border-gray-200 p-6 h-96">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Location
-              </h3>
-              <div className="h-full bg-gray-100 rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <svg
-                    className="w-16 h-16 text-gray-400 mx-auto mb-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                  <p className="text-gray-500 mb-2">Riyadh Medical Center</p>
-                  <p className="text-sm text-gray-400">
-                    123 Healthcare Avenue, Riyadh, MD 10001
-                  </p>
-                  <button className="mt-4 px-4 py-2 bg-black text-white rounded-md text-sm hover:bg-gray-800 transition-colors">
-                    Redirect to location
-                  </button>
+            <div className="space-y-6">
+              <div className="bg-white rounded-lg border border-gray-200 p-6 h-96">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Location
+                </h3>
+                <div className="h-full bg-gray-100 rounded-lg flex items-center justify-center">
+                  <div className="text-center">
+                    <svg
+                      className="w-16 h-16 text-gray-400 mx-auto mb-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                    <p className="text-gray-500 mb-2">Riyadh Medical Center</p>
+                    <p className="text-sm text-gray-400">
+                      123 Healthcare Avenue, Riyadh, MD 10001
+                    </p>
+                    <button className="mt-4 px-4 py-2 bg-black text-white rounded-md text-sm hover:bg-gray-800 transition-colors">
+                      Redirect to location
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+
+
         </div>
 
-        <div className="mt-8 flex justify-center gap-4">
-          <button
-            onClick={handleReject}
-            disabled={
-              loading || serviceDetails.StatusId === StatusEnum.REJECTED
-            }
-            className="px-8 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Reject
-          </button>
-          <button
-            onClick={handleApprove}
-            disabled={
-              loading || serviceDetails.StatusId === StatusEnum.APPROVED
-            }
-            className="px-8 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Approve
-          </button>
-        </div>
+        {/* Show Approve/Reject buttons only when status is Pending */}
+        {serviceDetails.StatusId === StatusEnum.PENDING && (
+          <div className="mt-8 flex justify-center gap-4">
+            <button
+              onClick={handleReject}
+              disabled={loading}
+              className="px-8 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Reject
+            </button>
+            <button
+              onClick={handleApprove}
+              disabled={loading}
+              className="px-8 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Approve
+            </button>
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );

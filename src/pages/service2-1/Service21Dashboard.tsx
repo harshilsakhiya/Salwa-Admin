@@ -131,11 +131,7 @@ const Service21Dashboard = () => {
   };
 
   const handlePublishAction = async (row: DashboardRecord) => {
-    const confirmed = window.confirm(
-      `Are you sure you want to publish request ${row.RequestNumber}?`
-    );
 
-    if (!confirmed) return;
 
     try {
       setLoading(true);

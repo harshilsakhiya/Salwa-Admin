@@ -7,6 +7,7 @@ import ComanTable, {
   type SortState,
 } from "../../components/common/ComanTable";
 import IndividualClinicService from "../../services/IndividualClinicService";
+import MedicalLegalServices from "../../services/MedicalLegalServices";
 import { useToast } from "../../components/ToastProvider";
 import {
   getStatusBadgeClass,
@@ -52,6 +53,33 @@ interface DashboardRecord {
   RowNum: number;
 }
 
+interface MedicalLegalRecord {
+  id: number;
+  requestNumber: string;
+  requestTitle: string;
+  clientName: string;
+  clientEmail: string;
+  clientPhone: string;
+  serviceType: string;
+  legalCaseType: string;
+  caseDescription: string;
+  urgencyLevel: string;
+  estimatedDuration: string;
+  budgetRange: string;
+  preferredLanguage: string;
+  statusId: number;
+  statusName: string;
+  createdDate: string;
+  updatedDate: string;
+  createdBy: number;
+  updatedBy: number;
+  isActive: boolean;
+  isApproved: boolean;
+  notes?: string;
+  assignedLawyer?: string;
+  caseFileNumber?: string;
+}
+
 const Service41Dashboard = () => {
   const { subserviceIndex } = useParams<{
     subserviceIndex?: string;
@@ -60,6 +88,7 @@ const Service41Dashboard = () => {
   const { showToast } = useToast();
 
   const [records, setRecords] = useState<DashboardRecord[]>([]);
+  const [medicalLegalRecords, setMedicalLegalRecords] = useState<MedicalLegalRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pageNumber, setPageNumber] = useState(1);
@@ -67,6 +96,7 @@ const Service41Dashboard = () => {
   const [sortState, setSortState] = useState<SortState[]>([]);
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
+  const [activeTab, setActiveTab] = useState<'clinic' | 'medical-legal'>('clinic');
 
   const fetchDataFromAPI = async (): Promise<DashboardRecord[]> => {
     try {
@@ -105,14 +135,50 @@ const Service41Dashboard = () => {
     }
   };
 
+  const fetchMedicalLegalDataFromAPI = async (): Promise<MedicalLegalRecord[]> => {
+    try {
+      const response = await MedicalLegalServices.GetAllMedicalLegalServices({
+        searchText: "",
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+        orderByColumn: sortState.length > 0 ? sortState[0].key : "CreatedDate",
+        orderDirection: sortState.length > 0 ? sortState[0].order.toUpperCase() : "DESC",
+      });
+
+      if (response && response.success) {
+        const responseData = (response as any).data;
+        const totalCount = responseData?.totalCount || 0;
+        const apiTotalPages = responseData?.totalPages;
+
+        const calculatedTotalPages =
+          apiTotalPages || Math.ceil(totalCount / pageSize) || 1;
+
+        setTotalCount(totalCount);
+        setTotalPages(calculatedTotalPages);
+
+        return responseData?.data || [];
+      } else {
+        throw new Error((response as any)?.message || "Failed to fetch medical legal data");
+      }
+    } catch (error) {
+      console.error("Error fetching medical legal data from API:", error);
+      throw error;
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        const apiData = await fetchDataFromAPI();
-        setRecords(apiData);
+        if (activeTab === 'clinic') {
+          const apiData = await fetchDataFromAPI();
+          setRecords(apiData);
+        } else {
+          const apiData = await fetchMedicalLegalDataFromAPI();
+          setMedicalLegalRecords(apiData);
+        }
       } catch (err) {
         console.error("Error fetching data:", err);
         setError("Failed to load data");
@@ -122,7 +188,7 @@ const Service41Dashboard = () => {
     };
 
     fetchData();
-  }, [subserviceIndex, pageNumber, pageSize, sortState]);
+  }, [subserviceIndex, pageNumber, pageSize, sortState, activeTab]);
 
   const handlePageChange = (page: number) => {
     setPageNumber(page);
@@ -137,40 +203,36 @@ const Service41Dashboard = () => {
     setPageNumber(1);
   };
 
-  const handlePublishAction = async (row: DashboardRecord) => {
-    const confirmed = window.confirm(
-      `Are you sure you want to publish request ${row.RequestNumber}?\n\nThis action will make the request visible to other users.`
-    );
 
-    if (!confirmed) {
-      return;
-    }
+
+  const handlePublishMedicalLegalAction = async (row: MedicalLegalRecord) => {
+
 
     try {
       setLoading(true);
 
-      const response = await IndividualClinicService.UpdateStatus({
-        requestId: row.RequestId,
+      const response = await MedicalLegalServices.UpdateMedicalLegalServiceStatus({
+        serviceId: row.id,
         statusId: StatusEnum.PUBLISHED,
-        reason: "Request published by admin",
+        reason: "Medical legal service published by admin",
       });
 
       if (response && response.success) {
-        await fetchDataFromAPI();
+        await fetchMedicalLegalDataFromAPI();
 
         showToast(
-          `Request ${row.RequestNumber} has been published successfully!`,
+          `Medical legal service ${row.requestNumber} has been published successfully!`,
           "success"
         );
       } else {
         throw new Error(
-          (response as any)?.message || "Failed to publish request"
+          (response as any)?.message || "Failed to publish medical legal service"
         );
       }
     } catch (error) {
-      console.error("Error publishing request:", error);
+      console.error("Error publishing medical legal service:", error);
       showToast(
-        `Failed to publish request ${row.RequestNumber}. Please try again.`,
+        `Failed to publish medical legal service ${row.requestNumber}. Please try again.`,
         "error"
       );
     } finally {
@@ -180,11 +242,11 @@ const Service41Dashboard = () => {
 
   const tableColumns: TableColumn<DashboardRecord>[] = [
     {
-      label: "Request Number",
+      label: "ID No",
       value: (row) => (
-        <span className="font-semibold text-primary">{row.RequestNumber}</span>
+        <span className="font-semibold text-primary">#{row.RequestId}</span>
       ),
-      sortKey: "RequestNumber",
+      sortKey: "RequestId",
       isSort: true,
     },
     {
@@ -194,21 +256,7 @@ const Service41Dashboard = () => {
       isSort: true,
     },
     {
-      label: "Contact Person",
-      value: (row) => (
-        <span className="text-gray-500">{row.ContactPersonName}</span>
-      ),
-      sortKey: "ContactPersonName",
-      isSort: true,
-    },
-    {
-      label: "Contact Email",
-      value: (row) => <span className="text-gray-500">{row.ContactEmail}</span>,
-      sortKey: "ContactEmail",
-      isSort: true,
-    },
-    {
-      label: "Building License",
+      label: "Health Registration Number",
       value: (row) => (
         <span className="text-gray-500">{row.BuildingLicenseNumber}</span>
       ),
@@ -216,7 +264,7 @@ const Service41Dashboard = () => {
       isSort: true,
     },
     {
-      label: "Medical License",
+      label: "FDA Number",
       value: (row) => (
         <span className="text-gray-500">{row.MedicalLicenseNumber}</span>
       ),
@@ -224,36 +272,58 @@ const Service41Dashboard = () => {
       isSort: true,
     },
     {
-      label: "Working Employees",
-      value: (row) => <span className="text-gray-500">{row.WorkingEmp}</span>,
-      sortKey: "WorkingEmp",
-      isSort: true,
-    },
-    {
-      label: "Clinic Hours",
-      value: (row) => <span className="text-gray-500">{row.ClinicHours}</span>,
-      sortKey: "ClinicHours",
-      isSort: true,
-    },
-    {
-      label: "Service Type",
+      label: "Facility Type",
       value: (row) => <span className="text-gray-500">{row.ServiceType}</span>,
       sortKey: "ServiceType",
       isSort: true,
     },
     {
-      label: "Validity Time",
+      label: "Rent Period",
       value: (row) => (
-        <span className="text-gray-500">{row.ValidityTime} days</span>
+        <span className="text-gray-500">{row.RentPeriod} {row.RentPeriodType}</span>
       ),
-      sortKey: "ValidityTime",
+      sortKey: "RentPeriod",
       isSort: true,
     },
     {
-      label: "Created Date",
+      label: "Email",
+      value: (row) => <span className="text-gray-500">{row.ContactEmail}</span>,
+      sortKey: "ContactEmail",
+      isSort: true,
+    },
+    // {
+    //   label: "Country",
+    //   value: (row) => (
+    //     <span className="text-gray-500">Saudi Arabia</span>
+    //   ),
+    //   sortKey: "Country",
+    //   isSort: true,
+    // },
+    // {
+    //   label: "Region",
+    //   value: (row) => (
+    //     <span className="text-gray-500">Region 1</span>
+    //   ),
+    //   sortKey: "Region",
+    //   isSort: true,
+    // },
+    // {
+    //   label: "City",
+    //   value: (row) => (
+    //     <span className="text-gray-500">City 1</span>
+    //   ),
+    //   sortKey: "City",
+    //   isSort: true,
+    // },
+    {
+      label: "Upload Date",
       value: (row) => (
         <span className="text-gray-500">
-          {new Date(row.CreatedDate).toLocaleDateString()}
+          {new Date(row.CreatedDate).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+          })}
         </span>
       ),
       sortKey: "CreatedDate",
@@ -281,20 +351,185 @@ const Service41Dashboard = () => {
     {
       label: "View",
       iconType: "view",
-      onClick: (row) => {
-        navigate(`/service4-1/${row.RequestId}`);
+      onClick: (row: any) => {
+        navigate(`/service4-1/${row.RequestNumber}`);
       },
       isVisible: () => true,
     },
     {
       label: "Publish",
       iconType: "publish",
-      onClick: (row) => handlePublishAction(row),
+      onClick: (row: any) => handlePublishMedicalLegalAction(row),
       isVisible: (row) => row.StatusId === StatusEnum.APPROVED,
     },
   ];
 
-  if (loading && records.length === 0) {
+  const medicalLegalTableColumns: TableColumn<MedicalLegalRecord>[] = [
+    {
+      label: "Request Number",
+      value: (row) => (
+        <span className="font-semibold text-primary">{row.requestNumber}</span>
+      ),
+      sortKey: "requestNumber",
+      isSort: true,
+    },
+    {
+      label: "Request Title",
+      value: (row) => <span className="text-gray-700">{row.requestTitle}</span>,
+      sortKey: "requestTitle",
+      isSort: true,
+    },
+    {
+      label: "Client Name",
+      value: (row) => (
+        <span className="text-gray-500">{row.clientName}</span>
+      ),
+      sortKey: "clientName",
+      isSort: true,
+    },
+    {
+      label: "Client Email",
+      value: (row) => <span className="text-gray-500">{row.clientEmail}</span>,
+      sortKey: "clientEmail",
+      isSort: true,
+    },
+    {
+      label: "Client Phone",
+      value: (row) => <span className="text-gray-500">{row.clientPhone}</span>,
+      sortKey: "clientPhone",
+      isSort: true,
+    },
+    {
+      label: "Service Type",
+      value: (row) => <span className="text-gray-500">{row.serviceType}</span>,
+      sortKey: "serviceType",
+      isSort: true,
+    },
+    {
+      label: "Legal Case Type",
+      value: (row) => <span className="text-gray-500">{row.legalCaseType}</span>,
+      sortKey: "legalCaseType",
+      isSort: true,
+    },
+    {
+      label: "Urgency Level",
+      value: (row) => (
+        <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${row.urgencyLevel === 'High' ? 'bg-red-100 text-red-800' :
+          row.urgencyLevel === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+            'bg-green-100 text-green-800'
+          }`}>
+          {row.urgencyLevel}
+        </span>
+      ),
+      sortKey: "urgencyLevel",
+      isSort: true,
+    },
+    {
+      label: "Estimated Duration",
+      value: (row) => (
+        <span className="text-gray-500">{row.estimatedDuration}</span>
+      ),
+      sortKey: "estimatedDuration",
+      isSort: true,
+    },
+    {
+      label: "Budget Range",
+      value: (row) => (
+        <span className="text-gray-500">{row.budgetRange}</span>
+      ),
+      sortKey: "budgetRange",
+      isSort: true,
+    },
+    {
+      label: "Assigned Lawyer",
+      value: (row) => (
+        <span className="text-gray-500">{row.assignedLawyer || 'Not Assigned'}</span>
+      ),
+      sortKey: "assignedLawyer",
+      isSort: true,
+    },
+    {
+      label: "Created Date",
+      value: (row) => (
+        <span className="text-gray-500">
+          {new Date(row.createdDate).toLocaleDateString()}
+        </span>
+      ),
+      sortKey: "createdDate",
+      isSort: true,
+    },
+    {
+      label: "Status",
+      value: (row) => {
+        return (
+          <span
+            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${getStatusBadgeClass(
+              row.statusId
+            )}`}
+          >
+            {getStatusName(row.statusId)}
+          </span>
+        );
+      },
+      sortKey: "statusName",
+      isSort: true,
+    },
+  ];
+
+  const medicalLegalActionButtons: ActionButton<MedicalLegalRecord>[] = [
+    {
+      label: "View",
+      iconType: "view",
+      onClick: (row: any) => {
+        navigate(`/service4-1/${row.RequestNumber}`);
+      },
+      isVisible: () => true,
+    },
+    {
+      label: "Publish",
+      iconType: "publish",
+      onClick: (row) => handlePublishMedicalLegalAction(row),
+      isVisible: (row) => row.statusId === StatusEnum.APPROVED,
+    },
+
+  ];
+
+  // Separate render functions for each table type to handle TypeScript properly
+  const renderClinicTable = () => (
+    <ComanTable
+      columns={tableColumns}
+      data={records}
+      actions={actionButtons}
+      page={pageNumber}
+      totalPages={totalPages}
+      totalCount={totalCount}
+      onPageChange={handlePageChange}
+      sortState={sortState}
+      onSortChange={handleSortChange}
+      pageSize={pageSize}
+      onPageSizeChange={handlePageSizeChange}
+      loading={loading}
+    />
+  );
+
+  const renderMedicalLegalTable = () => (
+    <ComanTable
+      columns={medicalLegalTableColumns}
+      data={medicalLegalRecords}
+      actions={medicalLegalActionButtons}
+      page={pageNumber}
+      totalPages={totalPages}
+      totalCount={totalCount}
+      onPageChange={handlePageChange}
+      sortState={sortState}
+      onSortChange={handleSortChange}
+      pageSize={pageSize}
+      onPageSizeChange={handlePageSizeChange}
+      loading={loading}
+    />
+  );
+
+  if (loading && records.length === 0 && medicalLegalRecords.length === 0) {
     return (
       <DashboardLayout>
         <div className="p-6">
@@ -307,7 +542,7 @@ const Service41Dashboard = () => {
     );
   }
 
-  if (error && records.length === 0) {
+  if (error && records.length === 0 && medicalLegalRecords.length === 0) {
     return (
       <DashboardLayout>
         <div className="p-6">
@@ -354,9 +589,35 @@ const Service41Dashboard = () => {
                 </span>
               </button>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Service 4-1 Dashboard
-            </h1>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Service 4-1 Dashboard
+              </h1>
+
+              {/* Tab Navigation */}
+              <div className="mt-4">
+                <nav className="flex space-x-8" aria-label="Tabs">
+                  <button
+                    onClick={() => setActiveTab('clinic')}
+                    className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'clinic'
+                      ? 'border-primary text-primary'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                  >
+                    Individual Clinic Services
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('medical-legal')}
+                    className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'medical-legal'
+                      ? 'border-primary text-primary'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                  >
+                    Medical Legal Services
+                  </button>
+                </nav>
+              </div>
+            </div>
           </div>
         </header>
 
@@ -410,20 +671,7 @@ const Service41Dashboard = () => {
         </div>
 
         <div className="rounded-[28px] border border-gray-200 bg-white shadow-[0_20px_40px_rgba(5,6,104,0.08)]">
-          <ComanTable
-            columns={tableColumns}
-            data={records}
-            actions={actionButtons}
-            page={pageNumber}
-            totalPages={totalPages}
-            totalCount={totalCount}
-            onPageChange={handlePageChange}
-            sortState={sortState}
-            onSortChange={handleSortChange}
-            pageSize={pageSize}
-            onPageSizeChange={handlePageSizeChange}
-            loading={loading}
-          />
+          {activeTab === 'clinic' ? renderClinicTable() : renderMedicalLegalTable()}
         </div>
       </div>
     </DashboardLayout>

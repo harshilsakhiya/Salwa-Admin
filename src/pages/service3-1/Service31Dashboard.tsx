@@ -6,7 +6,7 @@ import ComanTable, {
   type ActionButton,
   type SortState,
 } from "../../components/common/ComanTable";
-import IndividualClinicService from "../../services/IndividualClinicService";
+import MedicalEquipmentAndFacilitiesService from "../../services/MedicalEquipmentAndFacilitiesService";
 import { useToast } from "../../components/ToastProvider";
 import {
   getStatusBadgeClass,
@@ -18,35 +18,42 @@ interface DashboardRecord {
   RequestId: number;
   RequestNumber: string;
   OrderTitle: string;
-  BuildingLicenseNumber: string;
-  MedicalLicenseNumber: string;
-  WorkingEmp: number;
-  ContactPersonName: string;
-  ContactEmail: string;
-  ClinicHours: string;
-  RentPeriod: number;
-  RentPeriodType: string;
-  ServiceType: string;
-  ProvideWith: string;
-  StatusId: number;
-  StatusName: string;
+  BusinessName: string;
+  DeviceName: string;
+  DeviceTypeName: string;
+  FDANumber: string;
+  DeviceApprovalNumber: string;
+  SellValue: number;
   CreatedDate: string;
   UpdatedDate: string;
-  CreatedBy: number;
-  UpdatedBy: number;
-  ClinicSiteId: number;
+  Country: string | null;
+  Region: string | null;
+  City: string | null;
+  StatusId: number;
+  StatusName: string;
+  DayLeft: string;
+  ContactPersonName: string;
+  ContactPersonEmail: string;
   CategoryId: number;
-  SerevieceId: number;
-  ConfirmedFlag: boolean;
+  ServiceId: number;
+  ServiceType: number;
+  DeviceServiceType: number;
+  DiscountType: boolean;
+  DiscountValue: number;
+  EquipmentDamageInfo: string;
   IsActive: boolean;
   IsAdminApprove: boolean;
-  SterilizationEquipmentFlag: boolean;
-  OtherTermsAndCon: string;
-  Reason: string;
-  Media: string;
-  ValidityTime: number;
-  TransactionId: string | null;
-  Quotation: string | null;
+  IsConfirmedOwner: boolean;
+  IsSterilizationConfirmed: boolean;
+  IsTermCondition: boolean;
+  MediaFilePath: string;
+  OrderPostValidityTime: number;
+  OrderPostValidityTimeName: string;
+  OtherTermsAndConditions: string;
+  PostValidityTime: number;
+  PostValidityTimeName: string;
+  CreatedBy: number;
+  UpdatedBy: number;
   DeletedBy: number | null;
   DeletedDate: string | null;
   RowNum: number;
@@ -65,20 +72,24 @@ const Service31Dashboard = () => {
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
 
+  console.log(records);
+
   const fetchDataFromAPI = async (): Promise<DashboardRecord[]> => {
     try {
       const response =
-        await IndividualClinicService.GetAllForAdminIndividualClinicServiceRequests(
+        await MedicalEquipmentAndFacilitiesService.GetAllMedicalSellServices(
           {
             pageNumber: pageNumber,
             pageSize: pageSize,
-            sortColumn: sortState.length > 0 ? sortState[0].key : "CreatedDate",
-            sortDirection:
+            orderByColumn: sortState.length > 0 ? sortState[0].key : "CreatedDate",
+            orderDirection:
               sortState.length > 0 ? sortState[0].order.toUpperCase() : "DESC",
           }
         );
 
       if (response && response.success) {
+        console.log(response);
+
         const responseData = (response as any).data;
         const totalCount = responseData?.totalCount || 0;
         const apiTotalPages = responseData?.totalPages;
@@ -88,8 +99,9 @@ const Service31Dashboard = () => {
 
         setTotalCount(totalCount);
         setTotalPages(calculatedTotalPages);
+        console.log(responseData, "dsfsd");
 
-        return responseData?.data || [];
+        return responseData || [];
       } else {
         throw new Error((response as any)?.message || "Failed to fetch data");
       }
@@ -131,18 +143,15 @@ const Service31Dashboard = () => {
   };
 
   const handlePublishAction = async (row: DashboardRecord) => {
-    const confirmed = window.confirm(
-      `Are you sure you want to publish request ${row.RequestNumber}?`
-    );
 
-    if (!confirmed) return;
 
     try {
       setLoading(true);
 
-      const response = await IndividualClinicService.UpdateStatus({
+      const response = await MedicalEquipmentAndFacilitiesService.UpdateMedicalSellServiceStatus({
         requestId: row.RequestId,
-        statusId: StatusEnum.PUBLISHED,
+        newStatusId: StatusEnum.PUBLISHED,
+        requestNumber: row.RequestNumber,
         reason: "Request published by admin",
       });
 
@@ -170,11 +179,11 @@ const Service31Dashboard = () => {
 
   const tableColumns: TableColumn<DashboardRecord>[] = [
     {
-      label: "Request Number",
+      label: "Order No",
       value: (row) => (
-        <span className="font-semibold text-primary">{row.RequestNumber}</span>
+        <span className="font-semibold text-primary">#{String(row.RequestId).padStart(4, '0')}</span>
       ),
-      sortKey: "RequestNumber",
+      sortKey: "RequestId",
       isSort: true,
     },
     {
@@ -184,41 +193,75 @@ const Service31Dashboard = () => {
       isSort: true,
     },
     {
-      label: "Contact Person",
+      label: "Device Name",
       value: (row) => (
-        <span className="text-gray-500">{row.ContactPersonName}</span>
+        <span className="text-gray-700">{row.DeviceName}</span>
       ),
-      sortKey: "ContactPersonName",
+      sortKey: "DeviceName",
       isSort: true,
     },
     {
-      label: "Contact Email",
-      value: (row) => <span className="text-gray-500">{row.ContactEmail}</span>,
-      sortKey: "ContactEmail",
+      label: "Device Type",
+      value: (row) => <span className="text-gray-500">{row.DeviceTypeName}</span>,
+      sortKey: "DeviceTypeName",
       isSort: true,
     },
     {
-      label: "Service Type",
-      value: (row) => <span className="text-gray-500">{row.ServiceType}</span>,
-      sortKey: "ServiceType",
+      label: "FDA Number",
+      value: (row) => <span className="text-gray-500">{row.FDANumber}</span>,
+      sortKey: "FDANumber",
       isSort: true,
     },
     {
-      label: "Validity Time",
+      label: "Device Approval Number",
+      value: (row) => <span className="text-gray-500">{row.DeviceApprovalNumber}</span>,
+      sortKey: "DeviceApprovalNumber",
+      isSort: true,
+    },
+    {
+      label: "Sell Value",
       value: (row) => (
-        <span className="text-gray-500">{row.ValidityTime} days</span>
+        <span className="text-gray-500 font-semibold">SAR {row.SellValue}</span>
       ),
-      sortKey: "ValidityTime",
+      sortKey: "SellValue",
       isSort: true,
     },
     {
-      label: "Created Date",
+      label: "Date",
       value: (row) => (
         <span className="text-gray-500">
-          {new Date(row.CreatedDate).toLocaleDateString()}
+          {new Date(row.CreatedDate).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit'
+          })}
         </span>
       ),
       sortKey: "CreatedDate",
+      isSort: true,
+    },
+    {
+      label: "Country",
+      value: (row) => (
+        <span className="text-gray-500">{row.Country || 'N/A'}</span>
+      ),
+      sortKey: "Country",
+      isSort: true,
+    },
+    {
+      label: "Region",
+      value: (row) => (
+        <span className="text-gray-500">{row.Region || 'N/A'}</span>
+      ),
+      sortKey: "Region",
+      isSort: true,
+    },
+    {
+      label: "City",
+      value: (row) => (
+        <span className="text-gray-500">{row.City || 'N/A'}</span>
+      ),
+      sortKey: "City",
       isSort: true,
     },
     {
@@ -244,7 +287,8 @@ const Service31Dashboard = () => {
       label: "View",
       iconType: "view",
       onClick: (row) => {
-        navigate(`/service3-1/${row.RequestId}`);
+        console.log(row);
+        navigate(`/service3-1/${row.RequestNumber}`);
       },
       isVisible: () => true,
     },

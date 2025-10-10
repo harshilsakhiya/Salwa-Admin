@@ -138,13 +138,11 @@ const Service91Details = () => {
     } catch (err) {
       console.error("Error fetching service details:", err);
       setError(
-        `Failed to load service details: ${
-          err instanceof Error ? err.message : "Unknown error"
+        `Failed to load service details: ${err instanceof Error ? err.message : "Unknown error"
         }`
       );
       showToast(
-        `Failed to load service details: ${
-          err instanceof Error ? err.message : "Unknown error"
+        `Failed to load service details: ${err instanceof Error ? err.message : "Unknown error"
         }`,
         "error"
       );
@@ -160,11 +158,7 @@ const Service91Details = () => {
   const handleApprove = async () => {
     if (!serviceDetails) return;
 
-    const confirmed = window.confirm(
-      `Are you sure you want to approve request ${serviceDetails.service.requestNumber}?`
-    );
 
-    if (!confirmed) return;
 
     try {
       setLoading(true);

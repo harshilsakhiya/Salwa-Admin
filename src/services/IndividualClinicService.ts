@@ -86,7 +86,7 @@ class IndividualClinicService {
   /**
    * Get individual clinic service request by ID
    */
-  static GetIndividualClinicServiceRequestById = async (requestId: number) => {
+  static GetIndividualClinicServiceRequestById = async (requestId: string) => {
     try {
       const res = await axiosInstance.get(
         `IndividualClinicService/GetIndividualClinicServiceRequestById/${requestId}`
