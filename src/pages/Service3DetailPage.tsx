@@ -1,35 +1,49 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import DashboardLayout from "../layouts/DashboardLayout";
+import OfficeStationaryService from "../services/OfficeStationaryService";
+import { useToast } from "../components/ToastProvider";
+import { StatusEnum } from "../utils/statusEnum";
 
 interface Service3Detail {
-    id: string;
-    projectTitle: string;
-    location: string;
-    daysLeft: number;
-    contactPersonName: string;
-    contactPersonEmail: string;
-    budget: number;
-    progress: number;
-    manager: string;
-    projects: Service3Item[];
-    otherDetails: string;
-}
-
-interface Service3Item {
-    projectNo: string;
-    projectName: string;
-    projectBudget: number;
+    RequestId: number;
+    CategoryId: number;
+    ServiceId: number;
+    RequestNumber: string;
+    ContactPersonName: string;
+    ContactPersonEmail: string;
+    LocationId: number;
+    OtherDetails: string;
+    IsComfirmation: boolean | null;
+    IsTermsandConditon: boolean | null;
+    StatusId: number;
+    IsActive: number;
+    StatusName: string;
+    PostValidityTime: number;
+    UniformType: number;
+    UniformTypeName: string;
+    OrderTitle: string;
+    Gender: number;
+    GenderName: string;
+    Size: string;
+    PostValidityTimeName: string;
+    ProductTypeAndColor: string;
+    Offers: string | null;
 }
 
 const Service3DetailPage = () => {
     const { projectId } = useParams<{ projectId: string }>();
+
+
     const navigate = useNavigate();
 
     const [projectDetail, setProjectDetail] = useState<Service3Detail | null>(null);
     const [loading, setLoading] = useState(true);
     const [showRejectModal, setShowRejectModal] = useState(false);
     const [rejectionReason, setRejectionReason] = useState("");
+    const [isApproving, setIsApproving] = useState(false);
+    const [isRejecting, setIsRejecting] = useState(false);
+    const { showToast } = useToast();
 
     useEffect(() => {
         // Simulate API call to fetch project details
@@ -37,57 +51,97 @@ const Service3DetailPage = () => {
             setLoading(true);
 
             // Mock data based on the design
-            const mockProjectDetail: Service3Detail = {
-                id: projectId || "#PRJ-0003",
-                projectTitle: "Project Title",
-                location: "Jeddah, Saudi Arabia",
-                daysLeft: 30,
-                contactPersonName: "Lorem ipsum",
-                contactPersonEmail: "Lorem ipsum",
-                budget: 150000,
-                progress: 75,
-                manager: "Jane Smith",
-                projects: [
-                    { projectNo: "#0003", projectName: "Development", projectBudget: 50000 },
-                    { projectNo: "#0023", projectName: "Testing", projectBudget: 25000 },
-                    { projectNo: "#0045", projectName: "Deployment", projectBudget: 40000 },
-                    { projectNo: "#0034", projectName: "Maintenance", projectBudget: 35000 }
-                ],
-                otherDetails: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt"
-            };
+            const response: any = await OfficeStationaryService?.GetDoctorUniformClothingByRequestNumber(projectId as string);
+            if (response?.success && response?.data) {
+                setProjectDetail(response.data?.[0]);
+            } else {
+                showToast(response?.message, "error");
 
-            setTimeout(() => {
-                setProjectDetail(mockProjectDetail);
-                setLoading(false);
-            }, 1000);
+            }
+            setLoading(false);
         };
 
-        fetchProjectDetail();
+        if (projectId) {
+            fetchProjectDetail();
+        }
     }, [projectId]);
 
-    const handleApprove = () => {
-        alert("Project approved successfully!");
-        navigate(-1); // Go back to previous page
+    const handleApprove = async () => {
+        if (!projectDetail) {
+            showToast("No project data available", "error");
+            return;
+        }
+
+        setIsApproving(true);
+        try {
+            const response = await OfficeStationaryService.UpdateDoctorUniformClothingStatus({
+                RequestId: projectDetail.RequestId,
+                NewStatusId: StatusEnum.APPROVED,
+                RequestNumber: projectDetail.RequestNumber,
+                Reason: "Request approved by admin",
+            });
+
+            if (response?.success) {
+                showToast("Request approved successfully!", "success");
+                // Refresh the data
+                const updatedResponse = await OfficeStationaryService?.GetDoctorUniformClothingByRequestNumber(projectId as string);
+                if (updatedResponse?.success && (updatedResponse as any)?.data) {
+                    setProjectDetail((updatedResponse as any).data?.[0]);
+                }
+            } else {
+                showToast("Failed to approve request", "error");
+            }
+        } catch (error) {
+            console.error("Error approving request:", error);
+            showToast("Failed to approve request", "error");
+        } finally {
+            setIsApproving(false);
+        }
     };
 
     const handleReject = () => {
         setShowRejectModal(true);
     };
 
-    const handleRejectSubmit = () => {
-        if (!rejectionReason.trim()) {
-            alert("Please provide a reason for rejection.");
+    const handleRejectSubmit = async () => {
+        if (!projectDetail) {
+            showToast("No project data available", "error");
             return;
         }
 
-        // Here you would typically send the rejection reason to your API
-        console.log("Project rejected with reason:", rejectionReason);
-        alert(`Project rejected successfully!\nReason: ${rejectionReason}`);
+        if (!rejectionReason.trim()) {
+            showToast("Please provide a reason for rejection.", "error");
+            return;
+        }
 
-        // Reset and close modal
-        setRejectionReason("");
-        setShowRejectModal(false);
-        navigate(-1); // Go back to previous page
+        setIsRejecting(true);
+        try {
+            const response = await OfficeStationaryService.UpdateDoctorUniformClothingStatus({
+                RequestId: projectDetail.RequestId,
+                NewStatusId: StatusEnum.REJECTED,
+                RequestNumber: projectDetail.RequestNumber,
+                Reason: rejectionReason.trim(),
+            });
+
+            if (response?.success) {
+                showToast("Request rejected successfully!", "success");
+                // Reset and close modal
+                setRejectionReason("");
+                setShowRejectModal(false);
+                // Refresh the data
+                const updatedResponse = await OfficeStationaryService?.GetDoctorUniformClothingByRequestNumber(projectId as string);
+                if (updatedResponse?.success && (updatedResponse as any)?.data) {
+                    setProjectDetail((updatedResponse as any).data?.[0]);
+                }
+            } else {
+                showToast("Failed to reject request", "error");
+            }
+        } catch (error) {
+            console.error("Error rejecting request:", error);
+            showToast("Failed to reject request", "error");
+        } finally {
+            setIsRejecting(false);
+        }
     };
 
     const handleRejectCancel = () => {
@@ -128,15 +182,7 @@ const Service3DetailPage = () => {
             <div className="bg-white">
                 <div className="mx-auto p-6">
                     {/* Header Section with Doctor Icon */}
-                    <div className="bg-gray-100 rounded-lg p-8 mb-6">
-                        <div className="flex items-center justify-center">
-                            <div className="bg-gray-300 rounded-full p-8">
-                                <svg className="w-16 h-16 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
+
 
                     {/* Back Button */}
                     <button
@@ -151,24 +197,24 @@ const Service3DetailPage = () => {
 
                     {/* Project Title */}
                     <h1 className="text-3xl font-bold text-gray-900 mb-6">
-                        {projectDetail.projectTitle}
+                        {projectDetail.OrderTitle}
                     </h1>
 
-                    {/* Location and Days Left */}
+                    {/* Request Number and Status */}
                     <div className="flex items-center justify-between mb-8">
                         <div className="flex items-center gap-2 text-gray-600">
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
                             </svg>
-                            {projectDetail.location}
+                            Request Number: {projectDetail.RequestNumber}
                         </div>
                         <div className="flex items-center gap-2">
-                            <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                            </svg>
-                            <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                                {projectDetail.daysLeft} Days Left
+                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${projectDetail.StatusId === 99 ? 'bg-yellow-100 text-yellow-800' :
+                                projectDetail.StatusId === 100 ? 'bg-green-100 text-green-800' :
+                                    projectDetail.StatusId === 101 ? 'bg-red-100 text-red-800' :
+                                        'bg-gray-100 text-gray-800'
+                                }`}>
+                                {projectDetail.StatusName}
                             </span>
                         </div>
                     </div>
@@ -183,31 +229,43 @@ const Service3DetailPage = () => {
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 bg-gray-900 rounded-full"></div>
                                 <span className="text-gray-700">
-                                    <strong>Contact Person Name :</strong> {projectDetail.contactPersonName}
+                                    <strong>Contact Person Name:</strong> {projectDetail.ContactPersonName}
                                 </span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 bg-gray-900 rounded-full"></div>
                                 <span className="text-gray-700">
-                                    <strong>Contact Person Email :</strong> {projectDetail.contactPersonEmail}
+                                    <strong>Contact Person Email:</strong> {projectDetail.ContactPersonEmail}
                                 </span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 bg-gray-900 rounded-full"></div>
                                 <span className="text-gray-700">
-                                    <strong>Total Budget :</strong> ${projectDetail.budget.toLocaleString()}
+                                    <strong>Uniform Type:</strong> {projectDetail.UniformTypeName}
                                 </span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 bg-gray-900 rounded-full"></div>
                                 <span className="text-gray-700">
-                                    <strong>Project Manager :</strong> {projectDetail.manager}
+                                    <strong>Gender:</strong> {projectDetail.GenderName}
+                                </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 bg-gray-900 rounded-full"></div>
+                                <span className="text-gray-700">
+                                    <strong>Size:</strong> {projectDetail.Size}
+                                </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 bg-gray-900 rounded-full"></div>
+                                <span className="text-gray-700">
+                                    <strong>Post Validity Time:</strong> {projectDetail.PostValidityTime} {projectDetail.PostValidityTimeName}
                                 </span>
                             </div>
                         </div>
                     </div>
 
-                    {/* Project Items Table */}
+                    {/* Product Details Table */}
                     <div className="mb-8">
                         <table className="w-full border-collapse border border-gray-300">
                             <thead>
@@ -238,33 +296,43 @@ const Service3DetailPage = () => {
                                         Size
                                     </th>
                                     <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-900">
-                                        Color
+                                        Product Type & Color
                                     </th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {projectDetail.projects.map((project, index) => (
-                                    <tr key={project.projectNo} className={index === 2 ? "bg-purple-50" : ""}>
-                                        <td className="border border-gray-300 px-4 py-3 text-gray-900">
-                                            {project.projectNo}
-                                        </td>
-                                        <td className="border border-gray-300 px-4 py-3 text-gray-900">
-                                            Uniform Cloths
-                                        </td>
-                                        <td className="border border-gray-300 px-4 py-3 text-gray-900">
-                                            {project.projectName}
-                                        </td>
-                                        <td className="border border-gray-300 px-4 py-3 text-gray-900">
-                                            {index % 2 === 0 ? "Male" : "Female"}
-                                        </td>
-                                        <td className="border border-gray-300 px-4 py-3 text-gray-900">
-                                            {["L", "S", "XXL", "M"][index]}
-                                        </td>
-                                        <td className="border border-gray-300 px-4 py-3 text-gray-900">
-                                            White (#DDDDDD)
-                                        </td>
-                                    </tr>
-                                ))}
+                                <tr>
+                                    <td className="border border-gray-300 px-4 py-3 text-gray-900">
+                                        {projectDetail.RequestNumber}
+                                    </td>
+                                    <td className="border border-gray-300 px-4 py-3 text-gray-900">
+                                        {projectDetail.OrderTitle}
+                                    </td>
+                                    <td className="border border-gray-300 px-4 py-3 text-gray-900">
+                                        {projectDetail.UniformTypeName}
+                                    </td>
+                                    <td className="border border-gray-300 px-4 py-3 text-gray-900">
+                                        {projectDetail.GenderName}
+                                    </td>
+                                    <td className="border border-gray-300 px-4 py-3 text-gray-900">
+                                        {projectDetail.Size}
+                                    </td>
+                                    <td className="border border-gray-300 px-4 py-3 text-gray-900">
+                                        {(() => {
+                                            try {
+                                                const productData = JSON.parse(projectDetail.ProductTypeAndColor);
+                                                return productData.map((item: any, index: number) => (
+                                                    <div key={index} className="mb-1">
+                                                        <span className="font-medium">{item.productType}</span>
+                                                        <span className="text-gray-500 ml-2">({item.color})</span>
+                                                    </div>
+                                                ));
+                                            } catch (error) {
+                                                return <span className="text-gray-500">Invalid product data</span>;
+                                            }
+                                        })()}
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -274,29 +342,53 @@ const Service3DetailPage = () => {
                         <div className="flex items-start gap-2">
                             <div className="w-2 h-2 bg-gray-900 rounded-full mt-2"></div>
                             <div>
-                                <h2 className="text-xl font-semibold text-gray-900 mb-2">Other Details :</h2>
+                                <h2 className="text-xl font-semibold text-gray-900 mb-2">Other Details:</h2>
                                 <p className="text-gray-700 leading-relaxed">
-                                    {projectDetail.otherDetails}
+                                    {projectDetail.OtherDetails}
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex justify-center gap-4">
-                        <button
-                            onClick={handleReject}
-                            className="px-8 py-3 bg-white border-2 border-gray-900 text-gray-900 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
-                        >
-                            Reject
-                        </button>
-                        <button
-                            onClick={handleApprove}
-                            className="px-8 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors"
-                        >
-                            Approve
-                        </button>
-                    </div>
+                    {/* Action Buttons - Only show when status is PENDING */}
+                    {projectDetail.StatusId === StatusEnum.PENDING && (
+                        <div className="flex justify-center gap-4">
+                            <button
+                                onClick={handleReject}
+                                disabled={isRejecting}
+                                className={`px-8 py-3 font-semibold rounded-lg transition-colors ${isRejecting
+                                    ? 'bg-gray-100 border-2 border-gray-300 text-gray-400 cursor-not-allowed'
+                                    : 'bg-white border-2 border-gray-900 text-gray-900 hover:bg-gray-50'
+                                    }`}
+                            >
+                                {isRejecting ? (
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                                        Rejecting...
+                                    </div>
+                                ) : (
+                                    'Reject'
+                                )}
+                            </button>
+                            <button
+                                onClick={handleApprove}
+                                disabled={isApproving}
+                                className={`px-8 py-3 font-semibold rounded-lg transition-colors ${isApproving
+                                    ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                                    : 'bg-gray-900 text-white hover:bg-gray-800'
+                                    }`}
+                            >
+                                {isApproving ? (
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                        Approving...
+                                    </div>
+                                ) : (
+                                    'Approve'
+                                )}
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -335,9 +427,20 @@ const Service3DetailPage = () => {
                         <div className="flex justify-center">
                             <button
                                 onClick={handleRejectSubmit}
-                                className="px-8 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors"
+                                disabled={isRejecting}
+                                className={`px-8 py-3 font-semibold rounded-lg transition-colors ${isRejecting
+                                    ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                                    : 'bg-gray-900 text-white hover:bg-gray-800'
+                                    }`}
                             >
-                                Send
+                                {isRejecting ? (
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                        Sending...
+                                    </div>
+                                ) : (
+                                    'Send'
+                                )}
                             </button>
                         </div>
                     </div>
