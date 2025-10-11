@@ -428,55 +428,55 @@ const Service31Details = () => {
                 </div>
 
                 <div className="space-y-3">
-                  <div className="flex justify-between">
+                  <div className="">
                     <span className="text-gray-600">Request Number:</span>
                     <span className="font-medium">
                       {serviceDetails.RequestNumber}
                     </span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="">
                     <span className="text-gray-600">Contact Person:</span>
                     <span className="font-medium">
                       {serviceDetails.ContactPersonName}
                     </span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="">
                     <span className="text-gray-600">Contact Email:</span>
                     <span className="font-medium">
                       {serviceDetails.ContactPersonEmail}
                     </span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="">
                     <span className="text-gray-600">Device Name:</span>
                     <span className="font-medium">
                       {serviceDetails.DeviceName}
                     </span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="">
                     <span className="text-gray-600">Device Type:</span>
                     <span className="font-medium">
                       {serviceDetails.DeviceTypeName}
                     </span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="">
                     <span className="text-gray-600">FDA Number:</span>
                     <span className="font-medium">
                       {serviceDetails.FDANumber}
                     </span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="">
                     <span className="text-gray-600">Sell Value:</span>
                     <span className="font-medium">
                       {serviceDetails.SellValue} SAR
                     </span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="">
                     <span className="text-gray-600">Business Name:</span>
                     <span className="font-medium">
                       {serviceDetails.BusinessName}
                     </span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="">
                     <span className="text-gray-600">Address:</span>
                     <span className="font-medium">
                       {serviceDetails.Address}

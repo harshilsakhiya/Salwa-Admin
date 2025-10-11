@@ -133,6 +133,14 @@ export interface GetAllMedicalSellServicesParams {
   orderDirection?: string;
 }
 
+export interface GetAllRentMedicalEquipmentParams {
+  searchText?: string;
+  pageNumber?: number;
+  pageSize?: number;
+  orderByColumn?: string;
+  orderDirection?: string;
+}
+
 export interface MedicalSellServiceRecord {
   requestId: number;
   requestNumber: string;
@@ -169,6 +177,48 @@ export interface MedicalSellServiceRecord {
   deletedBy: number | null;
   deletedDate: string | null;
   rowNum: number;
+}
+
+export interface RentMedicalEquipmentRecord {
+  requestId: number;
+  rentMedicalType: string;
+  contactPersonName: string;
+  contactPersonEmail: string;
+  orderPostValidityTime: string;
+  discountType: string;
+  discountValue: number;
+  orderTitle: string;
+  deviceName: string;
+  deviceServiceType: string;
+  fdaNumber: string;
+  postValidityTime: string;
+  deviceApprovalNumber: string;
+  termsAndConditions: string;
+  damageInformation: string;
+  rentValue: number;
+  securityDepositRequired: boolean;
+  rentPeriod: string;
+  leftDays: string;
+  mediaFilePath: string;
+  facility: string;
+  fdaDeviceLicenseNo: string;
+  createdBy: number;
+  isAdminApprove: boolean;
+  country: string | null;
+  region: string | null;
+  city: string | null;
+  district: string | null;
+  nationalAddress: string | null;
+  address: string | null;
+  latitude: string | null;
+  longitude: string | null;
+  statusName: string;
+  deviceTypeName: string | null;
+}
+
+export interface RentMedicalEquipmentResponse {
+  data: RentMedicalEquipmentRecord[];
+  totalRecords: number;
 }
 
 class MedicalEquipmentAndFacilitiesService {
@@ -347,6 +397,48 @@ class MedicalEquipmentAndFacilitiesService {
         `MedicalEquipmentAndFacilities/GetMedicalSellServiceByRequestNumber?requestNumber=${requestNumber}`
       );
       return successHandler(res);
+    } catch (error: any) {
+      return errorHandler(error);
+    }
+  };
+
+  /**
+   * Get all rent medical equipment
+   * Uses the exact API endpoint: /api/MedicalEquipmentAndFacilities/GetAllRentMedicalEquipment
+   */
+  static GetAllRentMedicalEquipment = async (
+    params: GetAllRentMedicalEquipmentParams = {}
+  ) => {
+    try {
+      const {
+        searchText,
+        pageNumber = 1,
+        pageSize = 10,
+        orderByColumn = "Id",
+        orderDirection = "ASC",
+      } = params;
+
+      // Build query parameters for GET request
+      const queryParams = new URLSearchParams({
+        pageNumber: pageNumber.toString(),
+        pageSize: pageSize.toString(),
+        orderByColumn: orderByColumn,
+        orderDirection: orderDirection,
+      });
+
+      // Add searchText only if provided
+      if (searchText) {
+        queryParams.append("searchText", searchText);
+      }
+
+      const res = await axiosInstance.get(
+        `MedicalEquipmentAndFacilities/GetAllRentMedicalEquipment?${queryParams.toString()}`
+      );
+      return {
+        success: true,
+        data: res.data.data || [],
+        totalRecords: res.data.totalRecords || 0,
+      };
     } catch (error: any) {
       return errorHandler(error);
     }

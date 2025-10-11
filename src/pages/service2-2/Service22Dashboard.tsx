@@ -8,23 +8,80 @@ import ComanTable, {
 } from "../../components/common/ComanTable";
 import IndividualClinicService from "../../services/IndividualClinicService";
 import { useToast } from "../../components/ToastProvider";
-import {
-  getStatusBadgeClass,
-  getStatusName,
-  StatusEnum,
-} from "../../utils/statusEnum";
 
 interface DashboardRecord {
-  RequestId: number;
-  RequestNumber: string;
-  OrderTitle: string;
-  ContactPersonName: string;
-  ContactEmail: string;
-  ServiceType: string;
-  StatusId: number;
-  StatusName: string;
-  CreatedDate: string;
-  ValidityTime: number;
+  requestId: number;
+  requestNumber: string;
+  orderTitle: string;
+  rentPeriod: number;
+  rentValue: number;
+  createdDate: string;
+  country: string;
+  region: string;
+  city: string;
+  statusId: number;
+  serviceId: number;
+  serviceType: number;
+  address: string;
+  ownerName: string;
+  clinicType: number;
+  categoryId: number;
+  buildingConstructionLicenseNumber: string;
+  medicalLicenseNumber: string;
+  unifiedNationalNumber: string;
+  nationalAddress: string;
+  governmentRegistrationLandNumber: string;
+  propertyType: string;
+  numberOfRooms: number;
+  numberOfStreetsAroundClinic: number;
+  isInsideHospital: boolean;
+  isParkingAvailable: boolean;
+  hasElectricityOnSite: boolean;
+  hasWaterService: boolean;
+  hasSewageExtension: boolean;
+  hasTelephoneExtension: boolean;
+  hasInternetFiberOptic: boolean;
+  latitude: string;
+  longitude: string;
+  equipmentAvailable: string;
+  equipmentDamageInfo: string;
+  otherTermsAndConditions: string;
+  rentHours: string;
+  discountType: boolean;
+  discountValue: number;
+  needSecurityDeposit: boolean;
+  isCommissionObligation: boolean;
+  isOwnerRepairObligation: boolean;
+  isOwnerConfirmed: boolean;
+  commitmentHygienePractices: boolean;
+  complianceWithHealthRegulations: boolean;
+  isTermCondition: boolean;
+  sendSMSOnContractOver: boolean;
+  provideLabServices: boolean;
+  provideMaintenanceServices: boolean;
+  provideMedicalSupplies: boolean;
+  provideNurseService: boolean;
+  providePharmacy: boolean;
+  provideReceptionService: boolean;
+  provideSurgicalRoom: boolean;
+  provideXRayServices: boolean;
+  doctorConsultationPercentage: number;
+  district: string;
+  mediaFilePath: string;
+  isActive: boolean;
+  isAdminApprove: string;
+  isClinic: number;
+  createdBy: number;
+  updatedBy: number;
+  updatedDate: string;
+  deletedBy: number | null;
+  deletedDate: string | null;
+  businessName: string | null;
+  deviceApprovalNumber: string | null;
+  deviceName: string | null;
+  deviceType: string | null;
+  fdaNumber: string | null;
+  leftDays: number | null;
 }
 
 const Service22Dashboard = () => {
@@ -43,12 +100,12 @@ const Service22Dashboard = () => {
   const fetchDataFromAPI = async (): Promise<DashboardRecord[]> => {
     try {
       const response =
-        await IndividualClinicService.GetAllForAdminIndividualClinicServiceRequests(
+        await IndividualClinicService.GetAllClinicRentalServices(
           {
             pageNumber: pageNumber,
             pageSize: pageSize,
-            sortColumn: sortState.length > 0 ? sortState[0].key : "CreatedDate",
-            sortDirection:
+            orderByColumn: sortState.length > 0 ? sortState[0].key : "createdDate",
+            orderDirection:
               sortState.length > 0 ? sortState[0].order.toUpperCase() : "DESC",
           }
         );
@@ -99,32 +156,33 @@ const Service22Dashboard = () => {
   };
 
   const handlePublishAction = async (row: DashboardRecord) => {
-
-
     try {
       setLoading(true);
 
-      const response = await IndividualClinicService.UpdateStatus({
-        requestId: row.RequestId,
-        statusId: StatusEnum.PUBLISHED,
-        reason: "Request published by admin",
+      const response = await IndividualClinicService.ClinicRentalServicesApproveRejectByAdmin({
+        requestId: row.requestId,
+        newStatusId: 101, // Published status (assuming 101 is published)
+        requestNumber: row.requestNumber,
+        reason: "Order published by admin",
       });
 
       if (response && response.success) {
-        await fetchDataFromAPI();
+        // Refresh the data after successful publish
+        const apiData = await fetchDataFromAPI();
+        setRecords(apiData);
         showToast(
-          `Request ${row.RequestNumber} has been published successfully!`,
+          `Order ${row.requestNumber} has been published successfully!`,
           "success"
         );
       } else {
         throw new Error(
-          (response as any)?.message || "Failed to publish request"
+          (response as any)?.message || "Failed to publish order"
         );
       }
     } catch (error) {
-      console.error("Error publishing request:", error);
+      console.error("Error publishing order:", error);
       showToast(
-        `Failed to publish request ${row.RequestNumber}. Please try again.`,
+        `Failed to publish order ${row.requestNumber}. Please try again.`,
         "error"
       );
     } finally {
@@ -132,73 +190,106 @@ const Service22Dashboard = () => {
     }
   };
 
+
   const tableColumns: TableColumn<DashboardRecord>[] = [
     {
-      label: "Request Number",
+      label: "Order No",
       value: (row) => (
-        <span className="font-semibold text-primary">{row.RequestNumber}</span>
+        <span className="font-semibold text-primary">#{row.requestId}</span>
       ),
-      sortKey: "RequestNumber",
+      sortKey: "requestId",
       isSort: true,
     },
     {
       label: "Order Title",
-      value: (row) => <span className="text-gray-700">{row.OrderTitle}</span>,
-      sortKey: "OrderTitle",
+      value: (row) => <span className="text-gray-700">{row.orderTitle}</span>,
+      sortKey: "orderTitle",
       isSort: true,
     },
     {
-      label: "Contact Person",
+      label: "Rent Period",
       value: (row) => (
-        <span className="text-gray-500">{row.ContactPersonName}</span>
+        <span className="text-gray-500">{row.rentPeriod} {row.rentPeriod === 1 ? 'day' : 'days'}</span>
       ),
-      sortKey: "ContactPersonName",
+      sortKey: "rentPeriod",
       isSort: true,
     },
     {
-      label: "Contact Email",
-      value: (row) => <span className="text-gray-500">{row.ContactEmail}</span>,
-      sortKey: "ContactEmail",
-      isSort: true,
-    },
-    {
-      label: "Service Type",
-      value: (row) => <span className="text-gray-500">{row.ServiceType}</span>,
-      sortKey: "ServiceType",
-      isSort: true,
-    },
-    {
-      label: "Validity Time",
+      label: "Rent Value",
       value: (row) => (
-        <span className="text-gray-500">{row.ValidityTime} days</span>
-      ),
-      sortKey: "ValidityTime",
-      isSort: true,
-    },
-    {
-      label: "Created Date",
-      value: (row) => (
-        <span className="text-gray-500">
-          {new Date(row.CreatedDate).toLocaleDateString()}
+        <span className="text-green-600 font-semibold">
+          ${row.rentValue}
         </span>
       ),
-      sortKey: "CreatedDate",
+      sortKey: "rentValue",
+      isSort: true,
+    },
+    {
+      label: "Date",
+      value: (row) => (
+        <span className="text-gray-500">
+          {new Date(row.createdDate).toLocaleDateString()}
+        </span>
+      ),
+      sortKey: "createdDate",
+      isSort: true,
+    },
+    {
+      label: "Country",
+      value: (row) => <span className="text-gray-500">{row.country}</span>,
+      sortKey: "country",
+      isSort: true,
+    },
+    {
+      label: "Region",
+      value: (row) => (
+        <span className="text-gray-500">{row.region}</span>
+      ),
+      sortKey: "region",
+      isSort: true,
+    },
+    {
+      label: "City",
+      value: (row) => (
+        <span className="text-gray-500">{row.city}</span>
+      ),
+      sortKey: "city",
       isSort: true,
     },
     {
       label: "Status",
       value: (row) => {
+        const getStatusBadgeClass = (statusId: number) => {
+          switch (statusId) {
+            case 100: return 'bg-yellow-100 text-yellow-800'; // Pending
+            case 101: return 'bg-blue-100 text-blue-800'; // Approved
+            case 102: return 'bg-green-100 text-green-800'; // Active
+            case 103: return 'bg-red-100 text-red-800'; // Rejected
+            case 104: return 'bg-gray-100 text-gray-800'; // Cancelled
+            default: return 'bg-gray-100 text-gray-800';
+          }
+        };
+        
+        const getStatusName = (statusId: number) => {
+          switch (statusId) {
+            case 100: return 'Pending';
+            case 101: return 'Approved';
+            case 102: return 'Active';
+            case 103: return 'Rejected';
+            case 104: return 'Cancelled';
+            default: return 'Unknown';
+          }
+        };
+        
         return (
           <span
-            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${getStatusBadgeClass(
-              row.StatusId
-            )}`}
+            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${getStatusBadgeClass(row.statusId)}`}
           >
-            {getStatusName(row.StatusId)}
+            {getStatusName(row.statusId)}
           </span>
         );
       },
-      sortKey: "StatusName",
+      sortKey: "statusId",
       isSort: true,
     },
   ];
@@ -208,7 +299,7 @@ const Service22Dashboard = () => {
       label: "View",
       iconType: "view",
       onClick: (row) => {
-        navigate(`/service2-2/${row.RequestId}`);
+        navigate(`/service2-2/${row.requestId}`);
       },
       isVisible: () => true,
     },
@@ -216,7 +307,7 @@ const Service22Dashboard = () => {
       label: "Publish",
       iconType: "publish",
       onClick: (row) => handlePublishAction(row),
-      isVisible: (row) => row.StatusId === StatusEnum.APPROVED,
+      isVisible: (row) => row.statusId === 102, // Only show for Active status
     },
   ];
 
@@ -281,30 +372,34 @@ const Service22Dashboard = () => {
               </button>
             </div>
             <h1 className="text-2xl font-bold text-gray-900">
-              Service 2-2 Dashboard
+              Clinic Rental Services Dashboard
             </h1>
           </div>
         </header>
 
         <div className="grid gap-4 sm:grid-cols-3 mb-8">
           <div className="rounded-[28px] border border-gray-200 bg-[#f7f8fd] px-6 py-8 text-center shadow-[0_20px_40px_rgba(5,6,104,0.08)]">
-            <h3 className="mb-2 text-4xl font-bold text-gray-900">244</h3>
-            <p className="text-sm text-gray-600">Total Approved</p>
-          </div>
-          <div className="rounded-[28px] border border-gray-200 bg-[#f7f8fd] px-6 py-8 text-center shadow-[0_20px_40px_rgba(5,6,104,0.08)]">
-            <h3 className="mb-2 text-4xl font-bold text-gray-900">22</h3>
-            <p className="text-sm text-gray-600">Total Rejected</p>
-          </div>
-          <div className="rounded-[28px] border border-gray-200 bg-[#f7f8fd] px-6 py-8 text-center shadow-[0_20px_40px_rgba(5,6,104,0.08)]">
-            <h3 className="mb-2 text-4xl font-bold text-gray-900">266</h3>
+            <h3 className="mb-2 text-4xl font-bold text-gray-900">{totalCount}</h3>
             <p className="text-sm text-gray-600">Total Orders</p>
+          </div>
+          <div className="rounded-[28px] border border-gray-200 bg-[#f7f8fd] px-6 py-8 text-center shadow-[0_20px_40px_rgba(5,6,104,0.08)]">
+            <h3 className="mb-2 text-4xl font-bold text-gray-900">
+              {records.filter(r => r.statusId === 102).length}
+            </h3>
+            <p className="text-sm text-gray-600">Active Orders</p>
+          </div>
+          <div className="rounded-[28px] border border-gray-200 bg-[#f7f8fd] px-6 py-8 text-center shadow-[0_20px_40px_rgba(5,6,104,0.08)]">
+            <h3 className="mb-2 text-4xl font-bold text-gray-900">
+              {records.filter(r => r.statusId === 100).length}
+            </h3>
+            <p className="text-sm text-gray-600">Pending Orders</p>
           </div>
         </div>
 
         <div className="mb-8">
           <div className="rounded-[28px] border border-gray-200 bg-white p-6 shadow-[0_20px_40px_rgba(5,6,104,0.08)]">
             <h3 className="mb-6 text-lg font-semibold text-gray-900">
-              Report By Month
+              Orders By Month
             </h3>
             <div className="h-64">
               <div className="flex h-full items-end justify-between gap-2">

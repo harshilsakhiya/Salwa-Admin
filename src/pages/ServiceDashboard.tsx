@@ -304,7 +304,7 @@ const ServiceDashboard = () => {
     setIsOrderReportModalOpen(true);
   };
 
-  const handleActionSelect = (action: "order" | "report") => {
+  const handleActionSelect = (action: "order" | "report" | "offer") => {
     const selectedService =
       selectedServiceIndex !== null
         ? currentServices[selectedServiceIndex]
@@ -517,6 +517,67 @@ const ServiceDashboard = () => {
         });
         return;
       }
+    }
+
+    // Check if this is the specific case: categoryId 7, serviceIndex 0, action offer
+    if (selectedService?.categoryId == "7" && selectedServiceIndex == 0 && action === "offer") {
+      let targetRoute = '/service-dashboard/category/7/service/1/action/offer';
+      
+      // Add subservice index if selected
+      if (selectedSubServiceIndex !== null) {
+        targetRoute += `/subservice/${selectedSubServiceIndex + 1}`;
+      }
+      
+      navigate(targetRoute, {
+        state: {
+          category: activeCategory,
+          service: selectedService,
+          subService: selectedSubService,
+          action: action,
+          logData: logData
+        }
+      });
+      return;
+    }
+
+    // Check if this is the specific case: categoryId 6, serviceIndex 0,1,2, action offer
+    if (selectedService?.categoryId == "6" && action === "offer") {
+      let targetRoute = '';
+      
+      if (selectedServiceIndex == 0) { // serviceIndex 1 (0-based array)
+        targetRoute = '/service-dashboard/category/6/service/1/action/offer';
+      } else if (selectedServiceIndex == 1) { // serviceIndex 2 (0-based array)
+        targetRoute = '/service-dashboard/category/6/service/2/action/offer';
+      } else if (selectedServiceIndex == 2) { // serviceIndex 3 (0-based array)
+        targetRoute = '/service-dashboard/category/6/service/3/action/offer';
+      }
+      
+      if (targetRoute) {
+        navigate(targetRoute, {
+          state: {
+            category: activeCategory,
+            service: selectedService,
+            action: action,
+            logData: logData
+          }
+        });
+        return;
+      }
+    }
+
+    // Check if this is the specific case: categoryId 9, serviceIndex 0, action offer
+    if (selectedService?.categoryId == "9" && selectedServiceIndex == 0 && action === "offer") {
+      let targetRoute = '/service-dashboard/category/9/service/1/action/offer';
+      
+      navigate(targetRoute, {
+        state: {
+          category: activeCategory,
+          service: selectedService,
+          action: action,
+          logData: logData
+        }
+      });
+      return;
     }
 
     // For other cases, navigate to dashboard or handle differently
@@ -810,12 +871,30 @@ const ServiceDashboard = () => {
                   icon="/theme-icons/orders-icon.png"
                   onClick={() => handleActionSelect("order")}
                 />
-                <ActionCard
-                  title="Report"
-                  description="View and generate reports"
-                  icon="/theme-icons/report.png"
-                  onClick={() => handleActionSelect("report")}
-                />
+                {/* Show Offer button only for specific category/service combinations */}
+                {(() => {
+                  const selectedService = currentServices[selectedServiceIndex];
+                  const shouldShowOffer = 
+                    (selectedService?.categoryId === "7" && selectedServiceIndex === 0) ||
+                    (selectedService?.categoryId === "6" && [0, 1, 2].includes(selectedServiceIndex)) ||
+                    (selectedService?.categoryId === "9" && selectedServiceIndex === 0);
+                  
+                  return shouldShowOffer ? (
+                    <ActionCard
+                      title="Offer"
+                      description="Create and manage offers"
+                      icon="/theme-icons/orders-icon.png"
+                      onClick={() => handleActionSelect("offer")}
+                    />
+                  ) : (
+                    <ActionCard
+                      title="Report"
+                      description="View and generate reports"
+                      icon="/theme-icons/report.png"
+                      onClick={() => handleActionSelect("report")}
+                    />
+                  );
+                })()}
               </div>
 
               <div className="flex justify-end pt-2">

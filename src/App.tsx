@@ -47,9 +47,22 @@ import Service41MedicalLegalDetails from "./pages/service4-1/Service41MedicalLeg
 import Service31Dashboard from "./pages/service3-1/Service31Dashboard";
 import Service31Details from "./pages/service3-1/Service31Details";
 import Service21Dashboard from "./pages/service2-1/Service21Dashboard";
-import Service21Details from "./pages/service2-1/Service21Details";
+// import Service21Details from "./pages/service2-1/Service21Details"; // Fixed: File not found, so commenting out this import
 import Service22Dashboard from "./pages/service2-2/Service22Dashboard";
 import Service22Details from "./pages/service2-2/Service22Details";
+import { Service21Details } from "./pages/service2-1";
+
+// Import offer pages
+import { Offer61Dashboard, Offer61Details } from "./pages/offer6-1";
+import { Offer62Dashboard, Offer62Details } from "./pages/offer6-2";
+import { Offer63Dashboard, Offer63Details } from "./pages/offer6-3";
+import { Offer71Dashboard, Offer71Details } from "./pages/offer7-1";
+import { Offer91Dashboard, Offer91Details } from "./pages/offer9-1";
+
+// Import offer subservice pages
+import { Offer711Dashboard, Offer711Details } from "./pages/offer7-1-1";
+import { Offer712Dashboard, Offer712Details } from "./pages/offer7-1-2";
+import { Offer713Dashboard, Offer713Details } from "./pages/offer7-1-3";
 
 const App = () => {
   return (
@@ -133,6 +146,46 @@ const App = () => {
           element={<Service91Dashboard />}
         />
 
+        {/* Offer Routes for Category 6 */}
+        <Route
+          path="/service-dashboard/category/6/service/1/action/offer"
+          element={<Offer61Dashboard />}
+        />
+        <Route
+          path="/service-dashboard/category/6/service/2/action/offer"
+          element={<Offer62Dashboard />}
+        />
+        <Route
+          path="/service-dashboard/category/6/service/3/action/offer"
+          element={<Offer63Dashboard />}
+        />
+
+        {/* Offer Routes for Category 7 */}
+        <Route
+          path="/service-dashboard/category/7/service/1/action/offer/subservice/:subserviceIndex"
+          element={<Offer71Dashboard />}
+        />
+
+        {/* Offer Subservice Routes for Category 7 Service 1 */}
+        <Route
+          path="/service-dashboard/category/7/service/1/action/offer/subservice/1"
+          element={<Offer711Dashboard />}
+        />
+        <Route
+          path="/service-dashboard/category/7/service/1/action/offer/subservice/2"
+          element={<Offer712Dashboard />}
+        />
+        <Route
+          path="/service-dashboard/category/7/service/1/action/offer/subservice/3"
+          element={<Offer713Dashboard />}
+        />
+
+        {/* Offer Routes for Category 9 */}
+        <Route
+          path="/service-dashboard/category/9/service/1/action/offer"
+          element={<Offer91Dashboard />}
+        />
+
         {/* Detail Pages */}
         <Route path="/order-detail/:orderId" element={<OrderDetailPage />} />
         <Route
@@ -170,14 +223,50 @@ const App = () => {
         <Route path="/service9-1" element={<Service91Dashboard />} />
         <Route path="/service9-1/:id" element={<Service91Details />} />
 
+        {/* Offer Detail Routes */}
+        <Route path="/offer6-1/dashboard" element={<Offer61Dashboard />} />
+        <Route path="/offer6-1/details/new" element={<Offer61Details />} />
+        <Route path="/offer6-1/details/:offerId" element={<Offer61Details />} />
+        
+        <Route path="/offer6-2/dashboard" element={<Offer62Dashboard />} />
+        <Route path="/offer6-2/details/new" element={<Offer62Details />} />
+        <Route path="/offer6-2/details/:offerId" element={<Offer62Details />} />
+        
+        <Route path="/offer6-3/dashboard" element={<Offer63Dashboard />} />
+        <Route path="/offer6-3/details/new" element={<Offer63Details />} />
+        <Route path="/offer6-3/details/:offerId" element={<Offer63Details />} />
+        
+        <Route path="/offer7-1/dashboard" element={<Offer71Dashboard />} />
+        <Route path="/offer7-1/details/new" element={<Offer71Details />} />
+        <Route path="/offer7-1/details/:offerId" element={<Offer71Details />} />
+        
+        <Route path="/offer9-1/dashboard" element={<Offer91Dashboard />} />
+        <Route path="/offer9-1/details/new" element={<Offer91Details />} />
+        <Route path="/offer9-1/details/:offerId" element={<Offer91Details />} />
+
+        {/* Offer Subservice Detail Routes */}
+        <Route path="/offer7-1-1/dashboard" element={<Offer711Dashboard />} />
+        <Route path="/offer7-1-1/details/new" element={<Offer711Details />} />
+        <Route path="/offer7-1-1/details/:offerId" element={<Offer711Details />} />
+        
+        <Route path="/offer7-1-2/dashboard" element={<Offer712Dashboard />} />
+        <Route path="/offer7-1-2/details/new" element={<Offer712Details />} />
+        <Route path="/offer7-1-2/details/:offerId" element={<Offer712Details />} />
+        
+        <Route path="/offer7-1-3/dashboard" element={<Offer713Dashboard />} />
+        <Route path="/offer7-1-3/details/new" element={<Offer713Details />} />
+        <Route path="/offer7-1-3/details/:offerId" element={<Offer713Details />} />
+
         {/* Service 5-1 Routes */}
         <Route path="/service5-1" element={<Service51Dashboard />} />
         <Route path="/service5-1/:id" element={<Service51Details />} />
 
         {/* Service 4-1 Routes */}
         <Route path="/service4-1" element={<Service41Dashboard />} />
-        <Route path="/service4-1/:requestNumber" element={<Service41MedicalLegalDetails />} />
-
+        <Route
+          path="/service4-1/:requestNumber"
+          element={<Service41MedicalLegalDetails />}
+        />
 
         {/* Service 3-1 Routes */}
         <Route path="/service3-1" element={<Service31Dashboard />} />

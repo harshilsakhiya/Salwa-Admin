@@ -9,6 +9,20 @@ interface IndividualClinicServiceParams {
   sortDirection?: string;
 }
 
+interface ClinicRentalServiceParams {
+  pageNumber?: number;
+  pageSize?: number;
+  orderByColumn?: string;
+  orderDirection?: string;
+}
+
+interface ClinicRentalApproveRejectParams {
+  requestId: number;
+  newStatusId: number;
+  requestNumber: string;
+  reason: string;
+}
+
 interface IndividualClinicServiceRequest {
   id: number;
   requestNumber: string;
@@ -34,6 +48,32 @@ interface IndividualClinicServiceRequest {
 
 interface IndividualClinicServiceResponse {
   data: IndividualClinicServiceRequest[];
+  totalCount: number;
+  pageNumber: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+interface ClinicRentalService {
+  id: number;
+  serviceName: string;
+  description: string;
+  category: string;
+  pricePerDay: number;
+  availabilityStatus: string;
+  location: string;
+  contactPerson: string;
+  contactEmail: string;
+  contactPhone: string;
+  equipmentDetails: string;
+  rentalTerms: string;
+  createdDate: string;
+  updatedDate?: string;
+  status: string;
+}
+
+interface ClinicRentalServiceResponse {
+  data: ClinicRentalService[];
   totalCount: number;
   pageNumber: number;
   pageSize: number;
@@ -86,7 +126,7 @@ class IndividualClinicService {
   /**
    * Get individual clinic service request by ID
    */
-  static GetIndividualClinicServiceRequestById = async (requestId: string) => {
+  static GetIndividualClinicServiceRequestById = async (requestId: number) => {
     try {
       const res = await axiosInstance.get(
         `IndividualClinicService/GetIndividualClinicServiceRequestById/${requestId}`
@@ -151,6 +191,73 @@ class IndividualClinicService {
       return errorHandler(error);
     }
   };
+
+  /**
+   * Get all clinic rental services
+   * Uses the API endpoint: /api/MedicalEquipmentAndFacilities/GetAllClinicRentalServices
+   */
+  static GetAllClinicRentalServices = async (
+    params: ClinicRentalServiceParams = {}
+  ) => {
+    try {
+      const {
+        pageNumber = 1,
+        pageSize = 10,
+        orderByColumn = "CreatedDate",
+        orderDirection = "DESC",
+      } = params;
+
+      // Build query parameters for GET request
+      const queryParams = new URLSearchParams({
+        pageNumber: pageNumber.toString(),
+        pageSize: pageSize.toString(),
+        orderByColumn: orderByColumn,
+        orderDirection: orderDirection,
+      });
+
+      // Use GET request with query parameters
+      const res = await axiosInstance.get(
+        `MedicalEquipmentAndFacilities/GetAllClinicRentalServices?${queryParams.toString()}`
+      );
+      return {
+        success: true,
+        data: res.data,
+      };
+    } catch (error: any) {
+      return errorHandler(error);
+    }
+  };
+
+  /**
+   * Approve or reject clinic rental services by admin
+   * Uses the API endpoint: /api/MedicalEquipmentAndFacilities/ClinicRentalServicesApproveRejectByAdmin
+   */
+  static ClinicRentalServicesApproveRejectByAdmin = async (
+    params: ClinicRentalApproveRejectParams
+  ) => {
+    try {
+      const { requestId, newStatusId, requestNumber, reason } = params;
+
+      const requestBody = {
+        requestId,
+        newStatusId,
+        requestNumber,
+        reason,
+      };
+
+      // Use POST request with JSON body
+      const res = await axiosInstance.post(
+        `MedicalEquipmentAndFacilities/ClinicRentalServicesApproveRejectByAdmin`,
+        requestBody
+      );
+      return {
+        success: true,
+        data: res.data,
+      };
+    } catch (error: any) {
+      return errorHandler(error);
+    }
+  };
 }
 
 export default IndividualClinicService;
@@ -158,4 +265,8 @@ export type {
   IndividualClinicServiceParams,
   IndividualClinicServiceRequest,
   IndividualClinicServiceResponse,
+  ClinicRentalServiceParams,
+  ClinicRentalService,
+  ClinicRentalServiceResponse,
+  ClinicRentalApproveRejectParams,
 };
