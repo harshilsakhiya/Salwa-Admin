@@ -404,9 +404,9 @@ class MedicalEquipmentAndFacilitiesService {
 
   /**
    * Get all rent medical equipment
-   * Uses the exact API endpoint: /api/MedicalEquipmentAndFacilities/GetAllRentMedicalEquipment
+   * Uses the exact API endpoint: /api/MedicalEquipmentAndFacilities/GetAllRentMedicalEquipmentForAdmin
    */
-  static GetAllRentMedicalEquipment = async (
+  static GetAllRentMedicalEquipmentForAdmin = async (
     params: GetAllRentMedicalEquipmentParams = {}
   ) => {
     try {
@@ -432,7 +432,7 @@ class MedicalEquipmentAndFacilitiesService {
       }
 
       const res = await axiosInstance.get(
-        `MedicalEquipmentAndFacilities/GetAllRentMedicalEquipment?${queryParams.toString()}`
+        `MedicalEquipmentAndFacilities/GetAllRentMedicalEquipmentForAdmin?${queryParams.toString()}`
       );
       return {
         success: true,

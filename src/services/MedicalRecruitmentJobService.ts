@@ -2,8 +2,8 @@ import { errorHandler, successHandler } from "../common/appHandler";
 import axiosInstance from "../common/axiosInstance";
 
 interface MedicalRecruitmentJobRequest {
-  searchText?: string;
-  statusId?: number;
+  searchText?: any;
+  statusId?: any;
   pageNumber?: number;
   pageSize?: number;
   orderByColumn?: string;
@@ -58,8 +58,8 @@ class MedicalRecruitmentJobService {
   ) => {
     try {
       const {
-        searchText = "",
-        statusId = 0,
+        searchText = null,
+        statusId = null,
         pageNumber = 0,
         pageSize = 0,
         orderByColumn = "CreatedDate",
@@ -80,7 +80,7 @@ class MedicalRecruitmentJobService {
         `MedicalRecruitmentJob/GetAllMedicalRecruitmentJob`,
         requestBody
       );
-      
+
       return {
         success: true,
         data: res.data,
@@ -126,7 +126,9 @@ class MedicalRecruitmentJobService {
   /**
    * Create new medical recruitment job
    */
-  static CreateMedicalRecruitmentJob = async (data: Partial<MedicalRecruitmentJob>) => {
+  static CreateMedicalRecruitmentJob = async (
+    data: Partial<MedicalRecruitmentJob>
+  ) => {
     try {
       const res = await axiosInstance.post(
         `MedicalRecruitmentJob/CreateMedicalRecruitmentJob`,
@@ -141,7 +143,10 @@ class MedicalRecruitmentJobService {
   /**
    * Update medical recruitment job
    */
-  static UpdateMedicalRecruitmentJob = async (jobId: number, data: Partial<MedicalRecruitmentJob>) => {
+  static UpdateMedicalRecruitmentJob = async (
+    jobId: number,
+    data: Partial<MedicalRecruitmentJob>
+  ) => {
     try {
       const res = await axiosInstance.put(
         `MedicalRecruitmentJob/UpdateMedicalRecruitmentJob/${jobId}`,

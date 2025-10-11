@@ -34,7 +34,7 @@ const Service21Dashboard = () => {
         orderDirection: sortState.length > 0 ? sortState[0].order.toUpperCase() : "ASC",
       };
 
-      const response = await MedicalEquipmentAndFacilitiesService.GetAllRentMedicalEquipment(params);
+      const response = await MedicalEquipmentAndFacilitiesService.GetAllRentMedicalEquipmentForAdmin(params);
 
       if (response && response.success) {
         const responseData = response as any;

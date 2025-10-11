@@ -63,17 +63,16 @@ const Service51Dashboard = () => {
   const fetchDataFromAPI = async (): Promise<DashboardRecord[]> => {
     try {
       const response =
-        await MedicalRecruitmentJobService.GetAllMedicalRecruitmentJob(
-          {
-            searchText: "",
-            statusId: 0,
-            pageNumber: pageNumber,
-            pageSize: pageSize,
-            orderByColumn: sortState.length > 0 ? sortState[0].key : "CreatedDate",
-            orderDirection:
-              sortState.length > 0 ? sortState[0].order.toUpperCase() : "DESC",
-          }
-        );
+        await MedicalRecruitmentJobService.GetAllMedicalRecruitmentJob({
+          searchText: null,
+          statusId: null,
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          orderByColumn:
+            sortState.length > 0 ? sortState[0].key : "CreatedDate",
+          orderDirection:
+            sortState.length > 0 ? sortState[0].order.toUpperCase() : "DESC",
+        });
 
       if (response && response.success) {
         const responseData = (response as any).data;
@@ -129,16 +128,15 @@ const Service51Dashboard = () => {
   };
 
   const handlePublishAction = async (row: DashboardRecord) => {
-
-
     try {
       setLoading(true);
 
-      const response = await MedicalRecruitmentJobService.UpdateMedicalRecruitmentJobStatus({
-        jobId: row.id,
-        statusId: StatusEnum.PUBLISHED,
-        reason: "Job published by admin",
-      });
+      const response =
+        await MedicalRecruitmentJobService.UpdateMedicalRecruitmentJobStatus({
+          jobId: row.id,
+          statusId: StatusEnum.PUBLISHED,
+          reason: "Job published by admin",
+        });
 
       if (response && response.success) {
         await fetchDataFromAPI();
@@ -148,9 +146,7 @@ const Service51Dashboard = () => {
           "success"
         );
       } else {
-        throw new Error(
-          (response as any)?.message || "Failed to publish job"
-        );
+        throw new Error((response as any)?.message || "Failed to publish job");
       }
     } catch (error) {
       console.error("Error publishing job:", error);
@@ -189,17 +185,13 @@ const Service51Dashboard = () => {
     },
     {
       label: "Department",
-      value: (row) => (
-        <span className="text-gray-700">{row.department}</span>
-      ),
+      value: (row) => <span className="text-gray-700">{row.department}</span>,
       sortKey: "department",
       isSort: true,
     },
     {
       label: "Location",
-      value: (row) => (
-        <span className="text-gray-500">{row.location}</span>
-      ),
+      value: (row) => <span className="text-gray-500">{row.location}</span>,
       sortKey: "location",
       isSort: true,
     },
@@ -221,17 +213,13 @@ const Service51Dashboard = () => {
     },
     {
       label: "Salary Range",
-      value: (row) => (
-        <span className="text-gray-500">{row.salaryRange}</span>
-      ),
+      value: (row) => <span className="text-gray-500">{row.salaryRange}</span>,
       sortKey: "salaryRange",
       isSort: true,
     },
     {
       label: "Contact Email",
-      value: (row) => (
-        <span className="text-gray-500">{row.contactEmail}</span>
-      ),
+      value: (row) => <span className="text-gray-500">{row.contactEmail}</span>,
       sortKey: "contactEmail",
       isSort: true,
     },
@@ -241,8 +229,7 @@ const Service51Dashboard = () => {
         <span className="text-gray-500">
           {row.applicationDeadline
             ? new Date(row.applicationDeadline).toLocaleDateString()
-            : "No deadline"
-          }
+            : "No deadline"}
         </span>
       ),
       sortKey: "applicationDeadline",
@@ -362,18 +349,23 @@ const Service51Dashboard = () => {
         <div className="grid gap-4 sm:grid-cols-3 mb-8">
           <div className="rounded-[28px] border border-gray-200 bg-[#f7f8fd] px-6 py-8 text-center shadow-[0_20px_40px_rgba(5,6,104,0.08)]">
             <h3 className="mb-2 text-4xl font-bold text-gray-900">
-              {records.filter(r => r.statusId === StatusEnum.PUBLISHED).length}
+              {
+                records.filter((r) => r.statusId === StatusEnum.PUBLISHED)
+                  .length
+              }
             </h3>
             <p className="text-sm text-gray-600">Published Jobs</p>
           </div>
           <div className="rounded-[28px] border border-gray-200 bg-[#f7f8fd] px-6 py-8 text-center shadow-[0_20px_40px_rgba(5,6,104,0.08)]">
             <h3 className="mb-2 text-4xl font-bold text-gray-900">
-              {records.filter(r => r.statusId === StatusEnum.APPROVED).length}
+              {records.filter((r) => r.statusId === StatusEnum.APPROVED).length}
             </h3>
             <p className="text-sm text-gray-600">Approved Jobs</p>
           </div>
           <div className="rounded-[28px] border border-gray-200 bg-[#f7f8fd] px-6 py-8 text-center shadow-[0_20px_40px_rgba(5,6,104,0.08)]">
-            <h3 className="mb-2 text-4xl font-bold text-gray-900">{totalCount}</h3>
+            <h3 className="mb-2 text-4xl font-bold text-gray-900">
+              {totalCount}
+            </h3>
             <p className="text-sm text-gray-600">Total Jobs</p>
           </div>
         </div>
@@ -434,4 +426,3 @@ const Service51Dashboard = () => {
 };
 
 export default Service51Dashboard;
-
