@@ -440,7 +440,7 @@ const App = () => {
           path="/employee-category"
           element={<EmployeeCategoryAssignment />}
         />
-        <Route path="/terms-master" element={<TermsConditionsMaster />} />
+        <Route path="/terms-condition-master" element={<TermsConditionsMaster />} />
         <Route path="/promocode-settings" element={<PromocodeSettings />} />
         <Route
           path="/non-medical-companies"

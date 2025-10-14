@@ -63,8 +63,8 @@ const getMenuItems = (t: any) => [
     icon: "/theme-icons/requests.png",
   },
   {
-    label: t('sidebar.termsMaster'),
-    href: "/terms-master",
+    label: t('sidebar.termsConditionMaster'),
+    href: "/terms-condition-master",
     icon: "/theme-icons/requests.png",
   },
   {

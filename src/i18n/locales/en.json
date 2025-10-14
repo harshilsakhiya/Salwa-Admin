@@ -86,6 +86,7 @@
     "serviceManagement": "Service Management",
     "employeeCategory": "Employee Category",
     "termsMaster": "Terms Master",
+    "termsConditionMaster": "Terms & Condition Master",
     "promocodeSettings": "Promocode Settings",
     "nonMedicalCompanies": "Non Medical Companies"
   },

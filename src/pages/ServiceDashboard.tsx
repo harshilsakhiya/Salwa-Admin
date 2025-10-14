@@ -29,7 +29,7 @@ interface Category {
 
 interface ApiCategory {
   Id: string;
-  Name: string;
+  EName: string;
   icon: string;
   description: string;
   isActive?: boolean;
@@ -87,13 +87,13 @@ const ServiceDashboard = () => {
         const services: Service[] = JSON.parse(response.data).map(
           (apiService: any) => ({
             id: apiService.Id,
-            title: apiService.Name,
+            title: apiService.EName,
             description: apiService.Description || "Service description",
             icon: apiService.Icon || "/theme-icons/genral-service.png",
             hasSubServices: apiService.HasSubServices || false,
             categoryId: category.id,
             serviceId: apiService.Id,
-            serviceTitle: apiService.Name,
+            serviceTitle: apiService.EName,
           })
         );
         return services;
@@ -125,7 +125,7 @@ const ServiceDashboard = () => {
         if (Array.isArray(parsedData) && parsedData.length > 0) {
           const subServices: Service[] = parsedData.map((apiService: any) => ({
             id: apiService.Id,
-            title: apiService.Name,
+            title: apiService.EName,
             description: apiService.Description || "Sub-service description",
             icon: apiService.Icon || "/theme-icons/genral-service.png",
             hasSubServices: false, // Sub-services typically don't have further sub-services
@@ -133,7 +133,7 @@ const ServiceDashboard = () => {
             serviceId: service.id,
             serviceTitle: service.title,
             optionId: apiService.Id,
-            optionTitle: apiService.Name,
+            optionTitle: apiService.EName,
             baseRoute: `/service-dashboard/${service.categoryId}-services`,
           }));
           return subServices;
@@ -166,7 +166,7 @@ const ServiceDashboard = () => {
             response.data
           ).map((apiCategory: ApiCategory) => ({
             id: apiCategory.Id,
-            title: apiCategory.Name,
+            title: apiCategory.EName,
             icon: apiCategory.icon || "/theme-icons/genral-service.png", // fallback icon
             description: apiCategory.description || "Use the Service",
           }));
