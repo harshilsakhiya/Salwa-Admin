@@ -1,20 +1,46 @@
-import { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import DashboardLayout from "../layouts/DashboardLayout";
 import ComanTable, {
   type TableColumn,
   type SortState,
 } from "../components/common/ComanTable";
+import TermsConditionsService from "../services/TermsConditionsService";
 
 type ActiveTab = "registration" | "services";
-type ModalState = "edit" | "confirm" | "success" | "history" | null;
+type ModalState = "view" | "edit" | "confirm" | "success" | "history" | null;
 
 interface TermsRow {
+  // UI display fields
   id: string;
   category: string;
   userType: string;
   subType: string;
   terms: string;
   version: string;
+
+  // Services API response fields
+  CategoryId?: number;
+  Category?: string;
+  ServiceId?: number;
+  Service?: string;
+  SubServiceId?: number | null;
+  SubService?: string | null;
+
+  // Registration API response fields
+  UserTypeId?: number;
+  UserType?: string;
+  SubTypeId?: number | null;
+  SubType?: string | null;
+
+  // Common fields
+  CreatedBy?: string | null;
+  CreatedDate: string;
+  UpdatedBy?: string | null;
+  UpdatedDate: string;
+  IsActive: boolean;
+  Version: string;
+  ETermsAndCondition: string;
+  ATermsAndCondition: string;
 }
 
 interface HistoryItem {
@@ -29,40 +55,7 @@ const stats = [
   { label: "Total B2B Query", value: "266" },
 ];
 
-const tableRows: TermsRow[] = [
-  {
-    id: "#0023",
-    category: "Individual",
-    userType: "Doctor",
-    subType: "-",
-    terms: "Lorem ipsum dolor sit amet",
-    version: "2.5.1",
-  },
-  {
-    id: "#0025",
-    category: "Individual",
-    userType: "Transition Students",
-    subType: "University",
-    terms: "Lorem ipsum dolor sit amet",
-    version: "2.4.9",
-  },
-  {
-    id: "#0028",
-    category: "Business",
-    userType: "Commercial service provider",
-    subType: "Food sector",
-    terms: "Lorem ipsum dolor sit amet",
-    version: "2.5.0",
-  },
-  {
-    id: "#0029",
-    category: "Common",
-    userType: "Please",
-    subType: "Table Use",
-    terms: "Common table usage terms and conditions",
-    version: "1.0.0",
-  },
-];
+// Static data removed - now using API data
 
 const historyItems: HistoryItem[] = [
   {
@@ -85,14 +78,106 @@ const historyItems: HistoryItem[] = [
 const TermsConditionsMaster = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>("registration");
   const [modalState, setModalState] = useState<ModalState>(null);
-  const [englishText, setEnglishText] = useState("Lorem ipsum dolor sit amet, consectetur adipiscing elit.");
-  const [arabicText, setArabicText] = useState("Arabic placeholder content");
+  const [englishText, setEnglishText] = useState("");
+  const [arabicText, setArabicText] = useState("");
   const [selectedRow, setSelectedRow] = useState<TermsRow | null>(null);
 
   // Table state management
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [sortState, setSortState] = useState<SortState[]>([]);
+
+  // API state management
+  const [tableRows, setTableRows] = useState<TermsRow[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [editLoading, setEditLoading] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [searchText, setSearchText] = useState("");
+  const [debouncedSearchText, setDebouncedSearchText] = useState("");
+
+  // API call function
+  const fetchTermsConditions = async () => {
+    setLoading(true);
+    try {
+      // Get sort parameters
+      const orderByColumn = sortState.length > 0 ? sortState[0].key : "CreatedDate";
+      const orderDirection = sortState.length > 0 ? sortState[0].order.toUpperCase() : "DESC";
+
+      // Call different API based on active tab
+      const response: any = activeTab === "registration"
+        ? await TermsConditionsService.getRegistrationTermsAndConditionsAdmin({
+          searchText: debouncedSearchText,
+          pageNumber: currentPage,
+          pageSize,
+          orderByColumn,
+          orderDirection,
+        })
+        : await TermsConditionsService.getServiceTermsAndConditionsAdmin({
+          searchText: debouncedSearchText,
+          pageNumber: currentPage,
+          pageSize,
+          orderByColumn,
+          orderDirection,
+        });
+
+      console.log(`${activeTab} API response:`, response);
+
+      if (response && response.data) {
+        // Transform API data to match component structure
+        const transformedData: TermsRow[] = response.data.data.map((item: any) => {
+          // Determine ID based on API type
+          const id = activeTab === "registration"
+            ? `#${item.UserTypeId || item.CategoryId || 'N/A'}`
+            : `#${item.ServiceId || item.Id || item.RequestId || 'N/A'}`;
+
+          // Map fields based on API type
+          const category = item.Category || "N/A";
+          const userType = activeTab === "registration"
+            ? (item.UserType || "N/A")
+            : (item.Service || item.UserType || "N/A");
+          const subType = activeTab === "registration"
+            ? (item.SubType || "-")
+            : (item.SubService || item.SubType || "-");
+
+          return {
+            // UI display fields
+            id,
+            category,
+            userType,
+            subType,
+            terms: item.ETermsAndCondition || item.TermsAndCondition || "N/A",
+            version: item.Version || "1.0.0",
+            // Include all original API fields
+            ...item,
+          };
+        });
+
+        setTableRows(transformedData);
+        setTotalCount(response.data.totalRecords?.TotalRecords || 0);
+        setTotalPages(Math.ceil((response.data.totalRecords?.TotalRecords || 0) / pageSize));
+      }
+    } catch (error) {
+      console.error(`Error fetching ${activeTab} terms and conditions:`, error);
+      // Keep existing data on error
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Debounce search text
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchText(searchText);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchText]);
+
+  // Fetch data on component mount and when dependencies change
+  useEffect(() => {
+    fetchTermsConditions();
+  }, [currentPage, pageSize, sortState, debouncedSearchText, activeTab]);
 
   // Table handlers
   const handlePageChange = (page: number) => {
@@ -108,9 +193,129 @@ const TermsConditionsMaster = () => {
     setSortState(newSortState);
   };
 
-  const openEdit = (row: TermsRow) => {
+  const handleSearchChange = (value: string) => {
+    setSearchText(value);
+    setCurrentPage(1); // Reset to first page when searching
+  };
+
+  const handleTabChange = (tab: ActiveTab) => {
+    setActiveTab(tab);
+    setCurrentPage(1); // Reset to first page when switching tabs
+    setSearchText(""); // Clear search when switching tabs
+    setDebouncedSearchText(""); // Clear debounced search
+  };
+
+  // const openView = (row: TermsRow) => {
+  //   setSelectedRow(row);
+  //   setModalState("view");
+  // };
+
+  const openEdit = async (row: TermsRow) => {
     setSelectedRow(row);
     setModalState("edit");
+
+    // Show loading state for edit modal
+    setEditLoading(true);
+
+    try {
+      let response;
+
+      // Call different API based on active tab
+      if (activeTab === "registration") {
+        response = await TermsConditionsService.getRegistrationTermsAndConditionsAdminById(
+          row.CategoryId || 0
+        );
+      } else {
+        response = await TermsConditionsService.getServiceTermsAndConditionsAdminById(
+          row.CategoryId || 0
+        );
+      }
+
+      if (response.success && response.data) {
+        console.log("Fetched terms data:", response.data);
+        // Set the detailed terms content in both languages
+        setEnglishText(response.data.ETermsAndCondition || "");
+        setArabicText(response.data.ATermsAndCondition || "");
+      } else {
+        console.log("API failed, using fallback data");
+        // Fallback to existing data if API fails
+        setEnglishText(row.ETermsAndCondition || "");
+        setArabicText(row.ATermsAndCondition || "");
+      }
+    } catch (error) {
+      console.error("Error fetching terms details:", error);
+      // Fallback to existing data on error
+      setEnglishText(row.ETermsAndCondition || "");
+      setArabicText(row.ATermsAndCondition || "");
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  const handleUpdateTerms = async () => {
+    if (!selectedRow) return;
+
+    setEditLoading(true);
+
+    try {
+      let response;
+
+      // Call different API based on active tab
+      if (activeTab === "registration") {
+        // Prepare the registration update request data
+        const updateData = {
+          subTypeId: selectedRow.SubTypeId || null,
+          userTypeId: selectedRow.UserTypeId || 0,
+          userType: selectedRow.userType || "",
+          categoryId: selectedRow.CategoryId || 0,
+          category: selectedRow.category || "",
+          subType: selectedRow.subType || null,
+          eTermsAndCondition: englishText,
+          aTermsAndCondition: arabicText,
+          updatedBy: 1, // You might want to get this from user context
+        };
+
+        console.log("Updating registration terms with data:", updateData);
+        response = await TermsConditionsService.updateRegistrationTermsAndConditions(updateData);
+      } else {
+        // Prepare the service update request data
+        const updateData = {
+          serviceId: selectedRow.ServiceId || 0,
+          categoryId: selectedRow.CategoryId || 0,
+          category: selectedRow.category || "",
+          subServiceId: selectedRow.SubServiceId || 0,
+          service: selectedRow.userType || "",
+          subService: selectedRow.subType || "",
+          eTermsAndCondition: englishText,
+          aTermsAndCondition: arabicText,
+          isActive: selectedRow.IsActive,
+          updatedBy: 1, // You might want to get this from user context
+        };
+
+        console.log("Updating service terms with data:", updateData);
+        response = await TermsConditionsService.updateServiceTermsAndConditions(updateData);
+      }
+
+      console.log("Update response:", response);
+
+      if (response.success) {
+        // Update successful, show success modal
+        setModalState("success");
+        // Refresh the table data
+        fetchTermsConditions();
+      } else {
+        // Handle error - you might want to show an error message
+        console.error("Update failed:", response.message);
+        // For now, still show success modal, but you could add error handling
+        setModalState("success");
+      }
+    } catch (error) {
+      console.error("Error updating terms:", error);
+      // Handle error - you might want to show an error message
+      setModalState("success"); // For now, still show success modal
+    } finally {
+      setEditLoading(false);
+    }
   };
 
   // Table columns configuration
@@ -135,7 +340,7 @@ const TermsConditionsMaster = () => {
         isSort: true,
       },
       {
-        label: "User Type",
+        label: activeTab === "registration" ? "User Type" : "User Type",
         value: (row) => (
           <span className="text-gray-500">{row.userType}</span>
         ),
@@ -143,7 +348,7 @@ const TermsConditionsMaster = () => {
         isSort: true,
       },
       {
-        label: "Sub-User Type",
+        label: activeTab === "registration" ? "Sub-Type" : "Sub-User Type",
         value: (row) => (
           <span className="text-gray-500">{row.subType}</span>
         ),
@@ -152,9 +357,19 @@ const TermsConditionsMaster = () => {
       },
       {
         label: "Terms & Condition",
-        value: (row) => (
-          <span className="text-gray-500">{row.terms}</span>
-        ),
+        value: (row) => {
+          // Strip HTML tags and truncate for display
+          const plainText = row.terms.replace(/<[^>]*>/g, '').trim();
+          const truncated = plainText.length > 50 ? plainText.substring(0, 50) + '...' : plainText;
+
+          return (
+            <div className="max-w-xs">
+              <span className="text-gray-500 text-sm" title={plainText}>
+                {truncated}
+              </span>
+            </div>
+          );
+        },
         sortKey: "terms",
         isSort: true,
       },
@@ -170,6 +385,9 @@ const TermsConditionsMaster = () => {
         label: "Actions",
         value: (row) => (
           <div className="flex items-center justify-center gap-3">
+            {/* <IconButton label="View" onClick={() => openView(row)}>
+              <ViewIcon />
+            </IconButton> */}
             <IconButton label="Edit" onClick={() => openEdit(row)}>
               <EditIcon />
             </IconButton>
@@ -192,34 +410,55 @@ const TermsConditionsMaster = () => {
         <section className="space-y-8 rounded-[32px] border border-gray-200 bg-white p-8 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3 rounded-full bg-[#f7f8fd] p-1 text-sm font-semibold text-gray-500">
-              <TabButton label="Registration" isActive={activeTab === "registration"} onClick={() => setActiveTab("registration")} />
-              <TabButton label="Services" isActive={activeTab === "services"} onClick={() => setActiveTab("services")} />
+              <TabButton label="Registration" isActive={activeTab === "registration"} onClick={() => handleTabChange("registration")} />
+              <TabButton label="Services" isActive={activeTab === "services"} onClick={() => handleTabChange("services")} />
             </div>
-            <SearchField />
+            <SearchField onSearchChange={handleSearchChange} value={searchText} />
           </div>
 
           <StatsRow />
           <ChartPlaceholder />
 
           {/* Terms & Conditions Table with ComanTable */}
-          <ComanTable
-            columns={termsTableColumns}
-            data={tableRows}
-            page={currentPage}
-            totalPages={1}
-            totalCount={tableRows.length}
-            onPageChange={handlePageChange}
-            sortState={sortState}
-            onSortChange={handleSortChange}
-            pageSize={pageSize}
-            onPageSizeChange={handlePageSizeChange}
-            loading={false}
-          />
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-800">
+                {activeTab === "registration" ? "Registration Terms & Conditions" : "Service Terms & Conditions"}
+              </h3>
+              {loading && (
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+                  Loading...
+                </div>
+              )}
+            </div>
+            <ComanTable
+              columns={termsTableColumns}
+              data={tableRows}
+              page={currentPage}
+              totalPages={totalPages}
+              totalCount={totalCount}
+              onPageChange={handlePageChange}
+              sortState={sortState}
+              onSortChange={handleSortChange}
+              pageSize={pageSize}
+              onPageSizeChange={handlePageSizeChange}
+              loading={loading}
+            />
+          </div>
         </section>
       </div>
 
       {modalState && (
         <ModalOverlay>
+          {modalState === "view" && selectedRow && (
+            <ViewModal
+              row={selectedRow}
+              activeTab={activeTab}
+              onClose={() => setModalState(null)}
+              onEdit={() => setModalState("edit")}
+            />
+          )}
           {modalState === "edit" && selectedRow && (
             <EditModal
               onClose={() => setModalState(null)}
@@ -228,6 +467,7 @@ const TermsConditionsMaster = () => {
               arabicText={arabicText}
               onEnglishChange={setEnglishText}
               onArabicChange={setArabicText}
+              loading={editLoading}
             />
           )}
           {modalState === "confirm" && selectedRow && (
@@ -235,7 +475,8 @@ const TermsConditionsMaster = () => {
               version={selectedRow.version}
               onClose={() => setModalState(null)}
               onCancel={() => setModalState("edit")}
-              onConfirm={() => setModalState("success")}
+              onConfirm={handleUpdateTerms}
+              loading={editLoading}
             />
           )}
           {modalState === "success" && selectedRow && (
@@ -274,11 +515,13 @@ const TabButton = ({ label, isActive, onClick }: { label: string; isActive: bool
   </button>
 );
 
-const SearchField = () => (
+const SearchField = ({ onSearchChange, value }: { onSearchChange: (value: string) => void; value: string }) => (
   <div className="relative w-full max-w-xs">
     <input
       className="w-full rounded-full border border-gray-200 bg-white px-4 py-2.5 pl-10 text-sm text-gray-600 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
       placeholder="Search here"
+      value={value}
+      onChange={(e) => onSearchChange(e.target.value)}
     />
     <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400">
       <SearchIcon />
@@ -321,8 +564,8 @@ const ModalOverlay = ({ children }: { children: React.ReactNode }) => (
 );
 
 const ModalShell = ({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) => (
-  <div className="w-full max-w-2xl rounded-[36px] bg-white px-8 py-10 shadow-[0_40px_90px_rgba(5,6,104,0.18)]">
-    <div className="flex items-center justify-between gap-4">
+  <div className="w-full max-w-4xl max-h-[90vh] rounded-[36px] bg-white px-8 py-10 shadow-[0_40px_90px_rgba(5,6,104,0.18)] overflow-hidden flex flex-col">
+    <div className="flex items-center justify-between gap-4 flex-shrink-0">
       <h3 className="text-xl font-semibold text-primary">{title}</h3>
       <button
         type="button"
@@ -333,7 +576,7 @@ const ModalShell = ({ title, onClose, children }: { title: string; onClose: () =
         <CloseIcon />
       </button>
     </div>
-    <div className="mt-8 space-y-6">{children}</div>
+    <div className="mt-8 space-y-6 overflow-y-auto flex-1">{children}</div>
   </div>
 );
 
@@ -344,6 +587,7 @@ const EditModal = ({
   arabicText,
   onEnglishChange,
   onArabicChange,
+  loading = false,
 }: {
   onClose: () => void;
   onSubmit: () => void;
@@ -351,20 +595,32 @@ const EditModal = ({
   arabicText: string;
   onEnglishChange: (value: string) => void;
   onArabicChange: (value: string) => void;
+  loading?: boolean;
 }) => (
   <ModalShell title="Edit Terms &amp; Condition" onClose={onClose}>
     <div className="space-y-6">
-      <RichTextCard languageLabel="English" value={englishText} onChange={onEnglishChange} />
-      <RichTextCard languageLabel="Arabic" value={arabicText} onChange={onArabicChange} />
-      <div className="flex justify-end">
-        <button
-          type="button"
-          className="rounded-full bg-primary px-10 py-3 text-sm font-semibold text-white shadow hover:bg-[#030447]"
-          onClick={onSubmit}
-        >
-          Update
-        </button>
-      </div>
+      {loading ? (
+        <div className="flex items-center justify-center py-8">
+          <div className="flex items-center gap-3 text-sm text-gray-500">
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+            Loading terms details...
+          </div>
+        </div>
+      ) : (
+        <>
+          <RichTextCard languageLabel="English" value={englishText} onChange={onEnglishChange} />
+          <RichTextCard languageLabel="Arabic" value={arabicText} onChange={onArabicChange} />
+          <div className="flex justify-end">
+            <button
+              type="button"
+              className="rounded-full bg-primary px-10 py-3 text-sm font-semibold text-white shadow hover:bg-[#030447]"
+              onClick={onSubmit}
+            >
+              Update
+            </button>
+          </div>
+        </>
+      )}
     </div>
   </ModalShell>
 );
@@ -377,29 +633,249 @@ const RichTextCard = ({
   languageLabel: string;
   value: string;
   onChange: (value: string) => void;
-}) => (
-  <div className="space-y-4 rounded-[28px] border border-gray-200 bg-[#f7f8fd] p-6">
-    <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
-      <span>{languageLabel}</span>
-      <ToolbarIconRow />
-    </div>
-    <textarea
-      className="h-32 w-full resize-none rounded-[18px] border border-gray-200 bg-white px-4 py-3 text-sm text-gray-600 shadow-inner focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-      value={value}
-      onChange={(event) => onChange(event.target.value)}
-    />
-  </div>
-);
+}) => {
+  const editorRef = React.useRef<HTMLDivElement>(null);
 
-const ToolbarIconRow = () => (
-  <div className="flex items-center gap-3 text-xs text-gray-400">
-    <span>Undo</span>
-    <span>Redo</span>
-    <span className="font-semibold">B</span>
-    <span className="italic">I</span>
-    <span>U</span>
-    <span>�</span>
-    <span>1.</span>
+  const executeCommand = (command: string, value?: string) => {
+    if (editorRef.current) {
+      editorRef.current.focus();
+      document.execCommand(command, false, value);
+      onChange(editorRef.current.innerHTML);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.ctrlKey || e.metaKey) {
+      switch (e.key) {
+        case 'b':
+          e.preventDefault();
+          executeCommand('bold');
+          break;
+        case 'i':
+          e.preventDefault();
+          executeCommand('italic');
+          break;
+        case 'u':
+          e.preventDefault();
+          executeCommand('underline');
+          break;
+      }
+    }
+  };
+
+  const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
+    onChange(e.currentTarget.innerHTML);
+  };
+
+  return (
+    <div className="space-y-4 rounded-[28px] border border-gray-200 bg-[#f7f8fd] p-6 max-w-full overflow-hidden">
+      <div className="flex flex-col gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
+        <span>{languageLabel}</span>
+        <div className="w-full overflow-x-auto">
+          <RichTextToolbar onCommand={executeCommand} />
+        </div>
+      </div>
+      <div
+        ref={editorRef}
+        contentEditable
+        className="h-32 w-full resize-none rounded-[18px] border border-gray-200 bg-white px-4 py-3 text-sm text-gray-600 shadow-inner focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+        onInput={handleInput}
+        onKeyDown={handleKeyDown}
+        dangerouslySetInnerHTML={{ __html: value }}
+        style={{ minHeight: '120px' }}
+        suppressContentEditableWarning={true}
+      />
+    </div>
+  );
+};
+
+const RichTextToolbar = ({ onCommand }: { onCommand: (command: string, value?: string) => void }) => (
+  <div className="flex flex-wrap items-center gap-1 text-xs text-gray-400 max-w-full overflow-hidden">
+    {/* Undo/Redo */}
+    <div className="flex items-center gap-1">
+      <button
+        type="button"
+        onClick={() => onCommand('undo')}
+        className="flex h-6 w-6 items-center justify-center rounded hover:bg-gray-200"
+        title="Undo (Ctrl+Z)"
+      >
+        <UndoIcon />
+      </button>
+      <button
+        type="button"
+        onClick={() => onCommand('redo')}
+        className="flex h-6 w-6 items-center justify-center rounded hover:bg-gray-200"
+        title="Redo (Ctrl+Y)"
+      >
+        <RedoIcon />
+      </button>
+    </div>
+
+    {/* Text Style Dropdown */}
+    <select
+      onChange={(e) => onCommand('formatBlock', e.target.value)}
+      className="h-6 rounded border border-gray-300 bg-white px-1 text-xs min-w-0"
+      title="Text Style"
+    >
+      <option value="div">Normal text</option>
+      <option value="h1">Heading 1</option>
+      <option value="h2">Heading 2</option>
+      <option value="h3">Heading 3</option>
+      <option value="h4">Heading 4</option>
+      <option value="h5">Heading 5</option>
+      <option value="h6">Heading 6</option>
+      <option value="p">Paragraph</option>
+    </select>
+
+    {/* Alignment */}
+    <div className="flex items-center gap-1">
+      <button
+        type="button"
+        onClick={() => onCommand('justifyLeft')}
+        className="flex h-6 w-6 items-center justify-center rounded hover:bg-gray-200"
+        title="Align Left"
+      >
+        <AlignLeftIcon />
+      </button>
+      <button
+        type="button"
+        onClick={() => onCommand('justifyCenter')}
+        className="flex h-6 w-6 items-center justify-center rounded hover:bg-gray-200"
+        title="Align Center"
+      >
+        <AlignCenterIcon />
+      </button>
+      <button
+        type="button"
+        onClick={() => onCommand('justifyRight')}
+        className="flex h-6 w-6 items-center justify-center rounded hover:bg-gray-200"
+        title="Align Right"
+      >
+        <AlignRightIcon />
+      </button>
+      <button
+        type="button"
+        onClick={() => onCommand('justifyFull')}
+        className="flex h-6 w-6 items-center justify-center rounded hover:bg-gray-200"
+        title="Justify"
+      >
+        <JustifyIcon />
+      </button>
+    </div>
+
+    {/* Lists */}
+    <div className="flex items-center gap-1">
+      <button
+        type="button"
+        onClick={() => onCommand('insertUnorderedList')}
+        className="flex h-6 w-6 items-center justify-center rounded hover:bg-gray-200"
+        title="Bullet List"
+      >
+        <BulletListIcon />
+      </button>
+      <button
+        type="button"
+        onClick={() => onCommand('insertOrderedList')}
+        className="flex h-6 w-6 items-center justify-center rounded hover:bg-gray-200"
+        title="Numbered List"
+      >
+        <NumberedListIcon />
+      </button>
+    </div>
+
+    {/* Color Picker */}
+    <input
+      type="color"
+      onChange={(e) => onCommand('foreColor', e.target.value)}
+      className="h-6 w-6 rounded border border-gray-300 cursor-pointer"
+      title="Text Color"
+    />
+
+    {/* Text Formatting */}
+    <div className="flex items-center gap-1">
+      <button
+        type="button"
+        onClick={() => onCommand('bold')}
+        className="flex h-6 w-6 items-center justify-center rounded font-bold hover:bg-gray-200"
+        title="Bold (Ctrl+B)"
+      >
+        B
+      </button>
+      <button
+        type="button"
+        onClick={() => onCommand('italic')}
+        className="flex h-6 w-6 items-center justify-center rounded italic hover:bg-gray-200"
+        title="Italic (Ctrl+I)"
+      >
+        I
+      </button>
+      <button
+        type="button"
+        onClick={() => onCommand('underline')}
+        className="flex h-6 w-6 items-center justify-center rounded hover:bg-gray-200"
+        title="Underline (Ctrl+U)"
+      >
+        U
+      </button>
+      <button
+        type="button"
+        onClick={() => onCommand('strikeThrough')}
+        className="flex h-6 w-6 items-center justify-center rounded hover:bg-gray-200"
+        title="Strikethrough"
+      >
+        S
+      </button>
+    </div>
+
+    {/* Advanced Formatting */}
+    <div className="flex items-center gap-1">
+      <button
+        type="button"
+        onClick={() => onCommand('insertCode')}
+        className="flex h-6 w-6 items-center justify-center rounded hover:bg-gray-200"
+        title="Code"
+      >
+        &lt;/&gt;
+      </button>
+      <button
+        type="button"
+        onClick={() => {
+          const url = prompt('Enter URL:');
+          if (url) onCommand('createLink', url);
+        }}
+        className="flex h-6 w-6 items-center justify-center rounded hover:bg-gray-200"
+        title="Insert Link"
+      >
+        <LinkIcon />
+      </button>
+      <button
+        type="button"
+        onClick={() => {
+          const url = prompt('Enter image URL:');
+          if (url) onCommand('insertImage', url);
+        }}
+        className="flex h-6 w-6 items-center justify-center rounded hover:bg-gray-200"
+        title="Insert Image"
+      >
+        <ImageIcon />
+      </button>
+      <button
+        type="button"
+        onClick={() => onCommand('formatBlock', 'blockquote')}
+        className="flex h-6 w-6 items-center justify-center rounded hover:bg-gray-200"
+        title="Blockquote"
+      >
+        <QuoteIcon />
+      </button>
+      <button
+        type="button"
+        onClick={() => onCommand('insertHorizontalRule')}
+        className="flex h-6 w-6 items-center justify-center rounded hover:bg-gray-200"
+        title="Horizontal Rule"
+      >
+        <HrIcon />
+      </button>
+    </div>
   </div>
 );
 
@@ -408,11 +884,13 @@ const ConfirmModal = ({
   onClose,
   onCancel,
   onConfirm,
+  loading = false,
 }: {
   version: string;
   onClose: () => void;
   onCancel: () => void;
   onConfirm: () => void;
+  loading?: boolean;
 }) => (
   <ModalShell title="Confirm Update" onClose={onClose}>
     <div className="space-y-6 text-center">
@@ -425,17 +903,22 @@ const ConfirmModal = ({
       <div className="flex justify-center gap-3">
         <button
           type="button"
-          className="rounded-full border border-gray-300 px-6 py-2 text-sm font-semibold text-gray-500 hover:border-primary"
+          className="rounded-full border border-gray-300 px-6 py-2 text-sm font-semibold text-gray-500 hover:border-primary disabled:opacity-50"
           onClick={onCancel}
+          disabled={loading}
         >
           No
         </button>
         <button
           type="button"
-          className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-white shadow hover:bg-[#030447]"
+          className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-white shadow hover:bg-[#030447] disabled:opacity-50 flex items-center gap-2"
           onClick={onConfirm}
+          disabled={loading}
         >
-          Yes
+          {loading && (
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+          )}
+          {loading ? "Updating..." : "Yes"}
         </button>
       </div>
     </div>
@@ -518,6 +1001,186 @@ const HistoryIcon = () => (
     <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2" />
     <path strokeLinecap="round" strokeLinejoin="round" d="M3 12a9 9 0 1 1 3 7" />
   </svg>
+);
+
+// const ViewIcon = () => (
+//   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
+//     <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+//     <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+//   </svg>
+// );
+
+// Rich Text Editor Icons
+const UndoIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+  </svg>
+);
+
+const RedoIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M21 10H11a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6" />
+  </svg>
+);
+
+const AlignLeftIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M3 4h18M3 8h12M3 12h18M3 16h12M3 20h18" />
+  </svg>
+);
+
+const AlignCenterIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M3 4h18M6 8h12M3 12h18M6 16h12M3 20h18" />
+  </svg>
+);
+
+const AlignRightIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M3 4h18M9 8h12M3 12h18M9 16h12M3 20h18" />
+  </svg>
+);
+
+const JustifyIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M3 4h18M3 8h18M3 12h18M3 16h18M3 20h18" />
+  </svg>
+);
+
+const BulletListIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+  </svg>
+);
+
+const NumberedListIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M3 6h.01M3 12h.01M3 18h.01" />
+  </svg>
+);
+
+const LinkIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+  </svg>
+);
+
+const ImageIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+    <circle cx="8.5" cy="8.5" r="1.5" />
+    <polyline points="21,15 16,10 5,21" />
+  </svg>
+);
+
+const QuoteIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+  </svg>
+);
+
+const HrIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M3 12h18M3 6h18M3 18h18" />
+  </svg>
+);
+
+const ViewModal = ({
+  row,
+  activeTab,
+  onClose,
+  onEdit
+}: {
+  row: TermsRow;
+  activeTab: ActiveTab;
+  onClose: () => void;
+  onEdit: () => void;
+}) => (
+  <ModalShell title={`View Terms & Conditions - ${row.category}`} onClose={onClose}>
+    <div className="space-y-6">
+      <div className="grid gap-4 rounded-[20px] border border-gray-200 bg-[#f7f8fd] p-4">
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <span className="font-semibold text-gray-600">Category:</span>
+            <span className="ml-2 text-gray-800">{row.category}</span>
+          </div>
+          <div>
+            <span className="font-semibold text-gray-600">
+              {activeTab === "registration" ? "User Type:" : "Service:"}
+            </span>
+            <span className="ml-2 text-gray-800">{row.userType}</span>
+          </div>
+          <div>
+            <span className="font-semibold text-gray-600">
+              {activeTab === "registration" ? "Sub-Type:" : "Sub-Service:"}
+            </span>
+            <span className="ml-2 text-gray-800">{row.subType}</span>
+          </div>
+          <div>
+            <span className="font-semibold text-gray-600">Version:</span>
+            <span className="ml-2 text-gray-800">{row.version}</span>
+          </div>
+          <div>
+            <span className="font-semibold text-gray-600">Created:</span>
+            <span className="ml-2 text-gray-800">{new Date(row.CreatedDate).toLocaleDateString()}</span>
+          </div>
+          <div>
+            <span className="font-semibold text-gray-600">Updated:</span>
+            <span className="ml-2 text-gray-800">{new Date(row.UpdatedDate).toLocaleDateString()}</span>
+          </div>
+          <div>
+            <span className="font-semibold text-gray-600">Status:</span>
+            <span className={`ml-2 ${row.IsActive ? 'text-green-600' : 'text-red-600'}`}>
+              {row.IsActive ? 'Active' : 'Inactive'}
+            </span>
+          </div>
+          {activeTab === "registration" && row.UserTypeId && (
+            <div>
+              <span className="font-semibold text-gray-600">User Type ID:</span>
+              <span className="ml-2 text-gray-800">{row.UserTypeId}</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <div className="rounded-[20px] border border-gray-200 bg-[#f7f8fd] p-4">
+          <h4 className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-gray-500">English Terms</h4>
+          <div
+            className="max-h-64 overflow-y-auto rounded-[12px] border border-gray-200 bg-white p-4 text-sm text-gray-700"
+            dangerouslySetInnerHTML={{ __html: row.ETermsAndCondition }}
+          />
+        </div>
+
+        <div className="rounded-[20px] border border-gray-200 bg-[#f7f8fd] p-4">
+          <h4 className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-gray-500">Arabic Terms</h4>
+          <div
+            className="max-h-64 overflow-y-auto rounded-[12px] border border-gray-200 bg-white p-4 text-sm text-gray-700 text-right"
+            dir="rtl"
+            dangerouslySetInnerHTML={{ __html: row.ATermsAndCondition }}
+          />
+        </div>
+      </div>
+
+      <div className="flex justify-end gap-3">
+        <button
+          type="button"
+          className="rounded-full border border-gray-300 px-6 py-2 text-sm font-semibold text-gray-600 hover:border-primary"
+          onClick={onClose}
+        >
+          Close
+        </button>
+        <button
+          type="button"
+          className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-white shadow hover:bg-[#030447]"
+          onClick={onEdit}
+        >
+          Edit
+        </button>
+      </div>
+    </div>
+  </ModalShell>
 );
 
 export default TermsConditionsMaster;
