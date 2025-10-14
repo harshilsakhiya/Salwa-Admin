@@ -1,5 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import DashboardLayout from "../layouts/DashboardLayout";
+import ComanTable, {
+  type TableColumn,
+  type SortState,
+} from "../components/common/ComanTable";
 
 type ActiveTab = "registration" | "services";
 type ModalState = "edit" | "confirm" | "success" | "history" | null;
@@ -50,6 +54,14 @@ const tableRows: TermsRow[] = [
     terms: "Lorem ipsum dolor sit amet",
     version: "2.5.0",
   },
+  {
+    id: "#0029",
+    category: "Common",
+    userType: "Please",
+    subType: "Table Use",
+    terms: "Common table usage terms and conditions",
+    version: "1.0.0",
+  },
 ];
 
 const historyItems: HistoryItem[] = [
@@ -77,10 +89,101 @@ const TermsConditionsMaster = () => {
   const [arabicText, setArabicText] = useState("Arabic placeholder content");
   const [selectedRow, setSelectedRow] = useState<TermsRow | null>(null);
 
+  // Table state management
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [sortState, setSortState] = useState<SortState[]>([]);
+
+  // Table handlers
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPageSize(newPageSize);
+    setCurrentPage(1);
+  };
+
+  const handleSortChange = (newSortState: SortState[]) => {
+    setSortState(newSortState);
+  };
+
   const openEdit = (row: TermsRow) => {
     setSelectedRow(row);
     setModalState("edit");
   };
+
+  // Table columns configuration
+  const termsTableColumns: TableColumn<TermsRow>[] = useMemo(
+    () => [
+      {
+        label: "T&C No",
+        value: (row) => (
+          <span className="font-semibold text-primary">
+            {row.id}
+          </span>
+        ),
+        sortKey: "id",
+        isSort: true,
+      },
+      {
+        label: "Category",
+        value: (row) => (
+          <span className="text-gray-700">{row.category}</span>
+        ),
+        sortKey: "category",
+        isSort: true,
+      },
+      {
+        label: "User Type",
+        value: (row) => (
+          <span className="text-gray-500">{row.userType}</span>
+        ),
+        sortKey: "userType",
+        isSort: true,
+      },
+      {
+        label: "Sub-User Type",
+        value: (row) => (
+          <span className="text-gray-500">{row.subType}</span>
+        ),
+        sortKey: "subType",
+        isSort: true,
+      },
+      {
+        label: "Terms & Condition",
+        value: (row) => (
+          <span className="text-gray-500">{row.terms}</span>
+        ),
+        sortKey: "terms",
+        isSort: true,
+      },
+      {
+        label: "Version",
+        value: (row) => (
+          <span className="text-gray-500">{row.version}</span>
+        ),
+        sortKey: "version",
+        isSort: true,
+      },
+      {
+        label: "Actions",
+        value: (row) => (
+          <div className="flex items-center justify-center gap-3">
+            <IconButton label="Edit" onClick={() => openEdit(row)}>
+              <EditIcon />
+            </IconButton>
+            <IconButton label="History" onClick={() => setModalState("history")}>
+              <HistoryIcon />
+            </IconButton>
+          </div>
+        ),
+        sortKey: "",
+        isSort: false,
+      },
+    ],
+    []
+  );
 
   return (
     <DashboardLayout>
@@ -98,43 +201,20 @@ const TermsConditionsMaster = () => {
           <StatsRow />
           <ChartPlaceholder />
 
-          <div className="overflow-hidden rounded-[28px] border border-gray-200">
-            <table className="w-full text-left text-sm text-gray-600">
-              <thead className="bg-[#f6f7fb] text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">
-                <tr>
-                  <th className="px-6 py-4">T&amp;C No</th>
-                  <th className="px-6 py-4">Category</th>
-                  <th className="px-6 py-4">User Type</th>
-                  <th className="px-6 py-4">Sub-User Type</th>
-                  <th className="px-6 py-4">Terms &amp; Condition</th>
-                  <th className="px-6 py-4">Version</th>
-                  <th className="px-6 py-4 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 bg-white">
-                {tableRows.map((row) => (
-                  <tr key={row.id}>
-                    <td className="px-6 py-4 font-semibold text-primary">{row.id}</td>
-                    <td className="px-6 py-4 text-gray-700">{row.category}</td>
-                    <td className="px-6 py-4 text-gray-500">{row.userType}</td>
-                    <td className="px-6 py-4 text-gray-500">{row.subType}</td>
-                    <td className="px-6 py-4 text-gray-500">{row.terms}</td>
-                    <td className="px-6 py-4 text-gray-500">{row.version}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-center gap-3">
-                        <IconButton label="Edit" onClick={() => openEdit(row)}>
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton label="History" onClick={() => setModalState("history")}>
-                          <HistoryIcon />
-                        </IconButton>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {/* Terms & Conditions Table with ComanTable */}
+          <ComanTable
+            columns={termsTableColumns}
+            data={tableRows}
+            page={currentPage}
+            totalPages={1}
+            totalCount={tableRows.length}
+            onPageChange={handlePageChange}
+            sortState={sortState}
+            onSortChange={handleSortChange}
+            pageSize={pageSize}
+            onPageSizeChange={handlePageSizeChange}
+            loading={false}
+          />
         </section>
       </div>
 
