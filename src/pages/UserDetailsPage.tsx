@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, MapPin, Calendar, Phone, Mail, Building, CreditCard, Shield, FileText, User, Eye } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar, Phone, Mail, CreditCard, Shield, FileText, Eye } from 'lucide-react';
 import DashboardLayout from '../layouts/DashboardLayout';
 
 const UserDetailsPage: React.FC = () => {

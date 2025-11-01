@@ -1,6 +1,7 @@
 import { apiRequest } from "./httpClient";
 
-const SUBSCRIBER_BASE_URL = "https://apisalwa.rushkarprojects.in/api/Subscriber";
+const SUBSCRIBER_BASE_URL =
+  "https://apisalwa.rushkarprojects.in/api/Subscriber";
 
 export interface SubscriberParams {
   searchText?: string;
@@ -86,9 +87,7 @@ const extractList = (
   return [];
 };
 
-export const getAllSubscribers = async (
-  params: SubscriberParams = {}
-) => {
+export const getAllSubscribers = async (params: SubscriberParams = {}) => {
   const {
     searchText = "",
     pageNumber = 1,
@@ -129,14 +128,15 @@ export const getSubscriberById = (subscriberId: string) =>
     { method: "GET" }
   );
 
-export const getSubscriberAnalytics = async (): Promise<SubscriberAnalytics> => {
-  const response = await apiRequest<SubscriberAnalytics>(
-    `${SUBSCRIBER_BASE_URL}/GetSubscriberAnalytics`,
-    { method: "GET" }
-  );
+export const getSubscriberAnalytics =
+  async (): Promise<SubscriberAnalytics> => {
+    const response = await apiRequest<SubscriberAnalytics>(
+      `${SUBSCRIBER_BASE_URL}/GetSubscriberAnalytics`,
+      { method: "GET" }
+    );
 
-  return response;
-};
+    return response;
+  };
 
 export const updateSubscriberStatus = (
   subscriberId: string,
@@ -152,13 +152,18 @@ export const updateSubscriberStatus = (
   );
 
 export const exportSubscribers = async (params: SubscriberParams = {}) => {
-  const query = buildQuery(params);
-  const response = await fetch(`${SUBSCRIBER_BASE_URL}/ExportSubscribers${query}`, {
-    method: "GET",
-    headers: {
-      "Authorization": `Bearer ${localStorage.getItem("token")}`,
-    },
-  });
+  const query = buildQuery(
+    params as Record<string, string | number | undefined>
+  );
+  const response = await fetch(
+    `${SUBSCRIBER_BASE_URL}/ExportSubscribers${query}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
 
   if (!response.ok) {
     throw new Error("Export failed");

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X, ArrowLeft, MapPin, Calendar, Phone, Mail, Building, CreditCard, Shield, FileText, User } from 'lucide-react';
 
 interface UserDetailsViewProps {

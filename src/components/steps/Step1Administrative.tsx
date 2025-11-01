@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 interface Step1Data {
@@ -78,12 +78,6 @@ const Step1Administrative: React.FC<Step1Props> = ({ data, onChange }) => {
     });
   };
 
-  const handleFileUpload = (field: 'facilityPhotosOutside' | 'facilityPhotosInside', files: FileList | null) => {
-    if (files) {
-      const fileArray = Array.from(files);
-      handleInputChange(field, fileArray);
-    }
-  };
 
   const renderYesNoDropdown = (field: keyof Step1Data, label: string) => (
     <div>
