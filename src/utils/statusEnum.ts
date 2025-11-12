@@ -96,3 +96,33 @@ export const getLegacyStatusBadgeClass = (statusId: number): string => {
       return "bg-gray-500 text-white";
   }
 };
+
+export const formatDate = (
+  input: string | number | Date,
+  toFormat = "display"
+) => {
+  if (!input) return "";
+
+  try {
+    // Convert ISO → Display (e.g. "2025-11-21T00:00:00" → "Nov 21, 2025")
+    if (toFormat === "display") {
+      const date = new Date(input);
+      return date.toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+    }
+
+    // Convert Display → ISO (e.g. "Jan 15, 2024" → "2024-01-15T00:00:00")
+    if (toFormat === "iso") {
+      const date = new Date(input);
+      return date.toISOString().split(".")[0];
+    }
+
+    return "";
+  } catch (error) {
+    console.error("Invalid date:", input, error);
+    return "";
+  }
+};

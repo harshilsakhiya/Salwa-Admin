@@ -26,6 +26,7 @@ import ComanTable, {
   type ActionButton,
   type SortState,
 } from "../components/common/ComanTable";
+import { formatDate } from "../utils/statusEnum";
 
 type TabType = "Individual" | "Business" | "Government";
 
@@ -156,47 +157,89 @@ const ListSubscribers = () => {
   const tableColumns: TableColumn<SubscriberRecord>[] = useMemo(
     () => [
       {
-        label: activeTab === "Business" ? "Registration No." :
-          activeTab === "Government" ? "Employee ID" : "ID Number",
+        label: "ID No",
         value: (row) => (
-          <span className="font-helveticaBold text-primary">{row.idNo}</span>
+          <span className="font-helveticaBold text-primary">{row.id}</span>
         ),
-        sortKey: "idNo",
+        sortKey: "id",
         isSort: true,
       },
       {
-        label: activeTab === "Business" ? "Business Name" :
-          activeTab === "Government" ? "Position" : "Name",
+        label: " User Type",
+        value: () => (
+          <span className="font-helveticaBold text-primary">{activeTab}</span>
+        ),
+        sortKey: "id",
+        isSort: true,
+      },
+      {
+        label: "Sub User Type",
         value: (row) => (
           <div className="flex flex-col">
-            <span className="text-gray-700 font-medium">{row.name}</span>
-            {activeTab === "Individual" && row.gender && (
-              <span className="text-xs text-gray-500">{row.gender}</span>
-            )}
-            {activeTab === "Business" && (row as any).businessType && (
-              <span className="text-xs text-gray-500">{(row as any).businessType}</span>
-            )}
-            {activeTab === "Government" && (row as any).departmentName && (
-              <span className="text-xs text-gray-500">{(row as any).departmentName}</span>
-            )}
+            <span className="text-gray-600 text-sm">{row.subUserTypeId}</span>
+
           </div>
         ),
-        sortKey: "name",
+        sortKey: "subUserTypeId",
         isSort: true,
       },
       {
-        label: "Contact",
+        label: "Name",
         value: (row) => (
           <div className="flex flex-col">
-            <span className="text-gray-600 text-sm">{row.email}</span>
-            <span className="text-gray-500 text-xs">{row.phoneNumber}</span>
+            <span className="text-gray-600 text-sm">{formatDate(row.insuranceMemberName)}</span>
+
+          </div>
+        ),
+        sortKey: "insuranceMemberName",
+        isSort: true,
+      },
+      {
+        label: "Email",
+        value: (row) => (
+          <div className="flex flex-col">
+
+            <span className="text-gray-500 text-xs">{row.email}</span>
           </div>
         ),
         sortKey: "email",
         isSort: true,
       },
       {
-        label: "Location",
+        label: "Phone",
+        value: (row) => (
+          <div className="flex flex-col">
+
+            <span className="text-gray-500 text-xs">{row.phoneNumber}</span>
+          </div>
+        ),
+        sortKey: "phoneNumber",
+        isSort: true,
+      },
+      {
+        label: "Subscription Amount",
+        value: (row) => (
+          <div className="flex flex-col">
+
+            <span className="text-gray-500 text-xs">{row.maximumDeductibleAmount}</span>
+          </div>
+        ),
+        sortKey: "maximumDeductibleAmount",
+        isSort: true,
+      },
+      {
+        label: "Subscription Due Date",
+        value: (row) => (
+          <div className="flex flex-col">
+
+            <span className="text-gray-500 text-xs">{row.insurancePolicyExpiryDate}</span>
+          </div>
+        ),
+        sortKey: "insurancePolicyExpiryDate",
+        isSort: true,
+      },
+      {
+        label: "Subscr",
         value: (row) => (
           <div className="flex flex-col">
             <span className="text-gray-700 text-sm">{row.city}, {row.region}</span>
