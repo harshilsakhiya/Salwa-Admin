@@ -5,18 +5,23 @@
   useState,
   type ClipboardEvent,
   type FormEvent,
-  type InputHTMLAttributes,
   type KeyboardEvent,
-  type MutableRefObject
+  type MutableRefObject,
+  type SetStateAction,
 } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../components/ToastProvider";
-const VERIFY_ID_ENDPOINT = "https://apisalwa.rushkarprojects.in/api/SuperAdmin/VerifySuperAdminByIDNumber";
-const VERIFY_MOBILE_ENDPOINT = "https://apisalwa.rushkarprojects.in/api/SuperAdmin/VerifySuperAdminMobile";
-const VERIFY_OTP_ENDPOINT = "https://apisalwa.rushkarprojects.in/api/SuperAdmin/SuperAdminVerifyOtp";
-const SET_PASSWORD_ENDPOINT = "https://apisalwa.rushkarprojects.in/api/SuperAdmin/SetSuperAdminPasswordByMobile";
-const LOGIN_ENDPOINT = "https://apisalwa.rushkarprojects.in/api/SuperAdmin/SuperAdminLogin";
+const VERIFY_ID_ENDPOINT =
+  "https://apisalwa.rushkarprojects.in/api/SuperAdmin/VerifySuperAdminByIDNumber";
+const VERIFY_MOBILE_ENDPOINT =
+  "https://apisalwa.rushkarprojects.in/api/SuperAdmin/VerifySuperAdminMobile";
+const VERIFY_OTP_ENDPOINT =
+  "https://apisalwa.rushkarprojects.in/api/SuperAdmin/SuperAdminVerifyOtp";
+const SET_PASSWORD_ENDPOINT =
+  "https://apisalwa.rushkarprojects.in/api/SuperAdmin/SetSuperAdminPasswordByMobile";
+const LOGIN_ENDPOINT =
+  "https://apisalwa.rushkarprojects.in/api/SuperAdmin/SuperAdminLogin";
 
 type Step = "verifyId" | "mobile" | "otp" | "setPassword" | "success" | "login";
 
@@ -64,7 +69,9 @@ const Login = () => {
   const [mobileForOtp, setMobileForOtp] = useState("");
 
   const [otpValues, setOtpValues] = useState<string[]>(() => Array(6).fill(""));
-  const otpRefs = useRef<Array<HTMLInputElement | null>>([]) as MutableRefObject<Array<HTMLInputElement | null>>;
+  const otpRefs = useRef<Array<HTMLInputElement | null>>(
+    []
+  ) as MutableRefObject<Array<HTMLInputElement | null>>;
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -77,7 +84,8 @@ const Login = () => {
   }, [token, navigate]);
 
   useEffect(() => {
-    const initialId = (location.state as { idNumber?: string } | null)?.idNumber;
+    const initialId = (location.state as { idNumber?: string } | null)
+      ?.idNumber;
     if (initialId) {
       setIdNumber(initialId);
       setStep("login");
@@ -87,12 +95,13 @@ const Login = () => {
   const countryOptions = useMemo(() => {
     const map = new Map(COUNTRY_OPTIONS.map((option) => [option.code, option]));
     if (mobileDialCode && !map.has(mobileDialCode)) {
-      map.set(mobileDialCode, { code: mobileDialCode, label: `${mobileDialCode}` });
+      map.set(mobileDialCode, {
+        code: mobileDialCode,
+        label: `${mobileDialCode}`,
+      });
     }
     return Array.from(map.values());
   }, [mobileDialCode]);
-
-
 
   const applyMobileFromVerification = (raw?: string) => {
     if (!raw) {
@@ -102,7 +111,9 @@ const Login = () => {
     if (!cleaned) {
       return;
     }
-    const knownOption = COUNTRY_OPTIONS.find((option) => cleaned.startsWith(option.code));
+    const knownOption = COUNTRY_OPTIONS.find((option) =>
+      cleaned.startsWith(option.code)
+    );
     if (knownOption) {
       setMobileDialCode(knownOption.code);
       setMobileLocalNumber(cleaned.slice(knownOption.code.length));
@@ -152,14 +163,16 @@ const Login = () => {
     if (!response.ok) {
       const payload = await readResponsePayload(response);
       const message = typeof payload === "string" ? payload : payload?.message;
-      throw new Error(message || "Unable to verify ID number. Please try again.");
+      throw new Error(
+        message || "Unable to verify ID number. Please try again."
+      );
     }
 
     const data = (await response.json()) as VerifyResponse;
     if (data.status !== 200) {
       throw new Error(data.message ?? "Unable to verify ID number.");
     }
-    localStorage.setItem('adminName', data.adminName)
+    localStorage.setItem("adminName", data.adminName);
     return data;
   };
 
@@ -179,12 +192,23 @@ const Login = () => {
       throw new Error(message || "Unable to verify mobile number.");
     }
 
-    if (typeof payload === "object" && payload && "status" in payload && payload.status !== 200) {
-      throw new Error((payload as BasicApiResponse).message || "Unable to verify mobile number.");
+    if (
+      typeof payload === "object" &&
+      payload &&
+      "status" in payload &&
+      payload.status !== 200
+    ) {
+      throw new Error(
+        (payload as BasicApiResponse).message ||
+          "Unable to verify mobile number."
+      );
     }
 
     const message =
-      (typeof payload === "object" && payload && "message" in payload && payload.message) ||
+      (typeof payload === "object" &&
+        payload &&
+        "message" in payload &&
+        payload.message) ||
       (typeof payload === "string" && payload) ||
       "Mobile number verified.";
 
@@ -207,26 +231,44 @@ const Login = () => {
       throw new Error(message || "Unable to verify OTP.");
     }
 
-    if (typeof payload === "object" && payload && "status" in payload && payload.status !== 200) {
-      throw new Error((payload as BasicApiResponse).message || "Unable to verify OTP.");
+    if (
+      typeof payload === "object" &&
+      payload &&
+      "status" in payload &&
+      payload.status !== 200
+    ) {
+      throw new Error(
+        (payload as BasicApiResponse).message || "Unable to verify OTP."
+      );
     }
 
     const message =
-      (typeof payload === "object" && payload && "message" in payload && payload.message) ||
+      (typeof payload === "object" &&
+        payload &&
+        "message" in payload &&
+        payload.message) ||
       (typeof payload === "string" && payload) ||
       "OTP verified successfully.";
 
     return message;
   };
 
-  const setPasswordViaApi = async (id: string, passwordValue: string, confirmValue: string) => {
+  const setPasswordViaApi = async (
+    id: string,
+    passwordValue: string,
+    confirmValue: string
+  ) => {
     const response = await fetch(SET_PASSWORD_ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         accept: "text/plain",
       },
-      body: JSON.stringify({ idNumber: id, password: passwordValue, confirmPassword: confirmValue }),
+      body: JSON.stringify({
+        idNumber: id,
+        password: passwordValue,
+        confirmPassword: confirmValue,
+      }),
     });
 
     const payload = await readResponsePayload(response);
@@ -235,12 +277,22 @@ const Login = () => {
       throw new Error(message || "Unable to set password.");
     }
 
-    if (typeof payload === "object" && payload && "status" in payload && payload.status !== 200) {
-      throw new Error((payload as BasicApiResponse).message || "Unable to set password.");
+    if (
+      typeof payload === "object" &&
+      payload &&
+      "status" in payload &&
+      payload.status !== 200
+    ) {
+      throw new Error(
+        (payload as BasicApiResponse).message || "Unable to set password."
+      );
     }
 
     const message =
-      (typeof payload === "object" && payload && "message" in payload && payload.message) ||
+      (typeof payload === "object" &&
+        payload &&
+        "message" in payload &&
+        payload.message) ||
       (typeof payload === "string" && payload) ||
       "Password set successfully.";
 
@@ -263,12 +315,20 @@ const Login = () => {
       throw new Error(message || "Login failed.");
     }
 
-    if (typeof payload === "object" && payload && "status" in payload && payload.status !== 200) {
+    if (
+      typeof payload === "object" &&
+      payload &&
+      "status" in payload &&
+      payload.status !== 200
+    ) {
       throw new Error((payload as BasicApiResponse).message || "Login failed.");
     }
 
     const token =
-      (typeof payload === "object" && payload && "token" in payload && payload.token) ||
+      (typeof payload === "object" &&
+        payload &&
+        "token" in payload &&
+        payload.token) ||
       (typeof payload === "string" && payload) ||
       `token-${Date.now()}`;
 
@@ -292,11 +352,17 @@ const Login = () => {
     try {
       const data = await verifyIdViaApi(idNumber);
       applyMobileFromVerification(data.adminMobileNo);
-      const readyForLogin = data.isPasswordSet === 1 && data.isOtpVerify === 1 && data.isMobileNoVerify;
+      const readyForLogin =
+        data.isPasswordSet === 1 &&
+        data.isOtpVerify === 1 &&
+        data.isMobileNoVerify;
 
       if (readyForLogin) {
         goToStep("login");
-        showToast("ID verified. Please enter your password to continue.", "success");
+        showToast(
+          "ID verified. Please enter your password to continue.",
+          "success"
+        );
       } else {
         const sanitized = data.adminMobileNo?.replace(/[^0-9]/g, "");
         if (sanitized) {
@@ -306,7 +372,10 @@ const Login = () => {
         showToast("ID verified. Continue with mobile verification.", "info");
       }
     } catch (error) {
-      showToast(error instanceof Error ? error.message : "Unable to verify ID number.", "error");
+      showToast(
+        error instanceof Error ? error.message : "Unable to verify ID number.",
+        "error"
+      );
     } finally {
       setVerifyLoading(false);
     }
@@ -332,7 +401,12 @@ const Login = () => {
       goToStep("otp");
       showToast(message, "success");
     } catch (error) {
-      showToast(error instanceof Error ? error.message : "Unable to verify mobile number.", "error");
+      showToast(
+        error instanceof Error
+          ? error.message
+          : "Unable to verify mobile number.",
+        "error"
+      );
     } finally {
       setMobileLoading(false);
     }
@@ -349,7 +423,10 @@ const Login = () => {
     }
   };
 
-  const handleOtpKeyDown = (index: number, event: KeyboardEvent<HTMLInputElement>) => {
+  const handleOtpKeyDown = (
+    index: number,
+    event: KeyboardEvent<HTMLInputElement>
+  ) => {
     if (event.key === "Backspace" && !otpValues[index] && index > 0) {
       otpRefs.current[index - 1]?.focus();
     }
@@ -397,7 +474,10 @@ const Login = () => {
       goToStep("setPassword");
       showToast(message, "success");
     } catch (error) {
-      showToast(error instanceof Error ? error.message : "Unable to verify OTP.", "error");
+      showToast(
+        error instanceof Error ? error.message : "Unable to verify OTP.",
+        "error"
+      );
     } finally {
       setOtpLoading(false);
     }
@@ -425,12 +505,19 @@ const Login = () => {
 
     setCreatingPassword(true);
     try {
-      const message = await setPasswordViaApi(trimmedId, newPassword, confirmPassword);
+      const message = await setPasswordViaApi(
+        trimmedId,
+        newPassword,
+        confirmPassword
+      );
       setLoginPassword(newPassword);
       goToStep("success");
       showToast(message, "success");
     } catch (error) {
-      showToast(error instanceof Error ? error.message : "Unable to set password.", "error");
+      showToast(
+        error instanceof Error ? error.message : "Unable to set password.",
+        "error"
+      );
     } finally {
       setCreatingPassword(false);
     }
@@ -454,24 +541,25 @@ const Login = () => {
       const tokenValue = await loginViaApi(trimmedId, loginPassword.trim());
       login(tokenValue);
       showToast("Login successful.", "success");
-      const redirectPath = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? "/dashboard";
+      const redirectPath =
+        (location.state as { from?: { pathname: string } } | null)?.from
+          ?.pathname ?? "/dashboard";
       navigate(redirectPath, { replace: true });
     } catch (error) {
-      showToast(error instanceof Error ? error.message : "Login failed.", "error");
+      showToast(
+        error instanceof Error ? error.message : "Login failed.",
+        "error"
+      );
     } finally {
       setLoginLoading(false);
     }
   };
 
-
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-white text-gray-800 font-sans">
       <div className="flex flex-col md:flex-row w-full h-auto md:h-screen">
-
         <ArtworkPanel />
         <div className="w-full md:flex-1 flex flex-col justify-center items-center px-4 md:px-6 py-12 md:py-0">
-
           <div className="w-full max-w-md space-y-12">
             <header className="space-y-4 text-left">
               <h1 className="text-4xl font-semibold text-[#070B68]">Login</h1>
@@ -479,14 +567,14 @@ const Login = () => {
                 {step === "verifyId"
                   ? "Access your account to get started today."
                   : step === "mobile"
-                    ? "Verify your registered mobile number."
-                    : step === "otp"
-                      ? "Enter the OTP sent to your mobile."
-                      : step === "setPassword"
-                        ? "Create your password to finish setup."
-                        : step === "success"
-                          ? "Your password has been set successfully."
-                          : "Sign in with your ID number and password."}
+                  ? "Verify your registered mobile number."
+                  : step === "otp"
+                  ? "Enter the OTP sent to your mobile."
+                  : step === "setPassword"
+                  ? "Create your password to finish setup."
+                  : step === "success"
+                  ? "Your password has been set successfully."
+                  : "Sign in with your ID number and password."}
               </p>
             </header>
 
@@ -496,7 +584,7 @@ const Login = () => {
                   id="idNumber"
                   label="ID Number / IQAMA Number"
                   value={idNumber}
-                  onChange={(event) => setIdNumber(event.target.value)}
+                  onChange={(event: any) => setIdNumber(event.target.value)}
                   placeholder="ID number / IQAMA number"
                   inputClassName="placeholder:text-[#A0A3BD]"
                   autoFocus
@@ -537,7 +625,9 @@ const Login = () => {
                   <div className="flex overflow-hidden rounded-[18px] border border-[#E4E6EF] bg-white shadow-sm">
                     <select
                       value={mobileDialCode}
-                      onChange={(event) => setMobileDialCode(event.target.value)}
+                      onChange={(event) =>
+                        setMobileDialCode(event.target.value)
+                      }
                       className="bg-white px-4 text-sm font-medium text-[#070B68] focus:outline-none"
                     >
                       {countryOptions.map((option) => (
@@ -549,7 +639,11 @@ const Login = () => {
                     <input
                       type="tel"
                       value={mobileLocalNumber}
-                      onChange={(event) => setMobileLocalNumber(event.target.value.replace(/\D/g, ""))}
+                      onChange={(event) =>
+                        setMobileLocalNumber(
+                          event.target.value.replace(/\D/g, "")
+                        )
+                      }
                       placeholder="987 772 299"
                       className="flex-1 border-l border-[#E4E6EF] px-5 py-4 text-base text-[#1F1F1F] placeholder:text-[#A0A3BD] focus:outline-none"
                     />
@@ -576,17 +670,21 @@ const Login = () => {
 
             {step === "otp" && (
               <div className="space-y-6">
-
                 <form onSubmit={handleOtpSubmit} className="space-y-6">
                   <div className="space-y-3 text-sm text-gray-500">
                     <p>
                       Enter the 6-digit code sent to
-                      <span className="ml-1 font-semibold text-primary">{mobileForOtp ? `+${mobileForOtp}` : " your mobile"}</span>.
+                      <span className="ml-1 font-semibold text-primary">
+                        {mobileForOtp ? `+${mobileForOtp}` : " your mobile"}
+                      </span>
+                      .
                     </p>
                     <button
                       type="button"
                       className="text-sm font-semibold text-primary hover:underline"
-                      onClick={() => showToast("OTP resend feature coming soon.", "info")}
+                      onClick={() =>
+                        showToast("OTP resend feature coming soon.", "info")
+                      }
                     >
                       Resend OTP
                     </button>
@@ -620,14 +718,15 @@ const Login = () => {
 
             {step === "setPassword" && (
               <div className="space-y-6">
-
                 <form onSubmit={handleSetPasswordSubmit} className="space-y-6">
                   <InputField
                     id="new-password"
                     label="New Password"
                     type="password"
                     value={newPassword}
-                    onChange={(event) => setNewPassword(event.target.value)}
+                    onChange={(event: any) =>
+                      setNewPassword(event.target.value)
+                    }
                     autoFocus
                   />
                   <InputField
@@ -635,7 +734,9 @@ const Login = () => {
                     label="Confirm Password"
                     type="password"
                     value={confirmPassword}
-                    onChange={(event) => setConfirmPassword(event.target.value)}
+                    onChange={(event: any) =>
+                      setConfirmPassword(event.target.value)
+                    }
                   />
                   <div className="flex items-center justify-between text-sm">
                     <button
@@ -664,8 +765,12 @@ const Login = () => {
                     <CheckIcon />
                   </div>
                   <div className="space-y-2 text-center">
-                    <h2 className="text-2xl font-semibold text-primary">Successfully Protected</h2>
-                    <p className="text-sm text-gray-500">Your password has been set successfully.</p>
+                    <h2 className="text-2xl font-semibold text-primary">
+                      Successfully Protected
+                    </h2>
+                    <p className="text-sm text-gray-500">
+                      Your password has been set successfully.
+                    </p>
                   </div>
                   <button
                     type="button"
@@ -680,21 +785,24 @@ const Login = () => {
 
             {step === "login" && (
               <div className="space-y-6">
-
                 <form onSubmit={handleLoginSubmit} className="space-y-3">
                   <InputField
                     id="login-id"
                     label="ID Number / IQAMA Number"
                     value={idNumber}
                     disabled
-                    onChange={(event) => setIdNumber(event.target.value)}
+                    onChange={(event: {
+                      target: { value: SetStateAction<string> };
+                    }) => setIdNumber(event.target.value)}
                   />
                   <InputField
                     id="login-password"
                     label="Password"
                     type="password"
                     value={loginPassword}
-                    onChange={(event) => setLoginPassword(event.target.value)}
+                    onChange={(event: {
+                      target: { value: SetStateAction<string> };
+                    }) => setLoginPassword(event.target.value)}
                     autoFocus
                   />
                   <div className="flex items-center justify-between text-sm">
@@ -705,7 +813,10 @@ const Login = () => {
                     >
                       Verify ID again
                     </button>
-                    <button type="button" className="font-semibold text-primary/60 hover:text-primary">
+                    <button
+                      type="button"
+                      className="font-semibold text-primary/60 hover:text-primary"
+                    >
                       Forgot Password?
                     </button>
                   </div>
@@ -726,16 +837,6 @@ const Login = () => {
   );
 };
 
-
-
-type InputFieldProps = {
-  label: string;
-  id: string;
-  hideLabel?: boolean;
-  containerClassName?: string;
-  inputClassName?: string;
-} & InputHTMLAttributes<HTMLInputElement>;
-
 const InputField = ({
   label,
   id,
@@ -745,10 +846,12 @@ const InputField = ({
   className = "",
   value,
   ...props
-}: InputFieldProps) => {
-  const hasValue = value && value.trim() !== "";
+}: any) => {
+  const hasValue = value && value?.trim() !== "";
   return (
-    <div className={`block text-left relative input-filed-block ${containerClassName}`}>
+    <div
+      className={`block text-left relative input-filed-block ${containerClassName}`}
+    >
       <input
         id={id}
         value={value}
@@ -775,7 +878,7 @@ const InputField = ({
         {label}
       </label>
     </div>
-  )
+  );
 };
 
 const OtpInputGroup = ({
@@ -816,27 +919,35 @@ const OtpInputGroup = ({
 const ArtworkPanel = () => (
   <div className="w-full md:w-1/2  flex flex-col justify-between p-8 md:p-12 text-white relative">
     <div className="mt-12">
-
-      <img src="/img/leftPanelImg.svg" alt="Left Panel Background"
-        className="absolute inset-0 w-full h-full object-cover opacity-1 pointer-events-none" />
+      <img
+        src="/img/leftPanelImg.svg"
+        alt="Left Panel Background"
+        className="absolute inset-0 w-full h-full object-cover opacity-1 pointer-events-none"
+      />
 
       <div className="relative md:absolute inset-0 flex flex-col items-center justify-center z-10">
-        <img src="/img/logo.svg" alt="Salwa Logo"
-          className="w-[160px] md:w-[320px] md:h-[160px] h-[80px] mb-4" />
-
+        <img
+          src="/img/logo.svg"
+          alt="Salwa Logo"
+          className="w-[160px] md:w-[320px] md:h-[160px] h-[80px] mb-4"
+        />
       </div>
     </div>
 
     <div className="relative z-10">
-      <p
-        className="text-accentGreen text-[16px] md:text-[24px] text-center leading-[20px] md:leading-[28px] font-helveticaMedium">
+      <p className="text-accentGreen text-[16px] md:text-[24px] text-center leading-[20px] md:leading-[28px] font-helveticaMedium">
         Towards a Comprehensive <br /> Healthcare Future
       </p>
 
       <div className="flex justify-center space-x-4 items-stretch  my-8">
-        <a href=""><img src="img/Group 1.svg" alt="App Store" /></a>
+        <a href="">
+          <img src="img/Group 1.svg" alt="App Store" />
+        </a>
         <span className="devider border border-white w-[1px]"></span>
-        <a href=""> <img src="img/Group 2.svg" alt="Google Play" /></a>
+        <a href="">
+          {" "}
+          <img src="img/Group 2.svg" alt="Google Play" />
+        </a>
       </div>
 
       <p className="text-xs text-white text-center font-HelveticaNowTextRegular opacity-50 text-[14px] ">
@@ -847,11 +958,16 @@ const ArtworkPanel = () => (
 );
 
 const CheckIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="h-10 w-10">
-    <path fill="currentColor" d="M20.6 31.2 15 25.6l2.8-2.8 2.8 2.8L30.2 16l2.8 2.8Z" />
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 48 48"
+    className="h-10 w-10"
+  >
+    <path
+      fill="currentColor"
+      d="M20.6 31.2 15 25.6l2.8-2.8 2.8 2.8L30.2 16l2.8 2.8Z"
+    />
   </svg>
 );
 
 export default Login;
-
-

@@ -5,17 +5,26 @@ import { StatisticsServices } from "../services/StatisticsServices/StatisticsSer
 import ReportServices from "../services/ReportServices/ReportServices";
 
 const CurrencyIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className="h-6 w-6"
+  >
     <path d="M11 4a1 1 0 1 1 2 0v1h3a1 1 0 1 1 0 2h-3v3h3a1 1 0 1 1 0 2h-3v3h3a1 1 0 1 1 0 2h-3v1a1 1 0 1 1-2 0v-1H8a1 1 0 1 1 0-2h3v-3H8a1 1 0 1 1 0-2h3V7H8a1 1 0 1 1 0-2h3V4Z" />
   </svg>
 );
 
 const PendingIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className="h-6 w-6"
+  >
     <path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2Zm1 11h-3a1 1 0 0 1 0-2h2V7a1 1 0 0 1 2 0v5a1 1 0 0 1-1 1Z" />
   </svg>
 );
-
 
 type StatCard = {
   title: string;
@@ -50,8 +59,6 @@ const userTypeOptions = [
   { value: 1, label: "Individual" },
   { value: 2, label: "Business" },
 ];
-
-
 
 const Dashboard = () => {
   // Subscription Statistics state
@@ -234,26 +241,32 @@ const Dashboard = () => {
   }, [insuranceFilters]);
 
   // Handle filter changes
-  const handleSubscriptionFilterChange = (key: string, value: string | number) => {
-    setSubscriptionFilters(prev => ({
+  const handleSubscriptionFilterChange = (
+    key: string,
+    value: string | number
+  ) => {
+    setSubscriptionFilters((prev) => ({
       ...prev,
-      [key]: value
+      [key]: value,
     }));
   };
 
   const handleUserFilterChange = (key: string, value: string | number) => {
-    setUserFilters(prev => ({
+    setUserFilters((prev) => ({
       ...prev,
-      [key]: value
+      [key]: value,
     }));
   };
 
-  const handleServiceFilterChange = (key: string, value: string | number | null) => {
-    setServiceFilters(prev => {
+  const handleServiceFilterChange = (
+    key: string,
+    value: string | number | null
+  ) => {
+    setServiceFilters((prev) => {
       const newFilters = { ...prev, [key]: value };
 
       // Handle cascading dropdowns
-      if (key === 'categoryId') {
+      if (key === "categoryId") {
         // Clear service and sub-service when category changes
         newFilters.serviceName = null;
         newFilters.subServiceName = null;
@@ -264,14 +277,15 @@ const Dashboard = () => {
         if (value) {
           loadServices(value as number);
         }
-      } else if (key === 'serviceName') {
+      } else if (key === "serviceName") {
         // Clear sub-service when service changes
         newFilters.subServiceName = null;
         setSubServices([]);
 
         // Find the service ID for the selected service name
-        const selectedService = services.find(service =>
-          (service.Name || service.name || service.serviceName) === value
+        const selectedService = services.find(
+          (service) =>
+            (service.Name || service.name || service.serviceName) === value
         );
 
         // Load sub-services for the new service
@@ -285,9 +299,9 @@ const Dashboard = () => {
   };
 
   const handleInsuranceFilterChange = (key: string, value: string | number) => {
-    setInsuranceFilters(prev => ({
+    setInsuranceFilters((prev) => ({
       ...prev,
-      [key]: value
+      [key]: value,
     }));
   };
 
@@ -297,23 +311,27 @@ const Dashboard = () => {
       return [
         { title: "Number of Subscribers", value: "0" },
         { title: "Number of Active Subscribers", value: "0" },
-        { title: "Total Subscription Revenue", value: "0", icon: <CurrencyIcon /> },
+        {
+          title: "Total Subscription Revenue",
+          value: "0",
+          icon: <CurrencyIcon />,
+        },
       ];
     }
 
     return [
       {
         title: "Number of Subscribers",
-        value: subscriptionData.numberOfSubscribers?.toString() || "0"
+        value: subscriptionData.numberOfSubscribers?.toString() || "0",
       },
       {
         title: "Number of Active Subscribers",
-        value: subscriptionData.activeSubscribers?.toString() || "0"
+        value: subscriptionData.activeSubscribers?.toString() || "0",
       },
       {
         title: "Total Subscription Revenue",
         value: `${subscriptionData.totalRevenue || 0} SAR`,
-        icon: <CurrencyIcon />
+        icon: <CurrencyIcon />,
       },
     ];
   };
@@ -324,23 +342,27 @@ const Dashboard = () => {
       return [
         { title: "Number of Users", value: "0" },
         { title: "Number of Active Users", value: "0" },
-        { title: "Number of Inactive Users", value: "0", icon: <PendingIcon /> },
+        {
+          title: "Number of Inactive Users",
+          value: "0",
+          icon: <PendingIcon />,
+        },
       ];
     }
 
     return [
       {
         title: "Number of Users",
-        value: userData.numberOfUsers?.toString() || "0"
+        value: userData.numberOfUsers?.toString() || "0",
       },
       {
         title: "Number of Active Users",
-        value: userData.activeUsers?.toString() || "0"
+        value: userData.activeUsers?.toString() || "0",
       },
       {
         title: "Number of Inactive Users",
         value: userData.inactiveUsers?.toString() || "0",
-        icon: <PendingIcon />
+        icon: <PendingIcon />,
       },
     ];
   };
@@ -353,38 +375,63 @@ const Dashboard = () => {
         { title: "Number of Completed Orders", value: "0" },
         { title: "Number of Pending Orders", value: "0" },
         { title: "Total Revenue Amount", value: "0", icon: <CurrencyIcon /> },
-        { title: "Total Commission Amount", value: "0", icon: <CurrencyIcon /> },
-        { title: "Total Payment Gateway Amount", value: "0", icon: <CurrencyIcon /> },
+        {
+          title: "Total Commission Amount",
+          value: "0",
+          icon: <CurrencyIcon />,
+        },
+        {
+          title: "Total Payment Gateway Amount",
+          value: "0",
+          icon: <CurrencyIcon />,
+        },
       ];
     }
 
     return [
       {
         title: "Number of Orders",
-        value: serviceData.numberOfOrders?.toString() || serviceData.totalOrders?.toString() || "0"
+        value:
+          serviceData.numberOfOrders?.toString() ||
+          serviceData.totalOrders?.toString() ||
+          "0",
       },
       {
         title: "Number of Completed Orders",
-        value: serviceData.completedOrders?.toString() || serviceData.numberOfCompletedOrders?.toString() || "0"
+        value:
+          serviceData.completedOrders?.toString() ||
+          serviceData.numberOfCompletedOrders?.toString() ||
+          "0",
       },
       {
         title: "Number of Pending Orders",
-        value: serviceData.pendingOrders?.toString() || serviceData.numberOfPendingOrders?.toString() || "0"
+        value:
+          serviceData.pendingOrders?.toString() ||
+          serviceData.numberOfPendingOrders?.toString() ||
+          "0",
       },
       {
         title: "Total Revenue Amount",
-        value: `${serviceData.totalRevenue || serviceData.revenueAmount || 0} SAR`,
-        icon: <CurrencyIcon />
+        value: `${
+          serviceData.totalRevenue || serviceData.revenueAmount || 0
+        } SAR`,
+        icon: <CurrencyIcon />,
       },
       {
         title: "Total Commission Amount",
-        value: `${serviceData.totalCommission || serviceData.commissionAmount || 0} SAR`,
-        icon: <CurrencyIcon />
+        value: `${
+          serviceData.totalCommission || serviceData.commissionAmount || 0
+        } SAR`,
+        icon: <CurrencyIcon />,
       },
       {
         title: "Total Payment Gateway Amount",
-        value: `${serviceData.totalPaymentGateway || serviceData.paymentGatewayAmount || 0} SAR`,
-        icon: <CurrencyIcon />
+        value: `${
+          serviceData.totalPaymentGateway ||
+          serviceData.paymentGatewayAmount ||
+          0
+        } SAR`,
+        icon: <CurrencyIcon />,
       },
     ];
   };
@@ -405,27 +452,33 @@ const Dashboard = () => {
     return [
       {
         title: "Total Appointment Booked",
-        value: insuranceData.totalAppointmentUser?.toString() || "0"
+        value: insuranceData.totalAppointmentUser?.toString() || "0",
       },
       {
         title: "Total Insurance",
-        value: insuranceData.uniqAppointmentUser?.toString() || "0"
+        value: insuranceData.uniqAppointmentUser?.toString() || "0",
       },
       {
         title: "Total Successful Bookings",
-        value: insuranceData.totalSuccessfulBookings?.toString() || insuranceData.successfulBookings?.toString() || "0"
+        value:
+          insuranceData.totalSuccessfulBookings?.toString() ||
+          insuranceData.successfulBookings?.toString() ||
+          "0",
       },
       {
         title: "Total Cancel Appointment",
-        value: insuranceData.cancelAppointmentUser?.toString() || "0"
+        value: insuranceData.cancelAppointmentUser?.toString() || "0",
       },
       {
         title: "Total Insurance Claimed",
-        value: insuranceData.totalInsuranceClaimed?.toString() || insuranceData.insuranceClaimed?.toString() || "0"
+        value:
+          insuranceData.totalInsuranceClaimed?.toString() ||
+          insuranceData.insuranceClaimed?.toString() ||
+          "0",
       },
       {
         title: "Total Unpaid Deductions",
-        value: insuranceData.sumOfDeductible?.toString() || "0"
+        value: insuranceData.sumOfDeductible?.toString() || "0",
       },
     ];
   };
@@ -470,7 +523,6 @@ const Dashboard = () => {
     </DashboardLayout>
   );
 };
-
 
 interface SubscriptionStatisticsSectionProps {
   filters: {
@@ -525,12 +577,14 @@ const SubscriptionStatisticsSection = ({
   filters,
   onFilterChange,
   cards,
-  loading
+  loading,
 }: SubscriptionStatisticsSectionProps) => {
   return (
     <section className="space-y-6 rounded-[32px] border border-gray-200 bg-white p-8 shadow-sm">
       <header className="flex flex-wrap items-center justify-between gap-4">
-        <h2 className="text-2xl font-semibold text-primary">Subscription Statistics</h2>
+        <h2 className="text-2xl font-semibold text-primary">
+          Subscription Statistics
+        </h2>
         <button
           type="button"
           className="rounded-full border border-gray-200 px-6 py-2 text-sm font-semibold text-primary transition hover:border-primary hover:text-primary"
@@ -549,7 +603,9 @@ const SubscriptionStatisticsSection = ({
               className="w-full px-3 py-2 h-[46px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
                         placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
               value={filters.userType}
-              onChange={(e) => onFilterChange('userType', parseInt(e.target.value))}
+              onChange={(e) =>
+                onFilterChange("userType", parseInt(e.target.value))
+              }
             >
               {userTypeOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -563,9 +619,13 @@ const SubscriptionStatisticsSection = ({
                   label-filed absolute left-3 top-2 text-[#A0A3BD] text-base transition-all duration-200
                   peer-placeholder-shown:top-2 peer-placeholder-shown:left-3 peer-placeholder-shown:text-base cursor-text
                   peer-focus:-top-3 peer-focus:left-3 peer-focus:text-[13px] peer-focus:text-[#070B68]
-                  bg-white px-1  ${filters.userType ? "!-top-3 !left-3 !text-[13px]" : ""} 
+                  bg-white px-1  ${
+                    filters.userType ? "!-top-3 !left-3 !text-[13px]" : ""
+                  } 
                   `}
-            >User Type</label>
+            >
+              User Type
+            </label>
           </div>
         </div>
 
@@ -577,7 +637,9 @@ const SubscriptionStatisticsSection = ({
               className="w-full px-3 py-2 h-[46px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
                         placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
               value={filters.month}
-              onChange={(e) => onFilterChange('month', parseInt(e.target.value))}
+              onChange={(e) =>
+                onFilterChange("month", parseInt(e.target.value))
+              }
             >
               {monthOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -591,9 +653,13 @@ const SubscriptionStatisticsSection = ({
                   label-filed absolute left-3 top-2 text-[#A0A3BD] text-base transition-all duration-200
                   peer-placeholder-shown:top-2 peer-placeholder-shown:left-3 peer-placeholder-shown:text-base cursor-text
                   peer-focus:-top-3 peer-focus:left-3 peer-focus:text-[13px] peer-focus:text-[#070B68]
-                  bg-white px-1  ${filters.month ? "!-top-3 !left-3 !text-[13px]" : ""} 
+                  bg-white px-1  ${
+                    filters.month ? "!-top-3 !left-3 !text-[13px]" : ""
+                  } 
                   `}
-            >Month</label>
+            >
+              Month
+            </label>
           </div>
         </div>
 
@@ -605,7 +671,7 @@ const SubscriptionStatisticsSection = ({
               className="w-full px-3 py-2 h-[46px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
                         placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
               value={filters.year}
-              onChange={(e) => onFilterChange('year', parseInt(e.target.value))}
+              onChange={(e) => onFilterChange("year", parseInt(e.target.value))}
             >
               {generateYearOptions().map((year) => (
                 <option key={year} value={year}>
@@ -619,9 +685,13 @@ const SubscriptionStatisticsSection = ({
                   label-filed absolute left-3 top-2 text-[#A0A3BD] text-base transition-all duration-200
                   peer-placeholder-shown:top-2 peer-placeholder-shown:left-3 peer-placeholder-shown:text-base cursor-text
                   peer-focus:-top-3 peer-focus:left-3 peer-focus:text-[13px] peer-focus:text-[#070B68]
-                  bg-white px-1  ${filters.year ? "!-top-3 !left-3 !text-[13px]" : ""} 
+                  bg-white px-1  ${
+                    filters.year ? "!-top-3 !left-3 !text-[13px]" : ""
+                  } 
                   `}
-            >Year</label>
+            >
+              Year
+            </label>
           </div>
         </div>
       </div>
@@ -640,7 +710,9 @@ const SubscriptionStatisticsSection = ({
             ) : (
               <>
                 {card.icon && <span className="text-primary">{card.icon}</span>}
-                <p className="text-4xl font-semibold text-primary">{card.value}</p>
+                <p className="text-4xl font-semibold text-primary">
+                  {card.value}
+                </p>
                 <p className="text-sm text-gray-500">{card.title}</p>
               </>
             )}
@@ -655,7 +727,7 @@ const UserStatisticsSection = ({
   filters,
   onFilterChange,
   cards,
-  loading
+  loading,
 }: UserStatisticsSectionProps) => {
   return (
     <section className="space-y-6 rounded-[32px] border border-gray-200 bg-white p-8 shadow-sm">
@@ -679,7 +751,9 @@ const UserStatisticsSection = ({
               className="w-full px-3 py-2 h-[46px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
                         placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
               value={filters.userType}
-              onChange={(e) => onFilterChange('userType', parseInt(e.target.value))}
+              onChange={(e) =>
+                onFilterChange("userType", parseInt(e.target.value))
+              }
             >
               {userTypeOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -693,9 +767,13 @@ const UserStatisticsSection = ({
                   label-filed absolute left-3 top-2 text-[#A0A3BD] text-base transition-all duration-200
                   peer-placeholder-shown:top-2 peer-placeholder-shown:left-3 peer-placeholder-shown:text-base cursor-text
                   peer-focus:-top-3 peer-focus:left-3 peer-focus:text-[13px] peer-focus:text-[#070B68]
-                  bg-white px-1  ${filters.userType ? "!-top-3 !left-3 !text-[13px]" : ""} 
+                  bg-white px-1  ${
+                    filters.userType ? "!-top-3 !left-3 !text-[13px]" : ""
+                  } 
                   `}
-            >User Type</label>
+            >
+              User Type
+            </label>
           </div>
         </div>
 
@@ -707,7 +785,9 @@ const UserStatisticsSection = ({
               className="w-full px-3 py-2 h-[46px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
                         placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
               value={filters.month}
-              onChange={(e) => onFilterChange('month', parseInt(e.target.value))}
+              onChange={(e) =>
+                onFilterChange("month", parseInt(e.target.value))
+              }
             >
               {monthOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -721,9 +801,13 @@ const UserStatisticsSection = ({
                   label-filed absolute left-3 top-2 text-[#A0A3BD] text-base transition-all duration-200
                   peer-placeholder-shown:top-2 peer-placeholder-shown:left-3 peer-placeholder-shown:text-base cursor-text
                   peer-focus:-top-3 peer-focus:left-3 peer-focus:text-[13px] peer-focus:text-[#070B68]
-                  bg-white px-1  ${filters.month ? "!-top-3 !left-3 !text-[13px]" : ""} 
+                  bg-white px-1  ${
+                    filters.month ? "!-top-3 !left-3 !text-[13px]" : ""
+                  } 
                   `}
-            >Month</label>
+            >
+              Month
+            </label>
           </div>
         </div>
 
@@ -735,7 +819,7 @@ const UserStatisticsSection = ({
               className="w-full px-3 py-2 h-[46px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
                         placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
               value={filters.year}
-              onChange={(e) => onFilterChange('year', parseInt(e.target.value))}
+              onChange={(e) => onFilterChange("year", parseInt(e.target.value))}
             >
               {generateYearOptions().map((year) => (
                 <option key={year} value={year}>
@@ -749,9 +833,13 @@ const UserStatisticsSection = ({
                   label-filed absolute left-3 top-2 text-[#A0A3BD] text-base transition-all duration-200
                   peer-placeholder-shown:top-2 peer-placeholder-shown:left-3 peer-placeholder-shown:text-base cursor-text
                   peer-focus:-top-3 peer-focus:left-3 peer-focus:text-[13px] peer-focus:text-[#070B68]
-                  bg-white px-1  ${filters.year ? "!-top-3 !left-3 !text-[13px]" : ""} 
+                  bg-white px-1  ${
+                    filters.year ? "!-top-3 !left-3 !text-[13px]" : ""
+                  } 
                   `}
-            >Year</label>
+            >
+              Year
+            </label>
           </div>
         </div>
       </div>
@@ -770,7 +858,9 @@ const UserStatisticsSection = ({
             ) : (
               <>
                 {card.icon && <span className="text-primary">{card.icon}</span>}
-                <p className="text-4xl font-semibold text-primary">{card.value}</p>
+                <p className="text-4xl font-semibold text-primary">
+                  {card.value}
+                </p>
                 <p className="text-sm text-gray-500">{card.title}</p>
               </>
             )}
@@ -788,12 +878,14 @@ const ServiceStatisticsSection = ({
   loading,
   categories,
   services,
-  subServices
+  subServices,
 }: ServiceStatisticsSectionProps) => {
   return (
     <section className="space-y-6 rounded-[32px] border border-gray-200 bg-white p-8 shadow-sm">
       <header className="flex flex-wrap items-center justify-between gap-4">
-        <h2 className="text-2xl font-semibold text-primary">Service Statistics</h2>
+        <h2 className="text-2xl font-semibold text-primary">
+          Service Statistics
+        </h2>
         <button
           type="button"
           className="rounded-full border border-gray-200 px-6 py-2 text-sm font-semibold text-primary transition hover:border-primary hover:text-primary"
@@ -812,11 +904,19 @@ const ServiceStatisticsSection = ({
               className="w-full px-3 py-2 h-[46px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
                         placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
               value={filters.categoryId || ""}
-              onChange={(e) => onFilterChange('categoryId', e.target.value ? parseInt(e.target.value) : null)}
+              onChange={(e) =>
+                onFilterChange(
+                  "categoryId",
+                  e.target.value ? parseInt(e.target.value) : null
+                )
+              }
             >
               <option value="">All Categories</option>
               {categories.map((category) => (
-                <option key={category.Id || category.id} value={category.Id || category.id}>
+                <option
+                  key={category.Id || category.id}
+                  value={category.Id || category.id}
+                >
                   {category.EName || category.name}
                 </option>
               ))}
@@ -827,9 +927,15 @@ const ServiceStatisticsSection = ({
                   label-filed absolute left-3 top-2 text-[#A0A3BD] text-base transition-all duration-200
                   peer-placeholder-shown:top-2 peer-placeholder-shown:left-3 peer-placeholder-shown:text-base cursor-text
                   peer-focus:-top-3 peer-focus:left-3 peer-focus:text-[13px] peer-focus:text-[#070B68]
-                  bg-white px-1  ${filters.categoryId || "" ? "!-top-3 !left-3 !text-[13px]" : ""} 
+                  bg-white px-1  ${
+                    filters.categoryId || ""
+                      ? "!-top-3 !left-3 !text-[13px]"
+                      : ""
+                  } 
                   `}
-            >Category</label>
+            >
+              Category
+            </label>
           </div>
         </div>
 
@@ -841,12 +947,17 @@ const ServiceStatisticsSection = ({
               className="w-full px-3 py-2 h-[46px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
                         placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
               value={filters.serviceName || ""}
-              onChange={(e) => onFilterChange('serviceName', e.target.value || null)}
+              onChange={(e) =>
+                onFilterChange("serviceName", e.target.value || null)
+              }
               disabled={!filters.categoryId}
             >
               <option value="">All Services</option>
               {services.map((service) => (
-                <option key={service.Id || service.id} value={service.Name || service.name || service.serviceName}>
+                <option
+                  key={service.Id || service.id}
+                  value={service.Name || service.name || service.serviceName}
+                >
                   {service.EName || service.name || service.serviceName}
                 </option>
               ))}
@@ -857,9 +968,15 @@ const ServiceStatisticsSection = ({
                   label-filed absolute left-3 top-2 text-[#A0A3BD] text-base transition-all duration-200
                   peer-placeholder-shown:top-2 peer-placeholder-shown:left-3 peer-placeholder-shown:text-base cursor-text
                   peer-focus:-top-3 peer-focus:left-3 peer-focus:text-[13px] peer-focus:text-[#070B68]
-                  bg-white px-1  ${filters.serviceName || "" ? "!-top-3 !left-3 !text-[13px]" : ""} 
+                  bg-white px-1  ${
+                    filters.serviceName || ""
+                      ? "!-top-3 !left-3 !text-[13px]"
+                      : ""
+                  } 
                   `}
-            >Service</label>
+            >
+              Service
+            </label>
           </div>
         </div>
 
@@ -871,13 +988,24 @@ const ServiceStatisticsSection = ({
               className="w-full px-3 py-2 h-[46px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
                         placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
               value={filters.subServiceName || ""}
-              onChange={(e) => onFilterChange('subServiceName', e.target.value || null)}
+              onChange={(e) =>
+                onFilterChange("subServiceName", e.target.value || null)
+              }
               disabled={!filters.serviceName}
             >
               <option value="">All Sub-Services</option>
               {subServices.map((subService) => (
-                <option key={subService.Id || subService.id} value={subService.Name || subService.name || subService.subServiceName}>
-                  {subService.EName || subService.name || subService.subServiceName}
+                <option
+                  key={subService.Id || subService.id}
+                  value={
+                    subService.Name ||
+                    subService.name ||
+                    subService.subServiceName
+                  }
+                >
+                  {subService.EName ||
+                    subService.name ||
+                    subService.subServiceName}
                 </option>
               ))}
             </select>
@@ -887,9 +1015,15 @@ const ServiceStatisticsSection = ({
                   label-filed absolute left-3 top-2 text-[#A0A3BD] text-base transition-all duration-200
                   peer-placeholder-shown:top-2 peer-placeholder-shown:left-3 peer-placeholder-shown:text-base cursor-text
                   peer-focus:-top-3 peer-focus:left-3 peer-focus:text-[13px] peer-focus:text-[#070B68]
-                  bg-white px-1  ${filters.subServiceName || "" ? "!-top-3 !left-3 !text-[13px]" : ""} 
+                  bg-white px-1  ${
+                    filters.subServiceName || ""
+                      ? "!-top-3 !left-3 !text-[13px]"
+                      : ""
+                  } 
                   `}
-            >Sub Service</label>
+            >
+              Sub Service
+            </label>
           </div>
         </div>
 
@@ -901,7 +1035,9 @@ const ServiceStatisticsSection = ({
               className="w-full px-3 py-2 h-[46px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
                         placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
               value={filters.month}
-              onChange={(e) => onFilterChange('month', parseInt(e.target.value))}
+              onChange={(e) =>
+                onFilterChange("month", parseInt(e.target.value))
+              }
             >
               {monthOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -915,9 +1051,13 @@ const ServiceStatisticsSection = ({
                   label-filed absolute left-3 top-2 text-[#A0A3BD] text-base transition-all duration-200
                   peer-placeholder-shown:top-2 peer-placeholder-shown:left-3 peer-placeholder-shown:text-base cursor-text
                   peer-focus:-top-3 peer-focus:left-3 peer-focus:text-[13px] peer-focus:text-[#070B68]
-                  bg-white px-1  ${filters.month ? "!-top-3 !left-3 !text-[13px]" : ""} 
+                  bg-white px-1  ${
+                    filters.month ? "!-top-3 !left-3 !text-[13px]" : ""
+                  } 
                   `}
-            >Month</label>
+            >
+              Month
+            </label>
           </div>
         </div>
 
@@ -929,7 +1069,7 @@ const ServiceStatisticsSection = ({
               className="w-full px-3 py-2 h-[46px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
                         placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
               value={filters.year}
-              onChange={(e) => onFilterChange('year', parseInt(e.target.value))}
+              onChange={(e) => onFilterChange("year", parseInt(e.target.value))}
             >
               {generateYearOptions().map((year) => (
                 <option key={year} value={year}>
@@ -943,9 +1083,13 @@ const ServiceStatisticsSection = ({
                   label-filed absolute left-3 top-2 text-[#A0A3BD] text-base transition-all duration-200
                   peer-placeholder-shown:top-2 peer-placeholder-shown:left-3 peer-placeholder-shown:text-base cursor-text
                   peer-focus:-top-3 peer-focus:left-3 peer-focus:text-[13px] peer-focus:text-[#070B68]
-                  bg-white px-1  ${filters.year ? "!-top-3 !left-3 !text-[13px]" : ""} 
+                  bg-white px-1  ${
+                    filters.year ? "!-top-3 !left-3 !text-[13px]" : ""
+                  } 
                   `}
-            >Year</label>
+            >
+              Year
+            </label>
           </div>
         </div>
       </div>
@@ -964,7 +1108,9 @@ const ServiceStatisticsSection = ({
             ) : (
               <>
                 {card.icon && <span className="text-primary">{card.icon}</span>}
-                <p className="text-4xl font-semibold text-primary">{card.value}</p>
+                <p className="text-4xl font-semibold text-primary">
+                  {card.value}
+                </p>
                 <p className="text-sm text-gray-500">{card.title}</p>
               </>
             )}
@@ -980,12 +1126,14 @@ const InsuranceStatisticsSection = ({
   onFilterChange,
   cards,
   loading,
-  footer
+  footer,
 }: InsuranceStatisticsSectionProps) => {
   return (
     <section className="space-y-6 rounded-[32px] border border-gray-200 bg-white p-8 shadow-sm">
       <header className="flex flex-wrap items-center justify-between gap-4">
-        <h2 className="text-2xl font-semibold text-primary">Insurance Statistics</h2>
+        <h2 className="text-2xl font-semibold text-primary">
+          Insurance Statistics
+        </h2>
         <button
           type="button"
           className="rounded-full border border-gray-200 px-6 py-2 text-sm font-semibold text-primary transition hover:border-primary hover:text-primary"
@@ -1004,7 +1152,9 @@ const InsuranceStatisticsSection = ({
               className="w-full px-3 py-2 h-[46px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
                         placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
               value={filters.month}
-              onChange={(e) => onFilterChange('month', parseInt(e.target.value))}
+              onChange={(e) =>
+                onFilterChange("month", parseInt(e.target.value))
+              }
             >
               {monthOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -1018,9 +1168,13 @@ const InsuranceStatisticsSection = ({
                   label-filed absolute left-3 top-2 text-[#A0A3BD] text-base transition-all duration-200
                   peer-placeholder-shown:top-2 peer-placeholder-shown:left-3 peer-placeholder-shown:text-base cursor-text
                   peer-focus:-top-3 peer-focus:left-3 peer-focus:text-[13px] peer-focus:text-[#070B68]
-                  bg-white px-1  ${filters.month ? "!-top-3 !left-3 !text-[13px]" : ""} 
+                  bg-white px-1  ${
+                    filters.month ? "!-top-3 !left-3 !text-[13px]" : ""
+                  } 
                   `}
-            >Month</label>
+            >
+              Month
+            </label>
           </div>
         </div>
 
@@ -1032,7 +1186,7 @@ const InsuranceStatisticsSection = ({
               className="w-full px-3 py-2 h-[46px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
                         placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
               value={filters.year}
-              onChange={(e) => onFilterChange('year', parseInt(e.target.value))}
+              onChange={(e) => onFilterChange("year", parseInt(e.target.value))}
             >
               {generateYearOptions().map((year) => (
                 <option key={year} value={year}>
@@ -1046,9 +1200,13 @@ const InsuranceStatisticsSection = ({
                   label-filed absolute left-3 top-2 text-[#A0A3BD] text-base transition-all duration-200
                   peer-placeholder-shown:top-2 peer-placeholder-shown:left-3 peer-placeholder-shown:text-base cursor-text
                   peer-focus:-top-3 peer-focus:left-3 peer-focus:text-[13px] peer-focus:text-[#070B68]
-                  bg-white px-1  ${filters.year ? "!-top-3 !left-3 !text-[13px]" : ""} 
+                  bg-white px-1  ${
+                    filters.year ? "!-top-3 !left-3 !text-[13px]" : ""
+                  } 
                   `}
-            >Year</label>
+            >
+              Year
+            </label>
           </div>
         </div>
       </div>
@@ -1067,7 +1225,9 @@ const InsuranceStatisticsSection = ({
             ) : (
               <>
                 {card.icon && <span className="text-primary">{card.icon}</span>}
-                <p className="text-4xl font-semibold text-primary">{card.value}</p>
+                <p className="text-4xl font-semibold text-primary">
+                  {card.value}
+                </p>
                 <p className="text-sm text-gray-500">{card.title}</p>
               </>
             )}
@@ -1081,16 +1241,22 @@ const InsuranceStatisticsSection = ({
   );
 };
 
-
 const AnalysisHero = () => (
   <div className="flex items-center gap-4 rounded-[28px] border border-gray-200 bg-white px-6 py-5 shadow-sm">
     <div className="grid h-16 w-16 place-items-center rounded-3xl bg-primary/10 text-primary">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72" className="h-10 w-10">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 72 72"
+        className="h-10 w-10"
+      >
         <path
           d="M52.5 10a13.5 13.5 0 0 0-10.1 4.6L36 22.1l-6.4-7.5A13.5 13.5 0 0 0 9.5 29.3c0 12 11.7 21.2 24.6 32.5l1.9 1.7 1.9-1.7c12.9-11.3 24.6-20.5 24.6-32.5A13.5 13.5 0 0 0 52.5 10Z"
           fill="#050668"
         />
-        <path d="M31.1 37.6 26 32.4l3.1-3.1 2.1 2.1 7.4-7.4 3.1 3.1-9.5 10.5Z" fill="#ffffff" />
+        <path
+          d="M31.1 37.6 26 32.4l3.1-3.1 2.1 2.1 7.4-7.4 3.1 3.1-9.5 10.5Z"
+          fill="#ffffff"
+        />
       </svg>
     </div>
     <div>
@@ -1098,16 +1264,6 @@ const AnalysisHero = () => (
       <p className="text-sm text-gray-400">Overview dashboard</p>
     </div>
   </div>
-);
-
-const ChevronDownIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
-    <path
-      fillRule="evenodd"
-      d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.171l3.71-3.94a.75.75 0 0 1 1.08 1.04l-4.24 4.5a.75.75 0 0 1-1.08 0l-4.24-4.5a.75.75 0 0 1 .02-1.06Z"
-      clipRule="evenodd"
-    />
-  </svg>
 );
 
 export default Dashboard;

@@ -706,16 +706,20 @@ const ServiceDashboard = () => {
                 label-filed absolute left-2.5 top-2 text-[#A0A3BD] text-base transition-all duration-200
                 peer-placeholder-shown:top-2 peer-placeholder-shown:left-2.5 peer-placeholder-shown:text-base cursor-text
                 peer-focus:-top-3 peer-focus:left-2.5 peer-focus:text-[13px] peer-focus:text-[#070B68]
-                bg-white px-1 ${searchTerm && searchTerm.trim() !== "" ? "!-top-3 !text-[13px] " : ""} 
+                bg-white px-1 ${
+                  searchTerm && searchTerm.trim() !== ""
+                    ? "!-top-3 !text-[13px] "
+                    : ""
+                } 
                 `}
               >
                 Search here
               </label>
-              {!searchTerm &&
+              {!searchTerm && (
                 <span className="pointer-events-none absolute inset-y-0 right-4 grid place-items-center text-gray-400">
                   <SearchIcon />
                 </span>
-              }
+              )}
               {searchTerm && (
                 <button
                   type="button"
@@ -985,21 +989,27 @@ const CategoryCard = ({
         : "before:border-2 before:border-slate-200 hover:before:border-[5px] hover:before:border-[#00B6FF]"
     )}
   >
-    <span
-      className="grid place-items-center rounded-xl"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#007bff" class="w-12 h-12">
-        <path stroke-linecap="round" stroke-linejoin="round"
-          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+    <span className="grid place-items-center rounded-xl">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="#007bff"
+        className="w-12 h-12"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+        />
       </svg>
     </span>
     <div className="space-y-3 text-center">
-      <p className="text-base font-helveticaBold text-primary"
-      >
+      <p className="text-base font-helveticaBold text-primary">
         {category.title}
       </p>
-      <span className="inline-flex items-center gap-2 text-sm font-textMedium text-[#939598]"
-      >
+      <span className="inline-flex items-center gap-2 text-sm font-textMedium text-[#939598]">
         {category.description}
       </span>
     </div>

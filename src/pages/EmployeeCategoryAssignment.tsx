@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { ReactNode, SelectHTMLAttributes } from "react";
+import type { ReactNode } from "react";
 import DashboardLayout from "../layouts/DashboardLayout";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../components/ToastProvider";
@@ -793,7 +793,7 @@ const FormModal = ({
           <div className="grid gap-4 grid-cols-2">
             <LabeledSelect
               value={values.employeeIds[0] || ""}
-              onChange={(event) => {
+              onChange={(event: { target: { value: any } }) => {
                 const selectedValue = event.target.value;
                 onChange({
                   ...values,
@@ -813,7 +813,7 @@ const FormModal = ({
 
             <LabeledSelect
               value={values.categoryId}
-              onChange={(event) => {
+              onChange={(event: { target: { value: any } }) => {
                 const selectedValue = event.target.value;
                 onChange({
                   ...values,
@@ -836,7 +836,7 @@ const FormModal = ({
 
             <LabeledSelect
               value={values.serviceId}
-              onChange={(event) => {
+              onChange={(event: { target: { value: any } }) => {
                 const selectedValue = event.target.value;
                 onChange({
                   ...values,
@@ -860,7 +860,7 @@ const FormModal = ({
 
             <LabeledSelect
               value={values.subServiceId}
-              onChange={(event) => {
+              onChange={(event: { target: { value: any } }) => {
                 onChange({
                   ...values,
                   subServiceId: event.target.value,
@@ -912,7 +912,7 @@ const LabeledSelect = ({
   placeholder,
   disabled,
   ...props
-}: { children: ReactNode } & SelectHTMLAttributes<HTMLSelectElement>) => (
+}: any) => (
   <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
     <div className="relative input-filed-block">
       <select

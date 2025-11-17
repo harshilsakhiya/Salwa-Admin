@@ -1,10 +1,17 @@
-
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from "react";
+import type {
+  InputHTMLAttributes,
+  ReactNode,
+  SelectHTMLAttributes,
+} from "react";
 import DashboardLayout from "../layouts/DashboardLayout";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../components/ToastProvider";
-import ComanTable, { type TableColumn, type ActionButton, type SortState } from "../components/common/ComanTable";
+import ComanTable, {
+  type TableColumn,
+  type ActionButton,
+  type SortState,
+} from "../components/common/ComanTable";
 
 type ActiveTab = "registration" | "services";
 
@@ -68,11 +75,16 @@ const DEFAULT_USER_TYPES: UserTypeOption[] = [
   { id: 3, label: "Government" },
 ];
 
-const LIST_ENDPOINT = "https://apisalwa.rushkarprojects.in/api/PromocodeSetting/GetAllAdminPromoCodes";
-const DETAIL_ENDPOINT = "https://apisalwa.rushkarprojects.in/api/PromocodeSetting/GetAdminPromoCodeById";
-const UPSERT_ENDPOINT = "https://apisalwa.rushkarprojects.in/api/PromocodeSetting/UpsertAdminPromoCodesRegistrationAndServices";
-const STATUS_ENDPOINT = "https://apisalwa.rushkarprojects.in/api/PromocodeSetting/ChangeAdminPromoCodeStatus";
-const DELETE_ENDPOINT = "https://apisalwa.rushkarprojects.in/api/PromocodeSetting/DeleteAdminPromoCode";
+const LIST_ENDPOINT =
+  "https://apisalwa.rushkarprojects.in/api/PromocodeSetting/GetAllAdminPromoCodes";
+const DETAIL_ENDPOINT =
+  "https://apisalwa.rushkarprojects.in/api/PromocodeSetting/GetAdminPromoCodeById";
+const UPSERT_ENDPOINT =
+  "https://apisalwa.rushkarprojects.in/api/PromocodeSetting/UpsertAdminPromoCodesRegistrationAndServices";
+const STATUS_ENDPOINT =
+  "https://apisalwa.rushkarprojects.in/api/PromocodeSetting/ChangeAdminPromoCodeStatus";
+const DELETE_ENDPOINT =
+  "https://apisalwa.rushkarprojects.in/api/PromocodeSetting/DeleteAdminPromoCode";
 
 const createInitialFormState = (defaultUserTypeId: number): FormState => ({
   promoCodeId: null,
@@ -148,7 +160,10 @@ const extractItem = (payload: unknown): AdminPromoCode | null => {
   return null;
 };
 
-const mergeUserTypeOptions = (existing: UserTypeOption[], source: AdminPromoCode | AdminPromoCode[]) => {
+const mergeUserTypeOptions = (
+  existing: UserTypeOption[],
+  source: AdminPromoCode | AdminPromoCode[]
+) => {
   const map = new Map(existing.map((option) => [option.id, option]));
   const list = Array.isArray(source) ? source : [source];
   list.forEach((item) => {
@@ -170,7 +185,11 @@ const formatDate = (value?: string | null) => {
   if (Number.isNaN(date.getTime())) {
     return "-";
   }
-  return date.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" });
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
 };
 
 const formatNumeric = (value?: number | null) => {
@@ -180,7 +199,9 @@ const formatNumeric = (value?: number | null) => {
   if (Number.isNaN(Number(value))) {
     return "-";
   }
-  const formatter = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 });
+  const formatter = new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 2,
+  });
   return formatter.format(Number(value));
 };
 
@@ -203,18 +224,28 @@ const PromocodeSettings = () => {
   const [listLoading, setListLoading] = useState(false);
   const [listError, setListError] = useState<string | null>(null);
 
-  const [userTypeOptions, setUserTypeOptions] = useState<UserTypeOption[]>(DEFAULT_USER_TYPES);
+  const [userTypeOptions, setUserTypeOptions] =
+    useState<UserTypeOption[]>(DEFAULT_USER_TYPES);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<FormMode>("create");
   const [formTab, setFormTab] = useState<ActiveTab>("registration");
-  const [formValues, setFormValues] = useState<FormState>(createInitialFormState(DEFAULT_USER_TYPES[0].id));
+  const [formValues, setFormValues] = useState<FormState>(
+    createInitialFormState(DEFAULT_USER_TYPES[0].id)
+  );
   const [formLoading, setFormLoading] = useState(false);
   const [formSubmitting, setFormSubmitting] = useState(false);
 
-  const [statusTarget, setStatusTarget] = useState<{ promoCodeId: number; currentStatus: boolean; tab: ActiveTab } | null>(null);
+  const [statusTarget, setStatusTarget] = useState<{
+    promoCodeId: number;
+    currentStatus: boolean;
+    tab: ActiveTab;
+  } | null>(null);
   const [statusSubmitting, setStatusSubmitting] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState<{ promoCodeId: number; tab: ActiveTab } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{
+    promoCodeId: number;
+    tab: ActiveTab;
+  } | null>(null);
   const [deleteSubmitting, setDeleteSubmitting] = useState(false);
 
   // Pagination state
@@ -225,7 +256,11 @@ const PromocodeSettings = () => {
   const [sortState, setSortState] = useState<SortState[]>([]);
 
   const loadPromocodes = useCallback(
-    async (tab: ActiveTab, page: number = pageNumber, size: number = pageSize) => {
+    async (
+      tab: ActiveTab,
+      page: number = pageNumber,
+      size: number = pageSize
+    ) => {
       setListLoading(true);
       setListError(null);
       try {
@@ -241,7 +276,9 @@ const PromocodeSettings = () => {
 
         const payload = await parseResponse(response);
         if (!response.ok) {
-          throw new Error(messageFromPayload(payload, "Unable to load promocodes."));
+          throw new Error(
+            messageFromPayload(payload, "Unable to load promocodes.")
+          );
         }
 
         const items = extractList(payload);
@@ -251,7 +288,8 @@ const PromocodeSettings = () => {
         setTotalPages(Math.max(1, Math.ceil(items.length / size)));
         setPageNumber(page);
       } catch (error) {
-        const message = error instanceof Error ? error.message : "Unable to load promocodes.";
+        const message =
+          error instanceof Error ? error.message : "Unable to load promocodes.";
         setPromoCodes([]);
         setListError(message);
         showToast(message, "error");
@@ -267,7 +305,8 @@ const PromocodeSettings = () => {
   }, [activeTab, loadPromocodes]);
 
   const handleOpenCreate = (tab: ActiveTab) => {
-    const defaultUserTypeId = userTypeOptions[0]?.id ?? DEFAULT_USER_TYPES[0].id;
+    const defaultUserTypeId =
+      userTypeOptions[0]?.id ?? DEFAULT_USER_TYPES[0].id;
     setFormMode("create");
     setFormTab(tab);
     setFormValues(createInitialFormState(defaultUserTypeId));
@@ -294,7 +333,9 @@ const PromocodeSettings = () => {
 
       const payload = await parseResponse(response);
       if (!response.ok) {
-        throw new Error(messageFromPayload(payload, "Unable to fetch promocode details."));
+        throw new Error(
+          messageFromPayload(payload, "Unable to fetch promocode details.")
+        );
       }
 
       const item = extractItem(payload);
@@ -306,13 +347,15 @@ const PromocodeSettings = () => {
 
       setFormValues({
         promoCodeId: item.promoCodeId,
-        userTypeId: item.userTypeId ?? userTypeOptions[0]?.id ?? DEFAULT_USER_TYPES[0].id,
+        userTypeId:
+          item.userTypeId ?? userTypeOptions[0]?.id ?? DEFAULT_USER_TYPES[0].id,
         promoDescription: item.promoDescription ?? "",
         startDate: item.startDate ? item.startDate.slice(0, 10) : "",
         endDate: item.endDate ? item.endDate.slice(0, 10) : "",
         code: item.code ?? "",
         discountType:
-          item.discountTypeFlatOrPercentage === "Percentage" || item.discountType === 1
+          item.discountTypeFlatOrPercentage === "Percentage" ||
+          item.discountType === 1
             ? "Percentage"
             : "Flat",
         discountValue:
@@ -320,17 +363,22 @@ const PromocodeSettings = () => {
             ? String(item.discountValue)
             : "",
         maxDiscount:
-          item.maxDiscountCapValue !== null && item.maxDiscountCapValue !== undefined
+          item.maxDiscountCapValue !== null &&
+          item.maxDiscountCapValue !== undefined
             ? String(item.maxDiscountCapValue)
             : "",
         minPurchase:
-          item.minimumPurchaseValue !== null && item.minimumPurchaseValue !== undefined
+          item.minimumPurchaseValue !== null &&
+          item.minimumPurchaseValue !== undefined
             ? String(item.minimumPurchaseValue)
             : "",
         isActive: Boolean(item.isActive ?? true),
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Unable to fetch promocode details.";
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Unable to fetch promocode details.";
       showToast(message, "error");
       setIsFormOpen(false);
     } finally {
@@ -403,20 +451,28 @@ const PromocodeSettings = () => {
         throw new Error(messageFromPayload(body, "Unable to save promocode."));
       }
 
-      const successMessage = messageFromPayload(body, "Promocode saved successfully.");
+      const successMessage = messageFromPayload(
+        body,
+        "Promocode saved successfully."
+      );
       showToast(successMessage, "success");
       setIsFormOpen(false);
       setFormSubmitting(false);
       await loadPromocodes(formTab);
       setActiveTab(formTab);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Unable to save promocode.";
+      const message =
+        error instanceof Error ? error.message : "Unable to save promocode.";
       showToast(message, "error");
       setFormSubmitting(false);
     }
   };
 
-  const handleStatusRequest = (promoCodeId: number, isActive: boolean, tab: ActiveTab) => {
+  const handleStatusRequest = (
+    promoCodeId: number,
+    isActive: boolean,
+    tab: ActiveTab
+  ) => {
     setStatusTarget({ promoCodeId, currentStatus: isActive, tab });
   };
 
@@ -447,12 +503,16 @@ const PromocodeSettings = () => {
         throw new Error(messageFromPayload(body, "Unable to update status."));
       }
 
-      const successMessage = messageFromPayload(body, "Status updated successfully.");
+      const successMessage = messageFromPayload(
+        body,
+        "Status updated successfully."
+      );
       showToast(successMessage, "success");
       setStatusTarget(null);
       await loadPromocodes(statusTarget.tab);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Unable to update status.";
+      const message =
+        error instanceof Error ? error.message : "Unable to update status.";
       showToast(message, "error");
     } finally {
       setStatusSubmitting(false);
@@ -486,15 +546,21 @@ const PromocodeSettings = () => {
 
       const body = await parseResponse(response);
       if (!response.ok) {
-        throw new Error(messageFromPayload(body, "Unable to delete promocode."));
+        throw new Error(
+          messageFromPayload(body, "Unable to delete promocode.")
+        );
       }
 
-      const successMessage = messageFromPayload(body, "Promocode deleted successfully.");
+      const successMessage = messageFromPayload(
+        body,
+        "Promocode deleted successfully."
+      );
       showToast(successMessage, "success");
       setDeleteTarget(null);
       await loadPromocodes(tab);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Unable to delete promocode.";
+      const message =
+        error instanceof Error ? error.message : "Unable to delete promocode.";
       showToast(message, "error");
     } finally {
       setDeleteSubmitting(false);
@@ -517,138 +583,167 @@ const PromocodeSettings = () => {
   }, [promoCodes, searchTerm]);
 
   // Table columns configuration
-  const tableColumns: TableColumn<AdminPromoCode>[] = useMemo(() => [
-    {
-      label: "SO NO",
-      value: (promo) => (
-        <span className="font-semibold text-primary">
-          #{promo.promoCodeId.toString().padStart(4, "0")}
-        </span>
-      ),
-      sortKey: "promoCodeId",
-      isSort: true,
-    },
-    {
-      label: "USER TYPE",
-      value: (promo) => (
-        <span className="text-gray-700">{promo.userType ?? "-"}</span>
-      ),
-      sortKey: "userType",
-      isSort: true,
-    },
-    {
-      label: "PROMO DESCRIPTION",
-      value: (promo) => (
-        <span className="text-gray-500">{promo.promoDescription ?? "-"}</span>
-      ),
-      sortKey: "promoDescription",
-      isSort: true,
-    },
-    {
-      label: "START DATE",
-      value: (promo) => (
-        <span className="text-gray-500">{formatDate(promo.startDate)}</span>
-      ),
-      sortKey: "startDate",
-      isSort: true,
-    },
-    {
-      label: "END DATE",
-      value: (promo) => (
-        <span className="text-gray-500">{formatDate(promo.endDate)}</span>
-      ),
-      sortKey: "endDate",
-      isSort: true,
-    },
-    {
-      label: "CODE",
-      value: (promo) => (
-        <span className="text-gray-500">{promo.code ?? "-"}</span>
-      ),
-      sortKey: "code",
-      isSort: true,
-    },
-    {
-      label: "VALUE TYPE",
-      value: (promo) => {
-        const isPercentage = promo.discountTypeFlatOrPercentage === "Percentage" || promo.discountType === 1;
-        return <span className="text-gray-500">{isPercentage ? "Percentage" : "Flat"}</span>;
+  const tableColumns: TableColumn<AdminPromoCode>[] = useMemo(
+    () => [
+      {
+        label: "SO NO",
+        value: (promo) => (
+          <span className="font-semibold text-primary">
+            #{promo.promoCodeId.toString().padStart(4, "0")}
+          </span>
+        ),
+        sortKey: "promoCodeId",
+        isSort: true,
       },
-      sortKey: "discountType",
-      isSort: true,
-    },
-    {
-      label: "VALUE",
-      value: (promo) => {
-        const isPercentage = promo.discountTypeFlatOrPercentage === "Percentage" || promo.discountType === 1;
-        const valueDisplay = isPercentage ? "-" : formatNumeric(promo.discountValue ?? null);
-        return <span className="text-gray-500">{valueDisplay}</span>;
+      {
+        label: "USER TYPE",
+        value: (promo) => (
+          <span className="text-gray-700">{promo.userType ?? "-"}</span>
+        ),
+        sortKey: "userType",
+        isSort: true,
       },
-      sortKey: "discountValue",
-      isSort: true,
-    },
-    {
-      label: "PERCENTAGE (%)",
-      value: (promo) => {
-        const isPercentage = promo.discountTypeFlatOrPercentage === "Percentage" || promo.discountType === 1;
-        const percentageDisplay = isPercentage ? `${formatNumeric(promo.discountValue ?? null)}%` : "-";
-        return <span className="text-gray-500">{percentageDisplay}</span>;
+      {
+        label: "PROMO DESCRIPTION",
+        value: (promo) => (
+          <span className="text-gray-500">{promo.promoDescription ?? "-"}</span>
+        ),
+        sortKey: "promoDescription",
+        isSort: true,
       },
-      sortKey: "discountValue",
-      isSort: true,
-    },
-    {
-      label: "MAX DISCOUNT",
-      value: (promo) => (
-        <span className="text-gray-500">{formatNumeric(promo.maxDiscountCapValue ?? null)}</span>
-      ),
-      sortKey: "maxDiscountCapValue",
-      isSort: true,
-    },
-    {
-      label: "MIN PURCHASE",
-      value: (promo) => (
-        <span className="text-gray-500">{formatNumeric(promo.minimumPurchaseValue ?? null)}</span>
-      ),
-      sortKey: "minimumPurchaseValue",
-      isSort: true,
-    },
-    {
-      label: "STATUS",
-      value: (promo) => {
-        const isActive = Boolean(promo.isActive);
-        return (
-          <button
-            type="button"
-            onClick={() => handleStatusRequest(promo.promoCodeId, isActive, activeTab)}
-            className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold transition-all duration-200 hover:shadow-md hover:scale-105 cursor-pointer border border-transparent hover:border-current ${isActive
-              ? "bg-[#e9fbf3] text-[#0f7b4d] hover:bg-[#d1f2e9]"
-              : "bg-[#fff3d9] text-[#b46a02] hover:bg-[#ffeaa7]"
+      {
+        label: "START DATE",
+        value: (promo) => (
+          <span className="text-gray-500">{formatDate(promo.startDate)}</span>
+        ),
+        sortKey: "startDate",
+        isSort: true,
+      },
+      {
+        label: "END DATE",
+        value: (promo) => (
+          <span className="text-gray-500">{formatDate(promo.endDate)}</span>
+        ),
+        sortKey: "endDate",
+        isSort: true,
+      },
+      {
+        label: "CODE",
+        value: (promo) => (
+          <span className="text-gray-500">{promo.code ?? "-"}</span>
+        ),
+        sortKey: "code",
+        isSort: true,
+      },
+      {
+        label: "VALUE TYPE",
+        value: (promo) => {
+          const isPercentage =
+            promo.discountTypeFlatOrPercentage === "Percentage" ||
+            promo.discountType === 1;
+          return (
+            <span className="text-gray-500">
+              {isPercentage ? "Percentage" : "Flat"}
+            </span>
+          );
+        },
+        sortKey: "discountType",
+        isSort: true,
+      },
+      {
+        label: "VALUE",
+        value: (promo) => {
+          const isPercentage =
+            promo.discountTypeFlatOrPercentage === "Percentage" ||
+            promo.discountType === 1;
+          const valueDisplay = isPercentage
+            ? "-"
+            : formatNumeric(promo.discountValue ?? null);
+          return <span className="text-gray-500">{valueDisplay}</span>;
+        },
+        sortKey: "discountValue",
+        isSort: true,
+      },
+      {
+        label: "PERCENTAGE (%)",
+        value: (promo) => {
+          const isPercentage =
+            promo.discountTypeFlatOrPercentage === "Percentage" ||
+            promo.discountType === 1;
+          const percentageDisplay = isPercentage
+            ? `${formatNumeric(promo.discountValue ?? null)}%`
+            : "-";
+          return <span className="text-gray-500">{percentageDisplay}</span>;
+        },
+        sortKey: "discountValue",
+        isSort: true,
+      },
+      {
+        label: "MAX DISCOUNT",
+        value: (promo) => (
+          <span className="text-gray-500">
+            {formatNumeric(promo.maxDiscountCapValue ?? null)}
+          </span>
+        ),
+        sortKey: "maxDiscountCapValue",
+        isSort: true,
+      },
+      {
+        label: "MIN PURCHASE",
+        value: (promo) => (
+          <span className="text-gray-500">
+            {formatNumeric(promo.minimumPurchaseValue ?? null)}
+          </span>
+        ),
+        sortKey: "minimumPurchaseValue",
+        isSort: true,
+      },
+      {
+        label: "STATUS",
+        value: (promo) => {
+          const isActive = Boolean(promo.isActive);
+          return (
+            <button
+              type="button"
+              onClick={() =>
+                handleStatusRequest(promo.promoCodeId, isActive, activeTab)
+              }
+              className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold transition-all duration-200 hover:shadow-md hover:scale-105 cursor-pointer border border-transparent hover:border-current ${
+                isActive
+                  ? "bg-[#e9fbf3] text-[#0f7b4d] hover:bg-[#d1f2e9]"
+                  : "bg-[#fff3d9] text-[#b46a02] hover:bg-[#ffeaa7]"
               }`}
-            title={`Click to ${isActive ? "deactivate" : "activate"} this promocode`}
-          >
-            {isActive ? "Active" : "Inactive"}
-          </button>
-        );
+              title={`Click to ${
+                isActive ? "deactivate" : "activate"
+              } this promocode`}
+            >
+              {isActive ? "Active" : "Inactive"}
+            </button>
+          );
+        },
+        sortKey: "isActive",
+        isSort: true,
       },
-      sortKey: "isActive",
-      isSort: true,
-    },
-  ], [activeTab]);
+    ],
+    [activeTab]
+  );
 
   // Action buttons configuration
-  const actionButtons: ActionButton<AdminPromoCode>[] = useMemo(() => [
-    {
-      label: "Edit",
-      iconType: "edit",
-      onClick: (promo) => handleOpenEdit(promo.promoCodeId, activeTab),
-    },
-    {
-      label: "Delete",
-      iconType: "delete",
-      onClick: (promo) => handleDeleteRequest(promo.promoCodeId, activeTab),
-    },
-  ], [activeTab]);
+  const actionButtons: ActionButton<AdminPromoCode>[] = useMemo(
+    () => [
+      {
+        label: "Edit",
+        iconType: "edit",
+        onClick: (promo) => handleOpenEdit(promo.promoCodeId, activeTab),
+      },
+      {
+        label: "Delete",
+        iconType: "delete",
+        onClick: (promo) => handleDeleteRequest(promo.promoCodeId, activeTab),
+      },
+    ],
+    [activeTab]
+  );
 
   // Pagination handlers
   const handlePageChange = (page: number) => {
@@ -674,8 +769,16 @@ const PromocodeSettings = () => {
         <section className="space-y-8 rounded-[32px] border border-gray-200 bg-white p-8 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3 rounded-full bg-[#f7f8fd] p-1 text-sm font-semibold text-gray-500">
-              <TabButton label="Registration" isActive={activeTab === "registration"} onClick={() => setActiveTab("registration")} />
-              <TabButton label="Services" isActive={activeTab === "services"} onClick={() => setActiveTab("services")} />
+              <TabButton
+                label="Registration"
+                isActive={activeTab === "registration"}
+                onClick={() => setActiveTab("registration")}
+              />
+              <TabButton
+                label="Services"
+                isActive={activeTab === "services"}
+                onClick={() => setActiveTab("services")}
+              />
             </div>
             <div className="flex items-center gap-3">
               <SearchField value={searchTerm} onChange={setSearchTerm} />
@@ -773,18 +876,35 @@ const PromocodeSettings = () => {
   );
 };
 
-const TabButton = ({ label, isActive, onClick }: { label: string; isActive: boolean; onClick: () => void }) => (
+const TabButton = ({
+  label,
+  isActive,
+  onClick,
+}: {
+  label: string;
+  isActive: boolean;
+  onClick: () => void;
+}) => (
   <button
     type="button"
-    className={`rounded-full px-5 py-2 ${isActive ? "bg-white text-primary shadow" : "bg-transparent text-gray-500 hover:text-primary"
-      }`}
+    className={`rounded-full px-5 py-2 ${
+      isActive
+        ? "bg-white text-primary shadow"
+        : "bg-transparent text-gray-500 hover:text-primary"
+    }`}
     onClick={onClick}
   >
     {label}
   </button>
 );
 
-const SearchField = ({ value, onChange }: { value: string; onChange: (next: string) => void }) => (
+const SearchField = ({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (next: string) => void;
+}) => (
   <div className="relative w-full max-w-xs input-filed-block">
     <input
       type="search"
@@ -801,7 +921,9 @@ const SearchField = ({ value, onChange }: { value: string; onChange: (next: stri
         label-filed absolute left-2.5 top-2 text-[#A0A3BD] text-base transition-all duration-200
         peer-placeholder-shown:top-2 peer-placeholder-shown:left-2.5 peer-placeholder-shown:text-base cursor-text
         peer-focus:-top-3 peer-focus:left-2.5 peer-focus:text-[13px] peer-focus:text-[#070B68]
-        bg-white px-1 ${value && value.trim() !== "" ? "!-top-3 !text-[13px] " : ""} 
+        bg-white px-1 ${
+          value && value.trim() !== "" ? "!-top-3 !text-[13px] " : ""
+        } 
       `}
     >
       Search here
@@ -815,8 +937,13 @@ const SearchField = ({ value, onChange }: { value: string; onChange: (next: stri
 const StatsRow = () => (
   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
     {stats.map((item) => (
-      <div key={item.label} className="rounded-[28px] border border-gray-200 bg-[#f7f8fd] px-6 py-8 text-center shadow-[0_20px_40px_rgba(5,6,104,0.08)]">
-        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-gray-500">{item.label}</p>
+      <div
+        key={item.label}
+        className="rounded-[28px] border border-gray-200 bg-[#f7f8fd] px-6 py-8 text-center shadow-[0_20px_40px_rgba(5,6,104,0.08)]"
+      >
+        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-gray-500">
+          {item.label}
+        </p>
         <p className="mt-3 text-3xl font-semibold text-primary">{item.value}</p>
       </div>
     ))}
@@ -859,7 +986,9 @@ const FormModal = ({
       modalShellClassName="min-w-[710px]"
     >
       {isLoading ? (
-        <div className="flex h-48 items-center justify-center text-sm text-gray-500">Loading details...</div>
+        <div className="flex h-48 items-center justify-center text-sm text-gray-500">
+          Loading details...
+        </div>
       ) : (
         <form
           className="space-y-5"
@@ -878,7 +1007,10 @@ const FormModal = ({
                   userTypeId: Number(event.target.value),
                 })
               }
-              options={userTypeOptions.map((option) => ({ value: option.id, label: option.label }))}
+              options={userTypeOptions.map((option) => ({
+                value: option.id,
+                label: option.label,
+              }))}
               disabled={isSubmitting}
               labelText="User Type"
             />
@@ -886,7 +1018,9 @@ const FormModal = ({
               placeholder="Promo Description"
               id="promo_description"
               value={values.promoDescription}
-              onChange={(event) => onChange({ ...values, promoDescription: event.target.value })}
+              onChange={(event) =>
+                onChange({ ...values, promoDescription: event.target.value })
+              }
               disabled={isSubmitting}
             />
             <LabeledInput
@@ -894,7 +1028,9 @@ const FormModal = ({
               placeholder="Start Date"
               id="promo_start_date"
               value={values.startDate}
-              onChange={(event) => onChange({ ...values, startDate: event.target.value })}
+              onChange={(event) =>
+                onChange({ ...values, startDate: event.target.value })
+              }
               disabled={isSubmitting}
             />
             <LabeledInput
@@ -902,14 +1038,18 @@ const FormModal = ({
               placeholder="End Date"
               id="promo_end_date"
               value={values.endDate}
-              onChange={(event) => onChange({ ...values, endDate: event.target.value })}
+              onChange={(event) =>
+                onChange({ ...values, endDate: event.target.value })
+              }
               disabled={isSubmitting}
             />
             <LabeledInput
               placeholder="Code"
               id="promo_code"
               value={values.code}
-              onChange={(event) => onChange({ ...values, code: event.target.value })}
+              onChange={(event) =>
+                onChange({ ...values, code: event.target.value })
+              }
               disabled={isSubmitting}
             />
             <div className="space-y-2">
@@ -923,24 +1063,40 @@ const FormModal = ({
                 <LabelledRadio
                   label="Percentage"
                   checked={values.discountType === "Percentage"}
-                  onChange={() => onChange({ ...values, discountType: "Percentage" })}
+                  onChange={() =>
+                    onChange({ ...values, discountType: "Percentage" })
+                  }
                   disabled={isSubmitting}
                 />
               </div>
             </div>
             <LabeledInput
               id="promo_discount_value"
-              placeholder={values.discountType === "Flat" ? "Discount Value" : "Discount Percentage"}
+              placeholder={
+                values.discountType === "Flat"
+                  ? "Discount Value"
+                  : "Discount Percentage"
+              }
               value={values.discountValue}
-              onChange={(event) => onChange({ ...values, discountValue: event.target.value })}
-              rightAdornment={values.discountType === "Flat" ? <CurrencyIcon /> : <PercentageIcon />}
+              onChange={(event) =>
+                onChange({ ...values, discountValue: event.target.value })
+              }
+              rightAdornment={
+                values.discountType === "Flat" ? (
+                  <CurrencyIcon />
+                ) : (
+                  <PercentageIcon />
+                )
+              }
               disabled={isSubmitting}
             />
             <LabeledInput
               id="promo_maximum_discount"
               placeholder="Maximum Discount Cap Value"
               value={values.maxDiscount}
-              onChange={(event) => onChange({ ...values, maxDiscount: event.target.value })}
+              onChange={(event) =>
+                onChange({ ...values, maxDiscount: event.target.value })
+              }
               rightAdornment={<CurrencyIcon />}
               disabled={isSubmitting}
             />
@@ -948,7 +1104,9 @@ const FormModal = ({
               id="promo_minimum_discount"
               placeholder="Minimum Purchase Value"
               value={values.minPurchase}
-              onChange={(event) => onChange({ ...values, minPurchase: event.target.value })}
+              onChange={(event) =>
+                onChange({ ...values, minPurchase: event.target.value })
+              }
               rightAdornment={<CurrencyIcon />}
               disabled={isSubmitting}
             />
@@ -987,13 +1145,17 @@ const StatusConfirmModal = ({
   onCancel: () => void;
   onConfirm: () => void;
 }) => (
-  <ModalShell title={`${isActive ? "Deactivate" : "Activate"} Promocode`} onClose={onCancel}>
+  <ModalShell
+    title={`${isActive ? "Deactivate" : "Activate"} Promocode`}
+    onClose={onCancel}
+  >
     <div className="space-y-6 text-center">
       <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#fff3d9] text-[#b46a02]">
         <span className="text-4xl">!</span>
       </div>
       <p className="text-sm font-medium text-gray-600">
-        Are you sure you want to {isActive ? "deactivate" : "activate"} this promocode?
+        Are you sure you want to {isActive ? "deactivate" : "activate"} this
+        promocode?
       </p>
       <div className="flex justify-center gap-3">
         <button
@@ -1032,7 +1194,8 @@ const DeleteConfirmModal = ({
         <TrashIcon />
       </div>
       <p className="text-sm font-medium text-gray-600">
-        This action will permanently delete the promocode. Do you want to continue?
+        This action will permanently delete the promocode. Do you want to
+        continue?
       </p>
       <div className="flex justify-center gap-3">
         <button
@@ -1056,14 +1219,36 @@ const DeleteConfirmModal = ({
   </ModalShell>
 );
 
-const LabelledRadio = ({ label, checked, onChange, disabled }: { label: string; checked: boolean; onChange: () => void; disabled?: boolean }) => (
+const LabelledRadio = ({
+  label,
+  checked,
+  onChange,
+  disabled,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: () => void;
+  disabled?: boolean;
+}) => (
   <label className={`flex items-center gap-2 ${disabled ? "opacity-60" : ""}`}>
-    <input type="radio" checked={checked} onChange={onChange} disabled={disabled} />
+    <input
+      type="radio"
+      checked={checked}
+      onChange={onChange}
+      disabled={disabled}
+    />
     {label}
   </label>
 );
 
-const LabeledInput = ({ rightAdornment, id, placeholder, value, className = "", ...props }: { rightAdornment?: ReactNode } & InputHTMLAttributes<HTMLInputElement>) => (
+const LabeledInput = ({
+  rightAdornment,
+  id,
+  placeholder,
+  value,
+  className = "",
+  ...props
+}: { rightAdornment?: ReactNode } & InputHTMLAttributes<HTMLInputElement>) => (
   <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
     <div className="relative input-filed-block">
       <input
@@ -1079,15 +1264,33 @@ const LabeledInput = ({ rightAdornment, id, placeholder, value, className = "", 
           label-filed absolute left-3 top-2 text-[#A0A3BD] text-sm transition-all duration-200
           peer-placeholder-shown:top-2 peer-placeholder-shown:left-3 peer-placeholder-shown:text-sm cursor-text
           peer-focus:-top-3 peer-focus:left-3 peer-focus:text-[13px] peer-focus:text-[#070B68]
-          bg-white px-1 capitalize ${value ? "!-top-3 !left-3 !text-[13px]" : ""} 
+          bg-white px-1 capitalize ${
+            value ? "!-top-3 !left-3 !text-[13px]" : ""
+          } 
           `}
-      >{placeholder}</label>
-      {rightAdornment && <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">{rightAdornment}</span>}
+      >
+        {placeholder}
+      </label>
+      {rightAdornment && (
+        <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
+          {rightAdornment}
+        </span>
+      )}
     </div>
   </label>
 );
 
-const LabeledSelect = ({ options, value, id, labelText, className = "", ...props }: { labelText?: string; options: Array<{ value: number | string; label: string; }> } & SelectHTMLAttributes<HTMLSelectElement>) => (
+const LabeledSelect = ({
+  options,
+  value,
+  id,
+  labelText,
+  className = "",
+  ...props
+}: {
+  labelText?: string;
+  options: Array<{ value: number | string; label: string }>;
+} & SelectHTMLAttributes<HTMLSelectElement>) => (
   <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
     <div className="relative input-filed-block">
       <select
@@ -1111,16 +1314,29 @@ const LabeledSelect = ({ options, value, id, labelText, className = "", ...props
         peer-focus:-top-3 peer-focus:left-3 peer-focus:text-[13px] peer-focus:text-[#070B68]
         bg-white px-1  ${value ? "!-top-3 !left-3 !text-[13px]" : ""} 
         `}
-      >{labelText}</label>
+      >
+        {labelText}
+      </label>
     </div>
   </label>
 );
 
-const ActionButton = ({ label, variant, onClick, children }: { label: string; variant: "view" | "edit" | "delete"; onClick: () => void; children: ReactNode }) => {
+const ActionButton = ({
+  label,
+  variant,
+  onClick,
+  children,
+}: {
+  label: string;
+  variant: "view" | "edit" | "delete";
+  onClick: () => void;
+  children: ReactNode;
+}) => {
   const styles: Record<"view" | "edit" | "delete", string> = {
     view: "bg-[#eff2f9] text-[#1d1f2a] border border-transparent hover:bg-white hover:border-primary/40 hover:shadow-md",
     edit: "bg-white text-[#1d1f2a] border border-gray-200 hover:border-primary hover:text-primary",
-    delete: "bg-[#ff4d4f] text-white hover:bg-[#e34040] border border-transparent",
+    delete:
+      "bg-[#ff4d4f] text-white hover:bg-[#e34040] border border-transparent",
   };
 
   return (
@@ -1141,8 +1357,20 @@ const ModalOverlay = ({ children }: { children: ReactNode }) => (
   </div>
 );
 
-const ModalShell = ({ title, onClose, children, modalShellClassName }: { title: string; onClose: () => void; children: ReactNode, modalShellClassName?: string }) => (
-  <div className={`w-full max-w-xl rounded-md bg-white px-6 py-6 shadow-[0_40px_90px_rgba(5,6,104,0.18)] ${modalShellClassName}`}>
+const ModalShell = ({
+  title,
+  onClose,
+  children,
+  modalShellClassName,
+}: {
+  title: string;
+  onClose: () => void;
+  children: ReactNode;
+  modalShellClassName?: string;
+}) => (
+  <div
+    className={`w-full max-w-xl rounded-md bg-white px-6 py-6 shadow-[0_40px_90px_rgba(5,6,104,0.18)] ${modalShellClassName}`}
+  >
     <div className="flex items-center justify-between gap-4">
       <h3 className="text-xl font-semibold text-primary">{title}</h3>
       <button
@@ -1158,48 +1386,87 @@ const ModalShell = ({ title, onClose, children, modalShellClassName }: { title: 
   </div>
 );
 const CloseIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-8 w-8">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6L6 18" />
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    className="h-8 w-8"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M6 6l12 12M18 6L6 18"
+    />
   </svg>
 );
 
 const SearchIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.6"
+    className="h-4 w-4"
+  >
     <circle cx="11" cy="11" r="7" />
     <path strokeLinecap="round" strokeLinejoin="round" d="M20 20l-3-3" />
   </svg>
 );
 
-const ChevronDownIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-3 w-3">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M6 8l4 4 4-4" />
-  </svg>
-);
-
 const CurrencyIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m0-16a4 4 0 1 1 0 8m0 0a4 4 0 1 0 0 8" />
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.6"
+    className="h-4 w-4"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M12 4v16m0-16a4 4 0 1 1 0 8m0 0a4 4 0 1 0 0 8"
+    />
   </svg>
 );
 
 const PercentageIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.6"
+    className="h-4 w-4"
+  >
     <path strokeLinecap="round" strokeLinejoin="round" d="M19 5L5 19" />
     <circle cx="7" cy="7" r="2" />
     <circle cx="17" cy="17" r="2" />
   </svg>
 );
 
-
 const TrashIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.6"
+    className="h-4 w-4"
+  >
     <path strokeLinecap="round" strokeLinejoin="round" d="M6 7h12" />
     <path strokeLinecap="round" strokeLinejoin="round" d="M10 11v6M14 11v6" />
     <path strokeLinecap="round" strokeLinejoin="round" d="M9 7V5h6v2" />
-    <path strokeLinecap="round" strokeLinejoin="round" d="M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12" />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12"
+    />
   </svg>
 );
-
 
 const stats = [
   { label: "Total Business", value: "244" },
@@ -1208,13 +1475,3 @@ const stats = [
 ];
 
 export default PromocodeSettings;
-
-
-
-
-
-
-
-
-
-
