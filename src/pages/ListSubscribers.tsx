@@ -180,7 +180,7 @@ const ListSubscribers = () => {
       {
         label: "Sub User Type",
         value: (row: any) => (
-          <span className="font-helveticaBold text-primary">{row?.subUserTypeIdName}</span>
+          <span className="font-helveticaBold text-primary">{row?.subUserTypeIdName || row?.subUserTypeNameName}</span>
         ),
         sortKey: "subUserTypeIdName",
         isSort: true,

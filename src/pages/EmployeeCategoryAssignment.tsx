@@ -462,7 +462,9 @@ const EmployeeCategoryAssignment = () => {
 
     try {
       const response = await authFetch(
-        `${DETAIL_ENDPOINT}?EmployeeId=${assignment.employeeId}`,
+        `${DETAIL_ENDPOINT}?EmployeeId=${
+          assignment.employeeId
+        }&Language=${"EN"}`,
         {
           method: "GET",
           headers: {
