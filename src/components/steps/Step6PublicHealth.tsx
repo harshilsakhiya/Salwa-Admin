@@ -1,6 +1,6 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-import SelectFiled from '../../antd/SelectFiled';
+import React from "react";
+import { useTranslation } from "react-i18next";
+import SelectFiled from "../../antd/SelectFiled";
 
 interface Step6Data {
   healthAwarenessSupplements: string;
@@ -25,7 +25,7 @@ const Step6PublicHealth: React.FC<Step6Props> = ({ data, onChange }) => {
   const handleInputChange = (field: keyof Step6Data, value: string) => {
     onChange({
       ...data,
-      [field]: value
+      [field]: value,
     });
   };
 
@@ -47,24 +47,55 @@ const Step6PublicHealth: React.FC<Step6Props> = ({ data, onChange }) => {
     <SelectFiled
       label={label}
       value={data[field]}
-      onChange={(e) => handleInputChange(field, e.target.value)}
+      onChange={(e: any) => handleInputChange(field, e.target.value)}
     />
   );
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-      <div className='md:col-span-2 grid md:grid-cols-3 gap-4'>
-        {renderYesNoDropdown('healthAwarenessSupplements', t('steps.step6.healthAwarenessSupplements'))}
-        {renderYesNoDropdown('epidemicControlDepartment', t('steps.step6.epidemicControlDepartment'))}
-        {renderYesNoDropdown('patientEducationServices', t('steps.step6.patientEducationServices'))}
+      <div className="md:col-span-2 grid md:grid-cols-3 gap-4">
+        {renderYesNoDropdown(
+          "healthAwarenessSupplements",
+          t("steps.step6.healthAwarenessSupplements")
+        )}
+        {renderYesNoDropdown(
+          "epidemicControlDepartment",
+          t("steps.step6.epidemicControlDepartment")
+        )}
+        {renderYesNoDropdown(
+          "patientEducationServices",
+          t("steps.step6.patientEducationServices")
+        )}
       </div>
-      {renderYesNoDropdown('socialServices', t('Social Services'))}
-      {renderYesNoDropdown('medicalEquipmentRepairWorkshop', t('Medical Equipment Repair Workshop'))}
-      {renderYesNoDropdown('availabilityOfLongTermHospitalizationRiskManagement', t('Availability of long-term hospitalization care and management services'))}
-      {renderYesNoDropdown('availabilityOfHomecareServices', t('Availability of home medical services'))}
-      {renderYesNoDropdown('availabilityOfElderlyCareServices', t('Availability of elderly care services'))}
-      {renderYesNoDropdown('availabilityOfMedicalEquipmentAndToolsStorage', t('Availability of medical equipment and tools storage'))}
-      <div className='md:col-span-2'>{renderYesNoDropdown('availabilityOfMedicalEquipmentAnalysisStorage', t('Availability of medical equipment and tools storage'))}</div>
+      {renderYesNoDropdown("socialServices", t("Social Services"))}
+      {renderYesNoDropdown(
+        "medicalEquipmentRepairWorkshop",
+        t("Medical Equipment Repair Workshop")
+      )}
+      {renderYesNoDropdown(
+        "availabilityOfLongTermHospitalizationRiskManagement",
+        t(
+          "Availability of long-term hospitalization care and management services"
+        )
+      )}
+      {renderYesNoDropdown(
+        "availabilityOfHomecareServices",
+        t("Availability of home medical services")
+      )}
+      {renderYesNoDropdown(
+        "availabilityOfElderlyCareServices",
+        t("Availability of elderly care services")
+      )}
+      {renderYesNoDropdown(
+        "availabilityOfMedicalEquipmentAndToolsStorage",
+        t("Availability of medical equipment and tools storage")
+      )}
+      <div className="md:col-span-2">
+        {renderYesNoDropdown(
+          "availabilityOfMedicalEquipmentAnalysisStorage",
+          t("Availability of medical equipment and tools storage")
+        )}
+      </div>
     </div>
   );
 };

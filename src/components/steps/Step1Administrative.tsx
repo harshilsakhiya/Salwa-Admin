@@ -102,7 +102,7 @@ const Step1Administrative: React.FC<Step1Props> = ({ data, onChange }) => {
     <SelectFiled
       label={label}
       value={data[field] as string}
-      onChange={(e) => handleInputChange(field, e.target.value)}
+      onChange={(e: { target: { value: string | File[]; }; }) => handleInputChange(field, e.target.value)}
     />
   );
 
@@ -144,7 +144,7 @@ const Step1Administrative: React.FC<Step1Props> = ({ data, onChange }) => {
     <DateFiled
       label={label}
       value={data[field] as string}
-      onChange={(e) => handleInputChange(field, e.target.value)}
+      onChange={(e: { target: { value: string | File[]; }; }) => handleInputChange(field, e.target.value)}
     />
   );
 

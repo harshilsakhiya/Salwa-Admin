@@ -1,6 +1,5 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import InputFiled from "../../antd/InputFiled";
 import SelectFiled from "../../antd/SelectFiled";
 
 interface Step5Data {
@@ -45,15 +44,9 @@ const Step5ServiceLogistics: React.FC<Step5Props> = ({ data, onChange }) => {
     <SelectFiled
       label={label}
       value={data[field] as string}
-      onChange={(e) => handleInputChange(field, e.target.value)}
+      onChange={(e:any) => handleInputChange(field, e.target.value)}
     />
   );
-
-  const handleFileUpload = (files: FileList | null) => {
-    if (files && files[0]) {
-      handleInputChange("priceListFile", files[0]);
-    }
-  };
 
   const handleDownloadExcel = () => {
     // Create a sample Excel file download
@@ -66,14 +59,8 @@ const Step5ServiceLogistics: React.FC<Step5Props> = ({ data, onChange }) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-4">
-      {renderDropdown(
-        "itNetworkTechnicians",
-        t("IT & Network Technicians")
-      )}
-      {renderDropdown(
-        "maintenanceDepartment",
-        t("Maintenance Department")
-      )}
+      {renderDropdown("itNetworkTechnicians", t("IT & Network Technicians"))}
+      {renderDropdown("maintenanceDepartment", t("Maintenance Department"))}
       {renderDropdown("itStaffShop", t("Is there Shops?"))}
 
       <div className="md:col-span-3 mt-2.5 flex items-center justify-between gap-2">
@@ -82,7 +69,9 @@ const Step5ServiceLogistics: React.FC<Step5Props> = ({ data, onChange }) => {
             {t("Price List")}
           </h3>
           <p className="text-gray-600">
-            {t("Please download the provided Excel template, fill in the necessary information, and submit it below.")}
+            {t(
+              "Please download the provided Excel template, fill in the necessary information, and submit it below."
+            )}
           </p>
         </div>
         <button

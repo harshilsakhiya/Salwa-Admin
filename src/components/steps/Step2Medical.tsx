@@ -55,7 +55,7 @@ const Step2Medical: React.FC<Step2Props> = ({ data, onChange }) => {
     <InputFiled
       label={label}
       value={data[field]}
-      onChange={(e) => handleInputChange(field, e.target.value)}
+      onChange={(e:any) => handleInputChange(field, e.target.value)}
     />
   );
 
@@ -77,7 +77,7 @@ const Step2Medical: React.FC<Step2Props> = ({ data, onChange }) => {
     <SelectFiled
       label={label}
       value={data[field]}
-      onChange={(e) => handleInputChange(field, e.target.value)}
+      onChange={(e:any) => handleInputChange(field, e.target.value)}
     />
   );
 

@@ -1,7 +1,7 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-import InputFiled from '../../antd/InputFiled';
-import SelectFiled from '../../antd/SelectFiled';
+import React from "react";
+import { useTranslation } from "react-i18next";
+import InputFiled from "../../antd/InputFiled";
+import SelectFiled from "../../antd/SelectFiled";
 
 interface Step3Data {
   radiologyDepartment: string;
@@ -22,11 +22,11 @@ const Step3Technical: React.FC<Step3Props> = ({ data, onChange }) => {
   const handleInputChange = (field: keyof Step3Data, value: string) => {
     onChange({
       ...data,
-      [field]: value
+      [field]: value,
     });
   };
 
-  const renderTextInput = (field: keyof Step3Data, label: string, placeholder?: string) => (
+  const renderTextInput = (field: keyof Step3Data, label: string) => (
     // <div>
     //   <label className="block text-sm font-medium text-gray-700 mb-1">
     //     {label}
@@ -42,7 +42,7 @@ const Step3Technical: React.FC<Step3Props> = ({ data, onChange }) => {
     <InputFiled
       label={label}
       value={data[field]}
-      onChange={(e) => handleInputChange(field, e.target.value)}
+      onChange={(e: any) => handleInputChange(field, e.target.value)}
     />
   );
 
@@ -64,18 +64,24 @@ const Step3Technical: React.FC<Step3Props> = ({ data, onChange }) => {
     <SelectFiled
       label={label}
       value={data[field]}
-      onChange={(e) => handleInputChange(field, e.target.value)}
+      onChange={(e: any) => handleInputChange(field, e.target.value)}
     />
   );
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-4">
-      {renderYesNoDropdown('radiologyDepartment', t('Radiology Department?'))}
-      {renderYesNoDropdown('pathologyDepartment', t('Pathology Department'))}
-      {renderYesNoDropdown('laboratoryDepartment', t('Laboratory Department'))}
-      {renderTextInput('anesthesiologyDepartment', t('Histopathology Department'))}
-      {renderYesNoDropdown('availabilityOfMedicalEquipment', t('steps.step3.availabilityOfMedicalEquipment'))}
-      {renderTextInput('totalNumberOfBeds', t('steps.step3.totalNumberOfBeds'))}
+      {renderYesNoDropdown("radiologyDepartment", t("Radiology Department?"))}
+      {renderYesNoDropdown("pathologyDepartment", t("Pathology Department"))}
+      {renderYesNoDropdown("laboratoryDepartment", t("Laboratory Department"))}
+      {renderTextInput(
+        "anesthesiologyDepartment",
+        t("Histopathology Department")
+      )}
+      {renderYesNoDropdown(
+        "availabilityOfMedicalEquipment",
+        t("steps.step3.availabilityOfMedicalEquipment")
+      )}
+      {renderTextInput("totalNumberOfBeds", t("steps.step3.totalNumberOfBeds"))}
     </div>
   );
 };
