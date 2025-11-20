@@ -1,7 +1,7 @@
 import { DatePicker } from "antd";
 import { useState } from "react";
 
-function DateFiled({ onChange, value, label, disabled }: any) {
+function DateFiled({ onChange, value, label, disabled, errorsMessage }: any) {
   const [focused, setFocused] = useState(false);
   return (
     <div className="relative">
@@ -22,6 +22,11 @@ function DateFiled({ onChange, value, label, disabled }: any) {
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
       />
+      {errorsMessage && (
+        <p className="text-red-500 text-xs mt-1">
+          {errorsMessage}
+        </p>
+      )}
     </div>
   );
 }

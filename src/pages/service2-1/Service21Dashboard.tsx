@@ -131,9 +131,10 @@ const Service21Dashboard = () => {
     }
   };
 
+
   const tableColumns: TableColumn<RentMedicalEquipmentRecord>[] = [
     {
-      label: "Request ID",
+      label: "Order Number ",
       value: (row) => (
         <span className="font-semibold text-primary">#{row.requestId}</span>
       ),
@@ -153,51 +154,51 @@ const Service21Dashboard = () => {
       isSort: true,
     },
     {
+      label: "FDA Number",
+      value: (row) => <span className="text-gray-600">{row.fdaDeviceLicenseNo || "N/A"}</span>,
+      sortKey: "fdaDeviceLicenseNo",
+      isSort: true,
+    },
+    {
       label: "Device Type",
       value: (row) => <span className="text-gray-600">{row.deviceTypeName || "N/A"}</span>,
+
       sortKey: "deviceTypeName",
       isSort: true,
     },
     {
-      label: "Rent Value",
+      label: "Device Approval Number ",
       value: (row) => (
-        <span className="text-green-600 font-semibold">
-          {row.rentValue} SAR
-        </span>
+        <span className="text-gray-600">{row.deviceApprovalNumber} days</span>
       ),
-      sortKey: "rentValue",
+      sortKey: "deviceApprovalNumber",
       isSort: true,
     },
     {
-      label: "Rent Period",
+      label: "Country ",
       value: (row) => (
-        <span className="text-gray-600">{row.rentPeriod} days</span>
+        <span className="text-gray-600">{row.country} days</span>
       ),
-      sortKey: "rentPeriod",
+      sortKey: "country",
       isSort: true,
     },
     {
-      label: "Location",
+      label: "Region ",
       value: (row) => (
-        <div className="text-gray-600">
-          <div>{row.city || "N/A"}, {row.country || "N/A"}</div>
-          <div className="text-xs text-gray-500">{row.region || "N/A"}</div>
-        </div>
+        <span className="text-gray-600">{row.region} days</span>
+      ),
+      sortKey: "region",
+      isSort: true,
+    },
+    {
+      label: "City ",
+      value: (row) => (
+        <span className="text-gray-600">{row.city} days</span>
       ),
       sortKey: "city",
       isSort: true,
     },
-    {
-      label: "Contact Person",
-      value: (row) => (
-        <div className="text-gray-700">
-          <div className="font-medium">{row.contactPersonName}</div>
-          <div className="text-xs text-gray-500">{row.contactPersonEmail}</div>
-        </div>
-      ),
-      sortKey: "contactPersonName",
-      isSort: true,
-    },
+
     {
       label: "Status",
       value: (row) => (
