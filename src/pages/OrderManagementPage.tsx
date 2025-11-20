@@ -107,7 +107,7 @@ const OrderManagementPage = () => {
         pageNumber: page,
         pageSize: currentPageSize,
         orderByColumn: "RequestId",
-        orderDirection: "DESC",
+        orderDirection: "ASC",
       };
 
       const response: any =
@@ -233,7 +233,7 @@ const OrderManagementPage = () => {
       const requestData = {
         requestId: row.id,
         newStatusId: StatusEnum.PUBLISHED, // 102
-        userId: 0,
+        // userId: 0,
         requestNumber: row.requestNumber,
         reason: "",
       };
@@ -262,7 +262,7 @@ const OrderManagementPage = () => {
     {
       label: "Order No",
       value: (row) => (
-        <span className="font-semibold text-primary">{row.requestId}</span>
+        <span className="font-semibold text-primary">{row.id}</span>
       ),
       sortKey: "requestId",
       isSort: true,

@@ -89,12 +89,11 @@ const Service2ManagementPage = () => {
         pageNumber: page,
         pageSize: currentPageSize,
         orderByColumn: "RequestId",
-        orderDirection: "DESC",
+        orderDirection: "ASC",
       };
 
-      const response: any =
-        await OfficeStationaryService.HealthMarketPlaceServicesGetAll(params);
-
+      const response: any = await OfficeStationaryService.HealthMarketPlaceServicesGetAll(params);
+      
       if (response?.success && response?.data) {
         const data = response.data?.data;
 
@@ -103,21 +102,14 @@ const Service2ManagementPage = () => {
           const transformedOrders: OrderRecord[] = data.map(
             (item: any, index: number) => {
               const order = {
-                id: item.id || item.requestId || index + 1,
-                requestId:
-                  item.requestId || `#${String(index + 1).padStart(4, "0")}`,
+                id: item.RequestId,
+                requestId: item.RequestId,
                 itemName:
-                  item.itemName || item.name || item.itemTitle || "Office Item",
+                  item.ItemName || item.Name || item.ItemTitle || "",
                 RequestNumber: item.RequestNumber,
-                itemQuantity:
-                  item.quantity ||
-                  item.itemQuantity ||
-                  Math.floor(Math.random() * 1000) + 100,
-                weight:
-                  item.weight || parseFloat((Math.random() * 100).toFixed(1)),
+                itemQuantity: item.TotalQuantity,
+                weight: item?.weight || 0,
                 status: item.StatusId,
-                createdDate: item.createdDate || item.date || item.requestDate,
-                updatedDate: item.updatedDate || item.modifiedDate,
               };
 
               return order;
@@ -203,7 +195,6 @@ const Service2ManagementPage = () => {
       const payload: UpdateHealthMarketPlaceStatusParams = {
         requestId: order.id, // Use the order ID
         newStatusId: StatusEnum.PUBLISHED, // 102
-        userId: 0, // You may need to get this from user context
         requestNumber: order.RequestNumber, // Use RequestNumber as requestNumber
         reason: "", // Empty reason as specified
       };

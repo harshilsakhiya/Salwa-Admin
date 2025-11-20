@@ -29,6 +29,8 @@ interface Service2Detail {
   updatedDate: string | null;
   totalQuantity: number;
   items: Service2Item[];
+  City: string;
+  Country: string;
 }
 
 interface Service2Item {
@@ -70,7 +72,6 @@ const Service2DetailPage = () => {
           await OfficeStationaryService.GetHealthMarketPlaceServiceByRequestNumber(
             serviceId
           );
-
         if (
           response &&
           response.success &&
@@ -99,7 +100,7 @@ const Service2DetailPage = () => {
             requestNumber: apiData.RequestNumber || serviceId,
             categoryId: apiData.CategoryId || 0,
             serviceId: apiData.ServiceId || 0,
-            serviceTitle: apiData.OrderTitle || "Service Details",
+            serviceTitle: apiData.OrderTitle || "",
             contactPersonName: apiData.ContactPersonName || "Contact person",
             contactPersonEmail:
               apiData.ContactPersonEmail || "contact@example.com",
@@ -121,6 +122,8 @@ const Service2DetailPage = () => {
             updatedDate: apiData.UpdatedDate || null,
             totalQuantity: apiData.TotalQuantity || 0,
             items: parsedItems,
+            City: apiData.City || "",
+            Country: apiData.Country || "",
           };
 
           setServiceDetail(serviceDetail);
@@ -153,7 +156,6 @@ const Service2DetailPage = () => {
       const requestData = {
         requestId: serviceDetail.requestId,
         newStatusId: StatusEnum.APPROVED, // 100
-        userId: 0,
         requestNumber: serviceDetail.requestNumber,
         reason: "",
       };
@@ -198,7 +200,6 @@ const Service2DetailPage = () => {
       const requestData = {
         requestId: serviceDetail.requestId,
         newStatusId: StatusEnum.REJECTED, // 101
-        userId: 0,
         requestNumber: serviceDetail.requestNumber,
         reason: rejectionReason,
       };
@@ -297,19 +298,25 @@ const Service2DetailPage = () => {
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-2 text-gray-600">
               <svg
-                className="w-5 h-5"
+                className="w-5 h-5 text-gray-500"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
-              >
+            >
                 <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
                 />
-              </svg>
-              Request Number: {serviceDetail.requestNumber}
+                <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+            </svg>
+              {serviceDetail.City}, {serviceDetail.Country}
             </div>
             <div className="flex items-center gap-2">
               <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
@@ -339,31 +346,6 @@ const Service2DetailPage = () => {
                 <span className="text-gray-700">
                   <strong>Contact Person Email :</strong>{" "}
                   {serviceDetail.contactPersonEmail}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-gray-900 rounded-full"></div>
-                <span className="text-gray-700">
-                  <strong>Category ID :</strong> {serviceDetail.categoryId}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-gray-900 rounded-full"></div>
-                <span className="text-gray-700">
-                  <strong>Service ID :</strong> {serviceDetail.serviceId}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-gray-900 rounded-full"></div>
-                <span className="text-gray-700">
-                  <strong>Total Quantity :</strong>{" "}
-                  {serviceDetail.totalQuantity}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-gray-900 rounded-full"></div>
-                <span className="text-gray-700">
-                  <strong>Location ID :</strong> {serviceDetail.locationId}
                 </span>
               </div>
             </div>
