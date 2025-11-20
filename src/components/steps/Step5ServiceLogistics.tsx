@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import SelectFiled from "../../antd/SelectFiled";
+import SelectField from "../../antd/SelectField";
 
 interface Step5Data {
   itNetworkTechnicians: string;
@@ -41,7 +41,7 @@ const Step5ServiceLogistics: React.FC<Step5Props> = ({ data, onChange }) => {
     //     <option value="No">{t("steps.step5.no")}</option>
     //   </select>
     // </div>
-    <SelectFiled
+    <SelectField
       label={label}
       value={data[field] as string}
       onChange={(e:any) => handleInputChange(field, e.target.value)}
@@ -131,7 +131,7 @@ const Step5ServiceLogistics: React.FC<Step5Props> = ({ data, onChange }) => {
                   {t("steps.step5.uploadFilledExcel")}
                 </p>
 
-                <InputFiled
+                <InputField
                   label={t("steps.step5.chooseFile")}
                   onChange={(e: { target: { files: FileList | null } }) =>
                     handleFileUpload(e.target.files)

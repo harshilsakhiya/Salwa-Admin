@@ -4,6 +4,9 @@ import {
   getAllIndividualSubscriptions,
   getBusinessSubscriptions,
 } from "../services/SubsettingServices/SubsettingsServies";
+import PrimaryButton from "../antd/PrimaryButton";
+import SelectField from "../antd/SelectField";
+import SearchField from "../antd/SearchField";
 
 const INDIVIDUAL_CATEGORIES = [
   "Insurance Card Holder",
@@ -84,9 +87,7 @@ const SubscriptionSettings = () => {
                 Configure product plans for every audience
               </p>
             </div>
-            <button className="rounded-full bg-primary px-8 py-2.5 text-sm font-semibold text-white shadow hover:bg-[#030447]">
-              Save
-            </button>
+            <PrimaryButton Children="Save" />
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
@@ -144,11 +145,10 @@ const ToggleButton = ({
   <button
     type="button"
     onClick={onClick}
-    className={`rounded-full px-4 py-2 transition ${
-      isActive
-        ? "bg-white text-primary shadow"
-        : "text-gray-500 hover:text-primary"
-    }`}
+    className={`rounded-full px-4 py-2 transition ${isActive
+      ? "bg-white text-primary shadow"
+      : "text-gray-500 hover:text-primary"
+      }`}
   >
     {label}
   </button>
@@ -178,61 +178,39 @@ const FilterBar = ({
       onSubmit={handleSearchSubmit}
       className="flex flex-wrap items-center gap-3 rounded-[28px] border border-gray-200 bg-[#f7f8fd] px-4 py-4"
     >
-      <Select
-        label="Category"
-        id="category"
-        value={category}
-        options={[
-          "All Category",
-          "Insurance",
-          "Doctors",
-          "Food Sector",
-          "Education",
-          "Hospitality",
-        ]}
-        onChange={(event) => onCategoryChange(event.target.value)}
-      />
-      <Select
-        label="Sub Category"
-        id="sub_category"
-        value={subCategory}
-        options={[
-          "All Subcategory",
-          "Small Facilities",
-          "Medium Facilities",
-          "Large Facilities",
-          "Mega Facilities",
-        ]}
-        onChange={(event) => onSubCategoryChange(event.target.value)}
-      />
-      <div className="flex items-center flex-1 min-w-[220px]">
-        <div className="flex items-center gap-2 w-full relative input-filed-block">
-          <input
-            type="search"
-            id="search_bar_subscription_settings"
-            placeholder="Search plans"
-            value={search}
-            onChange={(event) => onSearchChange(event.target.value)}
-            className="w-full rounded-md border border-slate-200 bg-white pl-3 pr-11 py-2 text-base text-gray-600 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 peer
-          placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
+      <div className="grid grid-cols-2 w-full gap-2">
+        <div className="grid grid-cols-2 gap-2">
+          <Select
+            label="Category"
+            value={category}
+            options={[
+              "All Category",
+              "Insurance",
+              "Doctors",
+              "Food Sector",
+              "Education",
+              "Hospitality",
+            ]}
+            onChange={(event) => onCategoryChange(event.target.value)}
           />
-          <label
-            htmlFor="search_bar_subscription_settings"
-            className={`
-              label-filed absolute left-2.5 top-2 text-[#A0A3BD] text-base transition-all duration-200
-              peer-placeholder-shown:top-2 peer-placeholder-shown:left-2.5 peer-placeholder-shown:text-base cursor-text
-              peer-focus:-top-3 peer-focus:left-2.5 peer-focus:text-[13px] peer-focus:text-[#070B68]
-              bg-white px-1 ${
-                search && search.trim() !== "" ? "!-top-3 !text-[13px] " : ""
-              } 
-              `}
-          >
-            Search
-          </label>
-          <button className="shrink-0 rounded-full border border-gray-200 px-5 py-2 text-sm font-semibold text-primary hover:border-primary">
-            Search
-          </button>
+          <Select
+            label="Sub Category"
+            value={subCategory}
+            options={[
+              "All Subcategory",
+              "Small Facilities",
+              "Medium Facilities",
+              "Large Facilities",
+              "Mega Facilities",
+            ]}
+            onChange={(event) => onSubCategoryChange(event.target.value)}
+          />
         </div>
+        <SearchField
+          label="Search"
+          value={search}
+          onChange={(event) => onSearchChange(event.target.value)}
+        />
       </div>
     </form>
   );
@@ -304,40 +282,20 @@ const Select = ({
   options,
   value,
   onChange,
-  id,
 }: {
   label: string;
-  id?: string;
   options: string[];
   value: string;
   onChange: (event: ChangeEvent<HTMLSelectElement>) => void;
 }) => (
-  <label className="space-y-1 text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">
-    <div className="relative input-filed-block min-w-[220px]">
-      <select
-        id={id}
-        className="w-full px-3 py-2 h-[42px] text-sm text-gray-600 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
-            placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
-        value={value}
-        onChange={onChange}
-      >
-        {options.map((option) => (
-          <option key={option}>{option}</option>
-        ))}
-      </select>
-      <label
-        htmlFor={id}
-        className={`
-        label-filed absolute capitalize left-3 top-2 text-[#A0A3BD] text-base transition-all duration-200
-        peer-placeholder-shown:top-2 peer-placeholder-shown:left-3 peer-placeholder-shown:text-base cursor-text
-        peer-focus:-top-3 peer-focus:left-3 peer-focus:text-[13px] peer-focus:text-[#070B68]
-        bg-white px-1  ${value ? "!-top-3 !left-3 !text-[13px]" : ""} 
-        `}
-      >
-        {label}
-      </label>
-    </div>
-  </label>
+  <SelectField
+    label={label}
+    value={value}
+    options={options.map((option) => (
+      <option key={option}>{option}</option>
+    ))}
+    onChange={onChange}
+  />
 );
 
 const Header = () => (

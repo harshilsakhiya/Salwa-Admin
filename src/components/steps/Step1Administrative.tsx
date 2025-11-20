@@ -1,8 +1,8 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import InputFiled from "../../antd/InputFiled";
-import SelectFiled from "../../antd/SelectFiled";
-import DateFiled from "../../antd/DateFiled";
+import InputField from "../../antd/InputField";
+import SelectField from "../../antd/SelectField";
+import DateField from "../../antd/DateField";
 
 interface Step1Data {
   facilityName: string;
@@ -100,7 +100,7 @@ const Step1Administrative: React.FC<Step1Props> = ({ data, onChange }) => {
     //     <option value="No">{t("no")}</option>
     //   </select>
     // </div>
-    <SelectFiled
+    <SelectField
       label={label}
       value={data[field] as string}
       onChange={(e: { target: { value: string | File[] } }) =>
@@ -110,7 +110,7 @@ const Step1Administrative: React.FC<Step1Props> = ({ data, onChange }) => {
   );
 
   const renderTextInput = (field: keyof Step1Data, label: string) => (
-    <InputFiled
+    <InputField
       label={label}
       value={data[field] as string}
       onChange={(e: any) => handleInputChange(field, e.target.value)}
@@ -144,7 +144,7 @@ const Step1Administrative: React.FC<Step1Props> = ({ data, onChange }) => {
     //     </svg>
     //   </div>
     // </div>
-    <DateFiled
+    <DateField
       label={label}
       value={data[field] as string}
       onChange={(date: any) => handleInputChange(field, date)}
@@ -195,7 +195,7 @@ const Step1Administrative: React.FC<Step1Props> = ({ data, onChange }) => {
                 </div>
               )}
 
-              <InputFiled
+              <InputField
                 type="file"
                 accept="image/*"
                 label={file ? t("change") : t("upload")}

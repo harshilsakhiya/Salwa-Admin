@@ -1,7 +1,7 @@
 import { Select } from "antd";
 import { useState } from "react";
 
-function SelectFiled({ value, onChange, options,mode, label, className = "", errorsMessage, mainClassName = "" }: any) {
+function SelectField({ value, onChange, options,mode, label, className = "", errorsMessage, mainClassName = "" }: any) {
   const [focused, setFocused] = useState(false);
 
   return (
@@ -37,4 +37,4 @@ function SelectFiled({ value, onChange, options,mode, label, className = "", err
   );
 }
 
-export default SelectFiled;
+export default SelectField;

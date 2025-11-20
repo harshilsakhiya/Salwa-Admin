@@ -9,7 +9,9 @@ import ComanTable, {
   type SortState,
 } from "../components/common/ComanTable";
 import CommonServices from "../services/CommonServices/CommonServices";
-import SelectFiled from "../antd/SelectFiled";
+import PrimaryButton from "../antd/PrimaryButton";
+import SelectField from "../antd/SelectField";
+import SearchField from "../antd/SearchField";
 
 type FormMode = "create" | "edit";
 
@@ -613,14 +615,8 @@ const EmployeeCategoryAssignment = () => {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <SearchField value={searchTerm} onChange={setSearchTerm} />
-              <button
-                type="button"
-                className="rounded-full bg-primary px-8 py-2 text-sm font-semibold text-white shadow hover:bg-[#030447]"
-                onClick={handleOpenCreate}
-              >
-                Add
-              </button>
+              <SearchField label="Search here" value={searchTerm} onChange={setSearchTerm} />
+              <PrimaryButton children="Add" onClick={handleOpenCreate} />
             </div>
           </div>
 
@@ -677,40 +673,6 @@ const EmployeeCategoryAssignment = () => {
     </DashboardLayout>
   );
 };
-
-const SearchField = ({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (next: string) => void;
-}) => (
-  <div className="relative input-filed-block w-full max-w-xs">
-    <input
-      id="search_employee_category"
-      className="w-full rounded-md border border-slate-200 bg-white pl-3 pr-11 py-2 text-base text-gray-600 shadow focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 peer
-          placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
-      placeholder="Search here"
-      value={value}
-      onChange={(event) => onChange(event.target.value)}
-    />
-    <label
-      htmlFor="search_employee_category"
-      className={`
-          label-filed absolute left-2.5 top-2 text-[#A0A3BD] text-base transition-all duration-200
-          peer-placeholder-shown:top-2 peer-placeholder-shown:left-2.5 peer-placeholder-shown:text-base cursor-text
-          peer-focus:-top-3 peer-focus:left-2.5 peer-focus:text-[13px] peer-focus:text-[#070B68]
-          bg-white px-1  ${value && value.trim() !== "" ? "!-top-3 !text-[13px] " : ""
-        } 
-          `}
-    >
-      Search here
-    </label>
-    <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-gray-400">
-      <SearchIcon />
-    </span>
-  </div>
-);
 
 const StatsRow = ({
   stats,
@@ -791,7 +753,7 @@ const FormModal = ({
           }}
         >
           <div className="grid gap-4 grid-cols-2">
-            <SelectFiled
+            <SelectField
               value={values.employeeIds}
               onChange={(val: any) =>
                 onChange({ ...values, employeeIds: Array.isArray(val) ? val : [val] })
@@ -806,7 +768,7 @@ const FormModal = ({
 
 
 
-            <SelectFiled
+            <SelectField
               value={values.categoryIds}
               onChange={(val: any) => {
                 const next = Array.isArray(val) ? val : [val];
@@ -820,7 +782,7 @@ const FormModal = ({
               disabled={isSubmitting || loadingDropdowns.categories}
             />
 
-            <SelectFiled
+            <SelectField
               value={values.serviceIds}
               onChange={(val: any) => {
                 const next = Array.isArray(val) ? val : [val];
@@ -834,7 +796,7 @@ const FormModal = ({
               disabled={isSubmitting || loadingDropdowns.services || values.categoryIds.length === 0}
             />
 
-            <SelectFiled
+            <SelectField
               value={values.subServiceIds}
               onChange={(val: any) => onChange({ ...values, subServiceIds: Array.isArray(val) ? val : [val] })}
               options={subServiceOptions}
@@ -853,21 +815,13 @@ const FormModal = ({
             >
               Cancel
             </button>
-            <button
-              type="submit"
-              className="rounded-md bg-primary px-10 py-3 text-sm font-semibold text-white shadow hover:bg-[#030447] disabled:cursor-not-allowed disabled:bg-primary/70"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Saving..." : "Save"}
-            </button>
+            <PrimaryButton children={isSubmitting ? "Saving..." : "Save"} disabled={isSubmitting} />
           </div>
         </form>
       )}
     </ModalShell>
   );
 };
-
-
 
 const ActionButton = ({
   label,

@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import DashboardLayout from "../layouts/DashboardLayout";
 import { getSuperAdminById } from "../services/superAdminService";
 import type { SuperAdminRecord } from "../services/superAdminService";
+import InputField from "../antd/InputField";
+import SelectField from "../antd/SelectField";
 
 const SupervisorDetail = () => {
   const navigate = useNavigate();
@@ -79,7 +81,7 @@ const SupervisorDetail = () => {
     <DashboardLayout>
       <div className="mx-auto flex w-full flex-col gap-8 pb-16">
         <header className="flex flex-wrap items-center justify-between gap-4 rounded-[32px] border border-gray-200 bg-white px-8 py-6 shadow-sm">
-          <button className="inline-flex items-center gap-2 text-sm font-semibold text-primary" onClick={() => navigate("/supervisor-management")}> 
+          <button className="inline-flex items-center gap-2 text-sm font-semibold text-primary" onClick={() => navigate("/supervisor-management")}>
             <ArrowLeftIcon />
             {t('common.back')}
           </button>
@@ -89,8 +91,8 @@ const SupervisorDetail = () => {
         </header>
 
         <section className="space-y-8 rounded-[32px] border border-gray-200 bg-white px-8 py-10 shadow-sm">
-          <ExpandableSection 
-            title={t('pages.supervisors.generalInformation')} 
+          <ExpandableSection
+            title={t('pages.supervisors.generalInformation')}
             isExpanded={expandedSections.generalInfo}
             onToggle={() => toggleSection('generalInfo')}
           >
@@ -107,8 +109,8 @@ const SupervisorDetail = () => {
             </div>
           </ExpandableSection>
 
-          <ExpandableSection 
-            title={t('pages.supervisors.personalInformation')} 
+          <ExpandableSection
+            title={t('pages.supervisors.personalInformation')}
             isExpanded={expandedSections.personalInfo}
             onToggle={() => toggleSection('personalInfo')}
           >
@@ -120,8 +122,8 @@ const SupervisorDetail = () => {
             </div>
           </ExpandableSection>
 
-          <ExpandableSection 
-            title={t('pages.supervisors.contactInformation')} 
+          <ExpandableSection
+            title={t('pages.supervisors.contactInformation')}
             isExpanded={expandedSections.contactInfo}
             onToggle={() => toggleSection('contactInfo')}
           >
@@ -140,8 +142,8 @@ const SupervisorDetail = () => {
             </div>
           </ExpandableSection>
 
-          <ExpandableSection 
-            title={t('pages.supervisors.bankInformation')} 
+          <ExpandableSection
+            title={t('pages.supervisors.bankInformation')}
             isExpanded={expandedSections.bankInfo}
             onToggle={() => toggleSection('bankInfo')}
           >
@@ -151,8 +153,8 @@ const SupervisorDetail = () => {
             </div>
           </ExpandableSection>
 
-          <ExpandableSection 
-            title={t('pages.supervisors.workInformation')} 
+          <ExpandableSection
+            title={t('pages.supervisors.workInformation')}
             isExpanded={expandedSections.workInfo}
             onToggle={() => toggleSection('workInfo')}
           >
@@ -166,8 +168,8 @@ const SupervisorDetail = () => {
             </div>
           </ExpandableSection>
 
-          <ExpandableSection 
-            title={t('pages.supervisors.systemInformation')} 
+          <ExpandableSection
+            title={t('pages.supervisors.systemInformation')}
             isExpanded={expandedSections.systemInfo}
             onToggle={() => toggleSection('systemInfo')}
           >
@@ -207,16 +209,16 @@ const SupervisorDetail = () => {
   );
 };
 
-const ExpandableSection = ({ 
-  title, 
-  children, 
-  isExpanded, 
-  onToggle 
-}: { 
-  title: string; 
-  children: ReactNode; 
-  isExpanded: boolean; 
-  onToggle: () => void; 
+const ExpandableSection = ({
+  title,
+  children,
+  isExpanded,
+  onToggle
+}: {
+  title: string;
+  children: ReactNode;
+  isExpanded: boolean;
+  onToggle: () => void;
 }) => (
   <div className="space-y-4">
     <div className="flex items-center justify-between cursor-pointer" onClick={onToggle}>
@@ -235,21 +237,30 @@ const ExpandableSection = ({
 );
 
 const Input = ({ label, value, ...props }: React.InputHTMLAttributes<HTMLInputElement> & { label: string; value?: string }) => (
-  <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">
-    {label}
-    <input {...props} value={value} className="w-full rounded-[18px] border border-gray-200 bg-[#f7f8fd] px-4 py-3 text-sm text-gray-600 shadow-inner focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
-  </label>
+  <InputField
+    label={label}
+    value={value}
+    {...props}
+  />
 );
 
 const Select = ({ label, value, options, ...props }: { label: string; value: string; options: { key: string; value: string }[]; readOnly?: boolean }) => (
-  <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">
-    {label}
-    <select value={value} {...props} className="w-full rounded-[18px] border border-gray-200 bg-[#f7f8fd] px-4 py-3 text-sm text-gray-600 shadow-inner focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
-      {options.map((option) => (
-        <option key={option.key} value={option.key}>{option.value}</option>
-      ))}
-    </select>
-  </label>
+  // <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">
+  //   {label}
+  //   <select value={value} {...props} className="w-full rounded-[18px] border border-gray-200 bg-[#f7f8fd] px-4 py-3 text-sm text-gray-600 shadow-inner focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+  //     {options.map((option) => (
+  //       <option key={option.key} value={option.key}>{option.value}</option>
+  //     ))}
+  //   </select>
+  // </label>
+  <SelectField
+    label={label}
+    value={value}
+    options={options.map((option) => (
+      <option key={option.key} value={option.key}>{option.value}</option>
+    ))}
+    {...props}
+  />
 );
 
 const ModalOverlay = ({ children }: { children: ReactNode }) => (
@@ -271,12 +282,12 @@ const CheckIcon = () => (
 );
 
 const ChevronIcon = ({ isExpanded }: { isExpanded: boolean }) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
     className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
   >
     <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />

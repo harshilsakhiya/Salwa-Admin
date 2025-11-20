@@ -748,8 +748,37 @@ body {
   @apply border border-[#e5e7eb] rounded-[16px] !shadow-none !bg-white !pl-3.5 text-[17px]
 }
 
-.floating-select-filed:hover .ant-select-selector{
+.floating-select-filed:hover .ant-select-selector,
+.floating-select-filed.ant-select-focused.ant-select-outlined:not(.ant-select-disabled):not(.ant-select-customize-input):not(.ant-pagination-size-changer) .ant-select-selector{
   @apply !border-primary
+}
+
+.floating-search-filed input{
+  @apply py-2 px-4 !text-[17px] h-[62px] w-full border border-[#e5e7eb] rounded-[16px] hover:border-primary focus:border-primary !shadow-none
+}
+
+.allowClear-search .floating-search-filed .ant-input-affix-wrapper{
+  @apply !h-auto px-4 border border-[#e5e7eb] hover:border-primary focus:border-primary !shadow-none
+}
+
+.allowClear-search .floating-search-filed .ant-input-affix-wrapper input{
+  @apply !h-[52px]
+}
+
+.allowClear-search .ant-input-search .ant-input-group .ant-input-affix-wrapper:not(:last-child){
+  @apply rounded-s-[16px]
+}
+
+.allowClear-search .ant-btn{
+  @apply rounded-e-[16px]
+}
+
+.floating-search-filed .ant-input-group-addon .ant-btn{
+  @apply !h-[62px] !w-12 !text-[17px] hover:border-primary focus:border-primary !shadow-none hover:text-primary
+}
+
+.floating-search-filed.ant-input-search >.ant-input-group >.ant-input-group-addon:last-child .ant-input-search-button:not(.ant-btn-color-primary):not([disabled]):hover{
+  @apply !text-primary
 }
 
 .floating-date-filed input{

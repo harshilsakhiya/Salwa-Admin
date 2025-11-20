@@ -6,6 +6,8 @@ import ComanTable, {
   type SortState,
 } from "../components/common/ComanTable";
 import ReportServices from "../services/ReportServices/ReportServices";
+import SelectField from "../antd/SelectField";
+import PrimaryButton from "../antd/PrimaryButton";
 
 const UsersIcon = () => (
   <svg
@@ -316,8 +318,8 @@ const Reports = () => {
             {row.amount
               ? `${row.amount} SAR`
               : row.totalAmount
-              ? `${row.totalAmount} SAR`
-              : "0 SAR"}
+                ? `${row.totalAmount} SAR`
+                : "0 SAR"}
           </span>
         ),
         sortKey: "amount",
@@ -330,8 +332,8 @@ const Reports = () => {
             {row.discount
               ? `${row.discount} SAR`
               : row.discountAmount
-              ? `${row.discountAmount} SAR`
-              : "0 SAR"}
+                ? `${row.discountAmount} SAR`
+                : "0 SAR"}
           </span>
         ),
         sortKey: "discount",
@@ -344,8 +346,8 @@ const Reports = () => {
             {row.salesCommission
               ? `${row.salesCommission} SAR`
               : row.commission
-              ? `${row.commission} SAR`
-              : "0 SAR"}
+                ? `${row.commission} SAR`
+                : "0 SAR"}
           </span>
         ),
         sortKey: "salesCommission",
@@ -358,8 +360,8 @@ const Reports = () => {
             {row.paymentGateway
               ? `${row.paymentGateway} SAR`
               : row.gatewayCharges
-              ? `${row.gatewayCharges} SAR`
-              : "0 SAR"}
+                ? `${row.gatewayCharges} SAR`
+                : "0 SAR"}
           </span>
         ),
         sortKey: "paymentGateway",
@@ -379,9 +381,7 @@ const Reports = () => {
               <ArrowUpIcon />
               <h2 className="text-2xl font-semibold">Reports</h2>
             </div>
-            <button className="rounded-full border border-gray-200 px-6 py-2 text-sm font-semibold text-primary transition hover:border-primary hover:text-primary">
-              Export
-            </button>
+            <PrimaryButton Children="Export" />
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <Select
@@ -508,35 +508,50 @@ const Select = ({
   options: { value: string; label: string }[];
   onChange: (value: string) => void;
 }) => (
-  <div className="space-y-1">
-    <div className="relative input-filed-block">
-      <select
-        value={value}
-        onChange={(e:any) => onChange(e.target.value)}
-        id={id}
-        className="w-full px-3 py-2 h-[46px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
-          placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
-      >
+  // <div className="space-y-1">
+  //   <div className="relative input-filed-block">
+  //     <select
+  //       value={value}
+  //       onChange={(e:any) => onChange(e.target.value)}
+  //       id={id}
+  //       className="w-full px-3 py-2 h-[46px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
+  //         placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
+  //     >
+  //       <option value="">All</option>
+  //       {options.map((option) => (
+  //         <option key={option.value} value={option.value}>
+  //           {option.label}
+  //         </option>
+  //       ))}
+  //     </select>
+  //     <label
+  //       htmlFor={id}
+  //       className={`
+  //         label-filed absolute left-3 top-2 text-[#A0A3BD] text-base transition-all duration-200
+  //         peer-placeholder-shown:top-2 peer-placeholder-shown:left-3 peer-placeholder-shown:text-base cursor-text
+  //         peer-focus:-top-3 peer-focus:left-3 peer-focus:text-[13px] peer-focus:text-[#070B68]
+  //         bg-white px-1  ${value ? "!-top-3 !left-3 !text-[13px]" : ""} 
+  //         `}
+  //     >
+  //       {label}
+  //     </label>
+  //   </div>
+  // </div>
+  <SelectField
+    label={label}
+    option={
+      <>
         <option value="">All</option>
         {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>
         ))}
-      </select>
-      <label
-        htmlFor={id}
-        className={`
-          label-filed absolute left-3 top-2 text-[#A0A3BD] text-base transition-all duration-200
-          peer-placeholder-shown:top-2 peer-placeholder-shown:left-3 peer-placeholder-shown:text-base cursor-text
-          peer-focus:-top-3 peer-focus:left-3 peer-focus:text-[13px] peer-focus:text-[#070B68]
-          bg-white px-1  ${value ? "!-top-3 !left-3 !text-[13px]" : ""} 
-          `}
-      >
-        {label}
-      </label>
-    </div>
-  </div>
+      </>
+    }
+    value={value}
+    onChange={(e: any) => onChange(e.target.value)}
+  />
 );
 
 const ArrowUpIcon = () => (

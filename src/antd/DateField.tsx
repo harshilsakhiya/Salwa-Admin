@@ -1,7 +1,7 @@
 import { DatePicker } from "antd";
 import { useState } from "react";
 
-function DateFiled({ onChange, value, label, disabled, errorsMessage }: any) {
+function DateField({ onChange, value, label, disabled, errorsMessage }: any) {
   const [focused, setFocused] = useState(false);
   return (
     <div className="relative">
@@ -31,4 +31,4 @@ function DateFiled({ onChange, value, label, disabled, errorsMessage }: any) {
   );
 }
 
-export default DateFiled;
+export default DateField;

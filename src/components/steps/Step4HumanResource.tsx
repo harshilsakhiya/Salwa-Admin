@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import InputFiled from '../../antd/InputFiled';
+import InputField from '../../antd/InputField';
 
 interface Step4Data {
   totalStaff: string;
@@ -66,7 +66,7 @@ const Step4HumanResource: React.FC<Step4Props> = ({ data, onChange }) => {
     //     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
     //   />
     // </div>
-    <InputFiled
+    <InputField
       label={label}
       value={data[field]}
       onChange={(e:any) => handleInputChange(field, e.target.value)}

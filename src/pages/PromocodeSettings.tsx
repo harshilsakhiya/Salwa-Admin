@@ -12,6 +12,12 @@ import ComanTable, {
   type ActionButton,
   type SortState,
 } from "../components/common/ComanTable";
+import PrimaryButton from "../antd/PrimaryButton";
+import SelectField from "../antd/SelectField";
+import InputField from "../antd/InputField";
+import DateField from "../antd/DateField";
+import { ConfigProvider, Radio } from "antd";
+import SearchField from "../antd/SearchField";
 
 type ActiveTab = "registration" | "services";
 
@@ -355,7 +361,7 @@ const PromocodeSettings = () => {
         code: item.code ?? "",
         discountType:
           item.discountTypeFlatOrPercentage === "Percentage" ||
-          item.discountType === 1
+            item.discountType === 1
             ? "Percentage"
             : "Flat",
         discountValue:
@@ -364,12 +370,12 @@ const PromocodeSettings = () => {
             : "",
         maxDiscount:
           item.maxDiscountCapValue !== null &&
-          item.maxDiscountCapValue !== undefined
+            item.maxDiscountCapValue !== undefined
             ? String(item.maxDiscountCapValue)
             : "",
         minPurchase:
           item.minimumPurchaseValue !== null &&
-          item.minimumPurchaseValue !== undefined
+            item.minimumPurchaseValue !== undefined
             ? String(item.minimumPurchaseValue)
             : "",
         isActive: Boolean(item.isActive ?? true),
@@ -708,14 +714,12 @@ const PromocodeSettings = () => {
               onClick={() =>
                 handleStatusRequest(promo.promoCodeId, isActive, activeTab)
               }
-              className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold transition-all duration-200 hover:shadow-md hover:scale-105 cursor-pointer border border-transparent hover:border-current ${
-                isActive
-                  ? "bg-[#e9fbf3] text-[#0f7b4d] hover:bg-[#d1f2e9]"
-                  : "bg-[#fff3d9] text-[#b46a02] hover:bg-[#ffeaa7]"
-              }`}
-              title={`Click to ${
-                isActive ? "deactivate" : "activate"
-              } this promocode`}
+              className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold transition-all duration-200 hover:shadow-md hover:scale-105 cursor-pointer border border-transparent hover:border-current ${isActive
+                ? "bg-[#e9fbf3] text-[#0f7b4d] hover:bg-[#d1f2e9]"
+                : "bg-[#fff3d9] text-[#b46a02] hover:bg-[#ffeaa7]"
+                }`}
+              title={`Click to ${isActive ? "deactivate" : "activate"
+                } this promocode`}
             >
               {isActive ? "Active" : "Inactive"}
             </button>
@@ -781,14 +785,8 @@ const PromocodeSettings = () => {
               />
             </div>
             <div className="flex items-center gap-3">
-              <SearchField value={searchTerm} onChange={setSearchTerm} />
-              <button
-                type="button"
-                className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-white shadow hover:bg-[#030447]"
-                onClick={() => handleOpenCreate(activeTab)}
-              >
-                Add
-              </button>
+              <SearchField label="Search here" value={searchTerm} onChange={setSearchTerm} />
+              <PrimaryButton onClick={() => handleOpenCreate(activeTab)} Children="Add" />
             </div>
           </div>
 
@@ -887,51 +885,14 @@ const TabButton = ({
 }) => (
   <button
     type="button"
-    className={`rounded-full px-5 py-2 ${
-      isActive
-        ? "bg-white text-primary shadow"
-        : "bg-transparent text-gray-500 hover:text-primary"
-    }`}
+    className={`rounded-full px-5 py-2 ${isActive
+      ? "bg-white text-primary shadow"
+      : "bg-transparent text-gray-500 hover:text-primary"
+      }`}
     onClick={onClick}
   >
     {label}
   </button>
-);
-
-const SearchField = ({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (next: string) => void;
-}) => (
-  <div className="relative w-full max-w-xs input-filed-block">
-    <input
-      type="search"
-      id="search_bar_promocode_settings"
-      placeholder="Search here"
-      value={value}
-      onChange={(event) => onChange(event.target.value)}
-      className="w-full rounded-md border border-slate-200 bg-white pl-3 pr-11 py-2 text-base text-gray-600 shadow focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 peer
-          placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
-    />
-    <label
-      htmlFor="search_bar_promocode_settings"
-      className={`
-        label-filed absolute left-2.5 top-2 text-[#A0A3BD] text-base transition-all duration-200
-        peer-placeholder-shown:top-2 peer-placeholder-shown:left-2.5 peer-placeholder-shown:text-base cursor-text
-        peer-focus:-top-3 peer-focus:left-2.5 peer-focus:text-[13px] peer-focus:text-[#070B68]
-        bg-white px-1 ${
-          value && value.trim() !== "" ? "!-top-3 !text-[13px] " : ""
-        } 
-      `}
-    >
-      Search here
-    </label>
-    <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-gray-400">
-      <SearchIcon />
-    </span>
-  </div>
 );
 
 const StatsRow = () => (
@@ -1023,20 +984,16 @@ const FormModal = ({
               }
               disabled={isSubmitting}
             />
-            <LabeledInput
-              type="date"
-              placeholder="Start Date"
-              id="promo_start_date"
+            <DateField
+              label="Start Date"
               value={values.startDate}
               onChange={(event) =>
                 onChange({ ...values, startDate: event.target.value })
               }
               disabled={isSubmitting}
             />
-            <LabeledInput
-              type="date"
-              placeholder="End Date"
-              id="promo_end_date"
+            <DateField
+              label="End Date"
               value={values.endDate}
               onChange={(event) =>
                 onChange({ ...values, endDate: event.target.value })
@@ -1053,22 +1010,20 @@ const FormModal = ({
               disabled={isSubmitting}
             />
             <div className="space-y-2">
-              <div className="flex items-center gap-6 rounded-md border border-gray-200 bg-[#f7f8fd] px-4 py-3 text-sm text-gray-600">
-                <LabelledRadio
-                  label="Flat"
-                  checked={values.discountType === "Flat"}
-                  onChange={() => onChange({ ...values, discountType: "Flat" })}
-                  disabled={isSubmitting}
-                />
-                <LabelledRadio
-                  label="Percentage"
-                  checked={values.discountType === "Percentage"}
-                  onChange={() =>
-                    onChange({ ...values, discountType: "Percentage" })
-                  }
-                  disabled={isSubmitting}
-                />
-              </div>
+              <LabelledRadio
+                label="Flat"
+                checked={values.discountType === "Flat"}
+                onChange={() => onChange({ ...values, discountType: "Flat" })}
+                disabled={isSubmitting}
+              />
+              <LabelledRadio
+                label="Percentage"
+                checked={values.discountType === "Percentage"}
+                onChange={() =>
+                  onChange({ ...values, discountType: "Percentage" })
+                }
+                disabled={isSubmitting}
+              />
             </div>
             <LabeledInput
               id="promo_discount_value"
@@ -1120,13 +1075,7 @@ const FormModal = ({
             >
               Cancel
             </button>
-            <button
-              type="submit"
-              className="rounded-md bg-primary px-10 py-3 text-sm font-semibold text-white shadow hover:bg-[#030447] disabled:cursor-not-allowed disabled:bg-primary/70"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Saving..." : submitLabel}
-            </button>
+            <PrimaryButton disabled={isSubmitting} children={isSubmitting ? "Saving..." : submitLabel} />
           </div>
         </form>
       )}
@@ -1230,15 +1179,18 @@ const LabelledRadio = ({
   onChange: () => void;
   disabled?: boolean;
 }) => (
-  <label className={`flex items-center gap-2 ${disabled ? "opacity-60" : ""}`}>
-    <input
-      type="radio"
-      checked={checked}
-      onChange={onChange}
-      disabled={disabled}
-    />
-    {label}
-  </label>
+  <ConfigProvider
+    theme={{
+      components: {
+        Radio: {
+          colorPrimary: "#0d0d78",
+          colorPrimaryHover: "#0d0d78",
+        }
+      }
+    }}
+  >
+    <Radio checked={checked} onChange={onChange} disabled={disabled} className="bg">{label}</Radio>
+  </ConfigProvider>
 );
 
 const LabeledInput = ({
@@ -1249,35 +1201,44 @@ const LabeledInput = ({
   className = "",
   ...props
 }: { rightAdornment?: ReactNode } & InputHTMLAttributes<HTMLInputElement>) => (
-  <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
-    <div className="relative input-filed-block">
-      <input
-        id={id}
-        value={value}
-        {...props}
-        className={`w-full px-3 py-2 border rounded-md focus:outline-none text-sm h-[42px] focus:ring-2 focus:ring-blue-500 peer
-                  placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD] ${className}`}
-      />
-      <label
-        htmlFor={id}
-        className={`
-          label-filed absolute left-3 top-2 text-[#A0A3BD] text-sm transition-all duration-200
-          peer-placeholder-shown:top-2 peer-placeholder-shown:left-3 peer-placeholder-shown:text-sm cursor-text
-          peer-focus:-top-3 peer-focus:left-3 peer-focus:text-[13px] peer-focus:text-[#070B68]
-          bg-white px-1 capitalize ${
-            value ? "!-top-3 !left-3 !text-[13px]" : ""
-          } 
-          `}
-      >
-        {placeholder}
-      </label>
-      {rightAdornment && (
-        <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
-          {rightAdornment}
-        </span>
-      )}
-    </div>
-  </label>
+  // <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
+  //   <div className="relative input-filed-block">
+  //     <input
+  //       id={id}
+  //       value={value}
+  //       {...props}
+  //       className={`w-full px-3 py-2 border rounded-md focus:outline-none text-sm h-[42px] focus:ring-2 focus:ring-blue-500 peer
+  //                 placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD] ${className}`}
+  //     />
+  //     <label
+  //       htmlFor={id}
+  //       className={`
+  //         label-filed absolute left-3 top-2 text-[#A0A3BD] text-sm transition-all duration-200
+  //         peer-placeholder-shown:top-2 peer-placeholder-shown:left-3 peer-placeholder-shown:text-sm cursor-text
+  //         peer-focus:-top-3 peer-focus:left-3 peer-focus:text-[13px] peer-focus:text-[#070B68]
+  //         bg-white px-1 capitalize ${value ? "!-top-3 !left-3 !text-[13px]" : ""
+  //         } 
+  //         `}
+  //     >
+  //       {placeholder}
+  //     </label>
+  //     {rightAdornment && (
+  //       <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
+  //         {rightAdornment}
+  //       </span>
+  //     )}
+  //   </div>
+  // </label>
+  <InputField
+    label={placeholder}
+    value={value}
+    suffix={rightAdornment && (
+      <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
+        {rightAdornment}
+      </span>
+    )}
+    {...props}
+  />
 );
 
 const LabeledSelect = ({
@@ -1291,34 +1252,43 @@ const LabeledSelect = ({
   labelText?: string;
   options: Array<{ value: number | string; label: string }>;
 } & SelectHTMLAttributes<HTMLSelectElement>) => (
-  <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
-    <div className="relative input-filed-block">
-      <select
-        value={value}
-        id={id}
-        {...props}
-        className={`w-full px-3 py-2 h-[42px] border text-gray-600 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
-            placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD] ${className}`}
-      >
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-      <label
-        htmlFor={id}
-        className={`
-        label-filed absolute capitalize left-3 top-2 text-[#A0A3BD] text-base transition-all duration-200
-        peer-placeholder-shown:top-2 peer-placeholder-shown:left-3 peer-placeholder-shown:text-base cursor-text
-        peer-focus:-top-3 peer-focus:left-3 peer-focus:text-[13px] peer-focus:text-[#070B68]
-        bg-white px-1  ${value ? "!-top-3 !left-3 !text-[13px]" : ""} 
-        `}
-      >
-        {labelText}
-      </label>
-    </div>
-  </label>
+  // <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
+  //   <div className="relative input-filed-block">
+  //     <select
+  //       value={value}
+  //       id={id}
+  //       {...props}
+  //       className={`w-full px-3 py-2 h-[42px] border text-gray-600 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
+  //           placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD] ${className}`}
+  //     >
+  //       {options.map((option) => (
+  //         <option key={option.value} value={option.value}>
+  //           {option.label}
+  //         </option>
+  //       ))}
+  //     </select>
+  //     <label
+  //       htmlFor={id}
+  //       className={`
+  //       label-filed absolute capitalize left-3 top-2 text-[#A0A3BD] text-base transition-all duration-200
+  //       peer-placeholder-shown:top-2 peer-placeholder-shown:left-3 peer-placeholder-shown:text-base cursor-text
+  //       peer-focus:-top-3 peer-focus:left-3 peer-focus:text-[13px] peer-focus:text-[#070B68]
+  //       bg-white px-1  ${value ? "!-top-3 !left-3 !text-[13px]" : ""} 
+  //       `}
+  //     >
+  //       {labelText}
+  //     </label>
+  //   </div>
+  // </label>
+  <SelectField
+    label={labelText}
+    value={value}
+    option={options.map((option) => (
+      <option key={option.value} value={option.value}>
+        {option.label}
+      </option>
+    ))}
+  />
 );
 
 const ActionButton = ({

@@ -26,6 +26,8 @@ import ComanTable, {
   type ActionButton,
   type SortState,
 } from "../components/common/ComanTable";
+import PrimaryButton from "../antd/PrimaryButton";
+import SearchField from "../antd/SearchField";
 type TabType = "Individual" | "Business" | "Government";
 
 const ListSubscribers = () => {
@@ -428,7 +430,7 @@ const ListSubscribers = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
               <div className="text-center">
                 <div className="text-4xl font-bold text-green-600 mb-2">
-                  <>{console.log("jsut checking",analytics.totalActive)}</>
+                  <>{console.log("jsut checking", analytics.totalActive)}</>
                   {analytics.totalActive}
                 </div>
                 <div className="text-sm text-gray-500">Total Active</div>
@@ -510,39 +512,12 @@ const ListSubscribers = () => {
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="relative input-filed-block">
-                <input
-                  id="search_bar_subscribers"
-                  placeholder="Search subscribers"
-                  value={searchText}
-                  onChange={handleSearch}
-                  className="w-full rounded-md border border-slate-200 bg-white pl-3 pr-11 py-2 text-base text-gray-600 shadow focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 peer
-          placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
-                />
-                <label
-                  htmlFor="search_bar_subscribers"
-                  className={`
-                    label-filed absolute left-2.5 top-2 text-[#A0A3BD] text-base transition-all duration-200
-                    peer-placeholder-shown:top-2 peer-placeholder-shown:left-2.5 peer-placeholder-shown:text-base cursor-text
-                    peer-focus:-top-3 peer-focus:left-2.5 peer-focus:text-[13px] peer-focus:text-[#070B68]
-                    bg-white px-1  ${searchText && searchText.trim() !== ""
-                      ? "!-top-3 !text-[13px] "
-                      : ""
-                    } 
-                    `}
-                >
-                  Search subscribers
-                </label>
-                <span className="pointer-events-none absolute inset-y-0 right-4 grid place-items-center text-gray-400">
-                  <SearchIcon />
-                </span>
-              </div>
-              <button
-                onClick={handleExport}
-                className="rounded-full border border-gray-200 px-6 py-2 text-sm font-semibold text-primary hover:border-primary"
-              >
-                Export
-              </button>
+              <SearchField
+                label="Search subscribers"
+                value={searchText}
+                onChange={handleSearch}
+              />
+              <PrimaryButton onClick={handleExport} Children="Export" />
             </div>
           </div>
 

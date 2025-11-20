@@ -8,6 +8,8 @@ import ComanTable, {
   type ActionButton,
   type SortState,
 } from "../components/common/ComanTable";
+import InputField from "../antd/InputField";
+import SearchField from "../antd/SearchField";
 
 type CompanyRow = {
   id: string;
@@ -753,31 +755,11 @@ const NonMedicalCompanies = () => {
                 onClick={() => handleTabChange("business")}
               />
             </div>
-            <div className="relative w-full max-w-xs input-filed-block">
-              <input
-                type="search"
-                id="search_bar_non_medical_companies"
-                placeholder="Search"
-                value={searchTerm}
-                onChange={(event) => handleSearchChange(event.target.value)}
-                className="w-full rounded-md border border-slate-200 bg-white pl-3 pr-11 py-2 text-base text-gray-600 shadow focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 peer
-          placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
-              />
-              <label
-                htmlFor="search_bar_non_medical_companies"
-                className={`
-                  label-filed absolute left-2.5 top-2 text-[#A0A3BD] text-base transition-all duration-200
-                  peer-placeholder-shown:top-2 peer-placeholder-shown:left-2.5 peer-placeholder-shown:text-base cursor-text
-                  peer-focus:-top-3 peer-focus:left-2.5 peer-focus:text-[13px] peer-focus:text-[#070B68]
-                  bg-white px-1 ${searchTerm && searchTerm.trim() !== "" ? "!-top-3 !text-[13px] " : ""} 
-                  `}
-              >
-                Search
-              </label>
-              <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-gray-400">
-                <SearchIcon />
-              </span>
-            </div>
+            <SearchField
+              label="Search"
+              value={searchTerm}
+              onChange={(event) => handleSearchChange(event.target.value)}
+            />
           </div>
 
           <div className="grid gap-4 sm:grid-cols-3">
@@ -972,7 +954,7 @@ const FormModal = ({
               <LabeledInput
                 label="Business Name"
                 value={values.businessName}
-                onChange={(e:any) =>
+                onChange={(e: any) =>
                   onChange({ ...values, businessName: e.target.value })
                 }
                 disabled={mode === "view"}
@@ -981,7 +963,7 @@ const FormModal = ({
               <LabeledInput
                 label="Subscription"
                 value={values.subscription}
-                onChange={(e:any) =>
+                onChange={(e: any) =>
                   onChange({ ...values, subscription: e.target.value })
                 }
                 disabled={mode === "view"}
@@ -991,7 +973,7 @@ const FormModal = ({
                 label="Subscription Start Date"
                 type="date"
                 value={values.subscriptionStartDate}
-                onChange={(e:any) =>
+                onChange={(e: any) =>
                   onChange({ ...values, subscriptionStartDate: e.target.value })
                 }
                 disabled={mode === "view"}
@@ -1001,7 +983,7 @@ const FormModal = ({
                 label="Subscription End Date"
                 type="date"
                 value={values.subscriptionEndDate}
-                onChange={(e:any) =>
+                onChange={(e: any) =>
                   onChange({ ...values, subscriptionEndDate: e.target.value })
                 }
                 disabled={mode === "view"}
@@ -1010,7 +992,7 @@ const FormModal = ({
               <LabeledInput
                 label="Subscription Amount"
                 value={values.subscriptionAmount}
-                onChange={(e:any) =>
+                onChange={(e: any) =>
                   onChange({ ...values, subscriptionAmount: e.target.value })
                 }
                 disabled={mode === "view"}
@@ -1019,7 +1001,7 @@ const FormModal = ({
               <LabeledSelect
                 label="Status"
                 value={values.status}
-                onChange={(e:any) =>
+                onChange={(e: any) =>
                   onChange({
                     ...values,
                     status: e.target.value as "Active" | "Inactive",
@@ -1044,7 +1026,7 @@ const FormModal = ({
               <LabeledInput
                 label="Country"
                 value={values.country}
-                onChange={(e:any) =>
+                onChange={(e: any) =>
                   onChange({ ...values, country: e.target.value })
                 }
                 disabled={mode === "view"}
@@ -1053,7 +1035,7 @@ const FormModal = ({
               <LabeledInput
                 label="Region"
                 value={values.region}
-                onChange={(e:any) =>
+                onChange={(e: any) =>
                   onChange({ ...values, region: e.target.value })
                 }
                 disabled={mode === "view"}
@@ -1062,14 +1044,14 @@ const FormModal = ({
               <LabeledInput
                 label="City"
                 value={values.city}
-                onChange={(e:any) => onChange({ ...values, city: e.target.value })}
+                onChange={(e: any) => onChange({ ...values, city: e.target.value })}
                 disabled={mode === "view"}
                 required
               />
               <LabeledInput
                 label="District"
                 value={values.district}
-                onChange={(e:any) =>
+                onChange={(e: any) =>
                   onChange({ ...values, district: e.target.value })
                 }
                 disabled={mode === "view"}
@@ -1124,21 +1106,33 @@ const LabeledInput = ({
   disabled?: boolean;
   required?: boolean;
 } & React.InputHTMLAttributes<HTMLInputElement>) => (
-  <div className="space-y-2">
-    <label className="text-sm font-medium text-gray-700">
-      {label}
-      {required && <span className="text-red-500 ml-1">*</span>}
-    </label>
-    <input
-      type={type}
-      value={value}
-      onChange={onChange}
-      disabled={disabled}
-      required={required}
-      className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-500 focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:bg-gray-100 disabled:text-gray-500"
-      {...props}
-    />
-  </div>
+  // <div className="space-y-2">
+  //   <label className="text-sm font-medium text-gray-700">
+  //     {label}
+  //     {required && <span className="text-red-500 ml-1">*</span>}
+  //   </label>
+  //   <input
+  //     type={type}
+  //     value={value}
+  //     onChange={onChange}
+  //     disabled={disabled}
+  //     required={required}
+  //     className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-500 focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:bg-gray-100 disabled:text-gray-500"
+  //     {...props}
+  //   />
+  // </div>
+  <InputField
+    label={
+      <>
+        {label}
+        {required && <span className="text-red-500 ml-1">*</span>}
+      </>
+    }
+    value={value}
+    onChange={onChange}
+    required={required}
+    {...props}
+  />
 );
 
 const LabeledSelect = ({

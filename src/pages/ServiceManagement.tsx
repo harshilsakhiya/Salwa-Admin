@@ -6,6 +6,7 @@ import ComanTable, {
 } from "../components/common/ComanTable";
 import NonMedicalServices from "../services/NonMedicalServices";
 import { useToast } from "../components/ToastProvider";
+import PrimaryButton from "../antd/PrimaryButton";
 
 const ServiceManagement = () => {
   const { showToast } = useToast();
@@ -158,12 +159,10 @@ const ServiceManagement = () => {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <button className="rounded-full border border-gray-200 px-6 py-2 text-sm font-semibold text-primary shadow-sm transition hover:border-primary">
+              <button className="rounded-md border border-gray-200 h-11 px-6 py-2 text-sm font-semibold text-primary shadow-sm transition hover:border-primary">
                 Slide to shutdown salwa
               </button>
-              <button className="rounded-full bg-primary px-8 py-2 text-sm font-semibold text-white shadow hover:bg-[#030447]">
-                Export
-              </button>
+              <PrimaryButton children="Export" />
             </div>
           </div>
 

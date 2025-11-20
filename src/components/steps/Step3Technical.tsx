@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import InputFiled from "../../antd/InputFiled";
-import SelectFiled from "../../antd/SelectFiled";
+import InputField from "../../antd/InputField";
+import SelectField from "../../antd/SelectField";
 
 interface Step3Data {
   radiologyDepartment: string;
@@ -39,7 +39,7 @@ const Step3Technical: React.FC<Step3Props> = ({ data, onChange }) => {
     //     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
     //   />
     // </div>
-    <InputFiled
+    <InputField
       label={label}
       value={data[field]}
       onChange={(e: any) => handleInputChange(field, e.target.value)}
@@ -61,7 +61,7 @@ const Step3Technical: React.FC<Step3Props> = ({ data, onChange }) => {
     //     <option value="No">{t('steps.step1.no')}</option>
     //   </select>
     // </div>
-    <SelectFiled
+    <SelectField
       label={label}
       value={data[field]}
       onChange={(e: any) => handleInputChange(field, e.target.value)}

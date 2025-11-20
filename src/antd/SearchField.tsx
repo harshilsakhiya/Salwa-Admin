@@ -1,7 +1,7 @@
 import { Input } from "antd";
 import { useState } from "react";
 
-function InputFiled({
+function SearchField({
   onChange,
   value,
   label,
@@ -10,25 +10,23 @@ function InputFiled({
   accept = "",
   labelClassName = "",
   errorsMessage,
-  mainClassName = ""
+  mainClassName = "",
+  ...prop
 }: any) {
   const [focused, setFocused] = useState(false);
   return (
-    <div className={`relative ${mainClassName}`}>
+    <div className={`relative allowClear-search ${mainClassName}`}>
       <label
-        className={`absolute left-4 z-[1] bg-white text-gray-500 pointer-events-none transition-all duration-200 
+        className={`absolute left-4 z-10 bg-white text-gray-500 pointer-events-none transition-all duration-200 
           ${focused || value
             ? "-top-2 text-xs !text-primary px-1"
-            : "top-[18px] text-base !text-[#999]"
+            : "top-4 text-base !text-[#999]"
           } ${labelClassName}`}
       >
         {label}
       </label>
-      <Input
-        className={`py-2 px-4 !text-[17px] h-[62px] w-full border border-[#e5e7eb] rounded-[16px] !shadow-none !bg-white ${disabled
-          ? "hover:border-[#e5e7eb]"
-          : "focus:border-primary hover:border-primary"
-          }`}
+      <Input.Search
+        className="floating-search-filed"
         type={type}
         accept={accept}
         value={value}
@@ -36,6 +34,8 @@ function InputFiled({
         onChange={onChange}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
+        allowClear
+        {...prop}
       />
       {errorsMessage && (
         <p className="text-red-500 text-xs mt-1">
@@ -46,4 +46,4 @@ function InputFiled({
   );
 }
 
-export default InputFiled;
+export default SearchField;

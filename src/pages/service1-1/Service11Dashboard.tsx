@@ -416,15 +416,15 @@ const Service11Dashboard = () => {
                     {graphData?.monthlyGraph?.map((item, index) => (
                       <span key={index}>{item.Month.substring(0, 3)}</span>
                     )) || (
-                      <>
-                        <span>Jan</span>
-                        <span>Mar</span>
-                        <span>May</span>
-                        <span>Jul</span>
-                        <span>Sep</span>
-                        <span>Nov</span>
-                      </>
-                    )}
+                        <>
+                          <span>Jan</span>
+                          <span>Mar</span>
+                          <span>May</span>
+                          <span>Jul</span>
+                          <span>Sep</span>
+                          <span>Nov</span>
+                        </>
+                      )}
                   </div>
                 </>
               )}
@@ -451,11 +451,10 @@ const Service11Dashboard = () => {
               label-filed absolute left-2.5 top-2 text-[#A0A3BD] text-base transition-all duration-200
               peer-placeholder-shown:top-2 peer-placeholder-shown:left-2.5 peer-placeholder-shown:text-base cursor-text
               peer-focus:-top-3 peer-focus:left-2.5 peer-focus:text-[13px] peer-focus:text-[#070B68]
-              bg-white px-1 ${
-                searchText && searchText.trim() !== ""
+              bg-white px-1 ${searchText && searchText.trim() !== ""
                   ? "!-top-3 !text-[13px] "
                   : ""
-              } 
+                } 
             `}
             >
               Search hospitals by name, country, or category...
@@ -467,22 +466,20 @@ const Service11Dashboard = () => {
         </div>
 
         {/* Service Table */}
-        <div className="rounded-[28px] border border-gray-200 bg-white shadow-[0_20px_40px_rgba(5,6,104,0.08)]">
-          <ComanTable
-            columns={tableColumns}
-            data={records}
-            actions={actionButtons}
-            page={pageNumber}
-            totalPages={totalPages}
-            totalCount={totalCount}
-            onPageChange={handlePageChange}
-            sortState={sortState}
-            onSortChange={handleSortChange}
-            pageSize={pageSize}
-            onPageSizeChange={handlePageSizeChange}
-            loading={loading}
-          />
-        </div>
+        <ComanTable
+          columns={tableColumns}
+          data={records}
+          actions={actionButtons}
+          page={pageNumber}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          onPageChange={handlePageChange}
+          sortState={sortState}
+          onSortChange={handleSortChange}
+          pageSize={pageSize}
+          onPageSizeChange={handlePageSizeChange}
+          loading={loading}
+        />
       </div>
     </DashboardLayout>
   );

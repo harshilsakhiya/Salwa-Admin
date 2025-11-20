@@ -18,6 +18,8 @@ import ComanTable, {
   type ActionButton,
   type SortState,
 } from "../components/common/ComanTable";
+import PrimaryButton from "../antd/PrimaryButton";
+import SearchField from "../antd/SearchField";
 
 const PAGE_SIZE = 10;
 
@@ -327,13 +329,11 @@ const SupervisorPage = () => {
             <button
               type="button"
               onClick={() => handleStatusToggle(row)}
-              className={`rounded-full px-3 py-1 text-xs font-semibold transition-all duration-200 hover:shadow-md hover:scale-105 cursor-pointer border border-transparent hover:border-current ${
-                STATUS_BADGE_CLASSES[statusLabel] ??
+              className={`rounded-full px-3 py-1 text-xs font-semibold transition-all duration-200 hover:shadow-md hover:scale-105 cursor-pointer border border-transparent hover:border-current ${STATUS_BADGE_CLASSES[statusLabel] ??
                 "bg-gray-100 text-gray-500 hover:bg-gray-200"
-              }`}
-              title={`Click to ${
-                statusLabel === "Active" ? "deactivate" : "activate"
-              } this supervisor`}
+                }`}
+              title={`Click to ${statusLabel === "Active" ? "deactivate" : "activate"
+                } this supervisor`}
             >
               {statusLabel}
             </button>
@@ -407,16 +407,10 @@ const SupervisorPage = () => {
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
+                  <PrimaryButton children="Add" onClick={handleAdd} />
                   <button
                     type="button"
-                    className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-white shadow hover:bg-[#030447]"
-                    onClick={handleAdd}
-                  >
-                    Add
-                  </button>
-                  <button
-                    type="button"
-                    className="rounded-full border border-gray-200 px-6 py-2 text-sm font-semibold text-primary transition hover:border-primary"
+                    className="rounded-md border border-gray-200 px-6 py-2 !h-11 text-sm font-semibold text-primary transition hover:border-primary"
                     onClick={handleRefresh}
                   >
                     Refresh
@@ -431,7 +425,13 @@ const SupervisorPage = () => {
                 onSubmit={handleSearchSubmit}
                 className="flex flex-wrap items-center justify-between gap-3"
               >
-                <div className="relative flex-1 min-w-[220px] max-w-sm">
+                <SearchField
+                  label="Search by name, ID, or email"
+                  mainClassName="min-w-[300px]"
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                />
+                {/* <div className="relative flex-1 min-w-[220px] max-w-sm">
                   <input
                     value={searchTerm}
                     onChange={(event) => setSearchTerm(event.target.value)}
@@ -448,7 +448,7 @@ const SupervisorPage = () => {
                   disabled={loading}
                 >
                   Search
-                </button>
+                </button> */}
               </form>
 
               {errorMessage ? (
@@ -615,11 +615,10 @@ const StatusConfirmModal = ({
   >
     <div className="space-y-6 text-center">
       <div
-        className={`mx-auto flex h-24 w-24 items-center justify-center rounded-full ${
-          currentStatus
-            ? "bg-orange-100 text-orange-600"
-            : "bg-green-100 text-green-600"
-        }`}
+        className={`mx-auto flex h-24 w-24 items-center justify-center rounded-full ${currentStatus
+          ? "bg-orange-100 text-orange-600"
+          : "bg-green-100 text-green-600"
+          }`}
       >
         {currentStatus ? (
           <svg
@@ -676,11 +675,10 @@ const StatusConfirmModal = ({
         </button>
         <button
           type="button"
-          className={`rounded-full px-6 py-2 text-sm font-semibold text-white shadow transition disabled:cursor-not-allowed disabled:opacity-50 ${
-            currentStatus
-              ? "bg-orange-600 hover:bg-orange-700"
-              : "bg-green-600 hover:bg-green-700"
-          }`}
+          className={`rounded-full px-6 py-2 text-sm font-semibold text-white shadow transition disabled:cursor-not-allowed disabled:opacity-50 ${currentStatus
+            ? "bg-orange-600 hover:bg-orange-700"
+            : "bg-green-600 hover:bg-green-700"
+            }`}
           onClick={onConfirm}
           disabled={isSubmitting}
         >
@@ -689,8 +687,8 @@ const StatusConfirmModal = ({
               ? "Deactivating..."
               : "Activating..."
             : currentStatus
-            ? "Deactivate"
-            : "Activate"}
+              ? "Deactivate"
+              : "Activate"}
         </button>
       </div>
     </div>

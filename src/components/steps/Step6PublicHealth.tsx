@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import SelectFiled from "../../antd/SelectFiled";
+import SelectField from "../../antd/SelectField";
 
 interface Step6Data {
   healthAwarenessSupplements: string;
@@ -44,7 +44,7 @@ const Step6PublicHealth: React.FC<Step6Props> = ({ data, onChange }) => {
     //     <option value="No">{t('steps.step1.no')}</option>
     //   </select>
     // </div>
-    <SelectFiled
+    <SelectField
       label={label}
       value={data[field]}
       onChange={(e: any) => handleInputChange(field, e.target.value)}

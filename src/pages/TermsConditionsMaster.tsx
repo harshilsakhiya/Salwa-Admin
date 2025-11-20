@@ -5,6 +5,7 @@ import ComanTable, {
   type SortState,
 } from "../components/common/ComanTable";
 import TermsConditionsService from "../services/TermsConditionsService";
+import SearchField from "../antd/SearchField";
 
 type ActiveTab = "registration" | "services";
 type ModalState = "view" | "edit" | "confirm" | "success" | "history" | null;
@@ -569,7 +570,7 @@ const TermsConditionsMaster = () => {
               <TabButton label="Registration" isActive={activeTab === "registration"} onClick={() => handleTabChange("registration")} />
               <TabButton label="Services" isActive={activeTab === "services"} onClick={() => handleTabChange("services")} />
             </div>
-            <SearchField onSearchChange={handleSearchChange} value={searchText} />
+            <SearchField label="Search here" onSearchChange={handleSearchChange} value={searchText} />
           </div>
 
           <StatsRow />
@@ -674,33 +675,6 @@ const TabButton = ({ label, isActive, onClick }: { label: string; isActive: bool
   >
     {label}
   </button>
-);
-
-const SearchField = ({ onSearchChange, value }: { onSearchChange: (value: string) => void; value: string }) => (
-  <div className="relative w-full max-w-xs input-filed-block">
-    <input
-      id="search_terms_condition_master"
-      className="w-full rounded-md border border-slate-200 bg-white pl-3 pr-11 py-2 text-base text-gray-600 shadow focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 peer
-          placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
-      placeholder="Search here"
-      value={value}
-      onChange={(e:any) => onSearchChange(e.target.value)}
-    />
-    <label
-      htmlFor="search_terms_condition_master"
-      className={`
-        label-filed absolute left-2.5 top-2 text-[#A0A3BD] text-base transition-all duration-200
-        peer-placeholder-shown:top-2 peer-placeholder-shown:left-2.5 peer-placeholder-shown:text-base cursor-text
-        peer-focus:-top-3 peer-focus:left-2.5 peer-focus:text-[13px] peer-focus:text-[#070B68]
-        bg-white px-1 ${value && value.trim() !== "" ? "!-top-3 !text-[13px] " : ""} 
-      `}
-    >
-      Search here
-    </label>
-    <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-gray-400">
-      <SearchIcon />
-    </span>
-  </div>
 );
 
 const StatsRow = () => (
@@ -887,7 +861,7 @@ const RichTextToolbar = ({ onCommand }: { onCommand: (command: string, value?: s
 
     {/* Text Style Dropdown */}
     <select
-      onChange={(e:any) => onCommand('formatBlock', e.target.value)}
+      onChange={(e: any) => onCommand('formatBlock', e.target.value)}
       className="h-6 rounded border border-gray-300 bg-white px-1 text-xs min-w-0"
       title="Text Style"
     >
@@ -960,7 +934,7 @@ const RichTextToolbar = ({ onCommand }: { onCommand: (command: string, value?: s
     {/* Color Picker */}
     <input
       type="color"
-      onChange={(e:any) => onCommand('foreColor', e.target.value)}
+      onChange={(e: any) => onCommand('foreColor', e.target.value)}
       className="h-6 w-6 rounded border border-gray-300 cursor-pointer"
       title="Text Color"
     />

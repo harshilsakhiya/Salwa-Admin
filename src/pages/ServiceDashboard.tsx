@@ -4,6 +4,8 @@ import clsx from "clsx";
 import DashboardLayout from "../layouts/DashboardLayout";
 import type { RentalServicesState } from "./RentalServices";
 import CommonServices from "../services/CommonServices/CommonServices";
+import SearchField from "../antd/SearchField";
+import PrimaryButton from "../antd/PrimaryButton";
 
 interface Service {
   id: string;
@@ -691,59 +693,12 @@ const ServiceDashboard = () => {
               </p>
               {/* Test button for debugging */}
             </div>
-            <div className="relative w-full max-w-sm input-filed-block">
-              <input
-                id="search_bar_dashboard"
-                placeholder="Search here"
-                value={searchTerm}
-                onChange={(e:any) => setSearchTerm(e.target.value)}
-                className="w-full rounded-md border border-slate-200 bg-white pl-3 pr-11 py-2 text-base text-gray-600 shadow focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 peer
-          placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
-              />
-              <label
-                htmlFor="search_bar_dashboard"
-                className={`
-                label-filed absolute left-2.5 top-2 text-[#A0A3BD] text-base transition-all duration-200
-                peer-placeholder-shown:top-2 peer-placeholder-shown:left-2.5 peer-placeholder-shown:text-base cursor-text
-                peer-focus:-top-3 peer-focus:left-2.5 peer-focus:text-[13px] peer-focus:text-[#070B68]
-                bg-white px-1 ${
-                  searchTerm && searchTerm.trim() !== ""
-                    ? "!-top-3 !text-[13px] "
-                    : ""
-                } 
-                `}
-              >
-                Search here
-              </label>
-              {!searchTerm && (
-                <span className="pointer-events-none absolute inset-y-0 right-4 grid place-items-center text-gray-400">
-                  <SearchIcon />
-                </span>
-              )}
-              {searchTerm && (
-                <button
-                  type="button"
-                  onClick={handleClearSearch}
-                  className="absolute inset-y-0 right-4 grid place-items-center text-gray-400 hover:text-gray-600 transition-colors"
-                  aria-label="Clear search"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    className="h-4 w-4"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 6l12 12M18 6L6 18"
-                    />
-                  </svg>
-                </button>
-              )}
-            </div>
+            <SearchField
+              label="Search here"
+              mainClassName="min-w-[300px]"
+              value={searchTerm}
+              onChange={(e: any) => setSearchTerm(e.target.value)}
+            />
           </header>
 
           <div className="space-y-4">
@@ -957,7 +912,7 @@ const ServiceDashboard = () => {
               <div className="flex justify-end pt-2">
                 <button
                   type="button"
-                  className="rounded-full border border-gray-300 px-6 py-2 text-sm font-semibold text-gray-500 transition hover:border-primary hover:text-primary"
+                  className="rounded-md border border-gray-300 px-6 py-2 text-sm font-semibold text-gray-500 transition hover:border-primary hover:text-primary"
                   onClick={handleCloseOrderReportModal}
                 >
                   Cancel
@@ -1137,7 +1092,7 @@ const ModalFooter = ({
       {onBack && (
         <button
           type="button"
-          className="rounded-full border border-gray-300 px-6 py-2 text-sm font-semibold text-gray-500 transition hover:border-primary hover:text-primary"
+          className="rounded-md border border-gray-300 px-6 py-2 text-sm font-semibold text-gray-500 transition hover:border-primary hover:text-primary"
           onClick={onBack}
         >
           Back
@@ -1147,19 +1102,16 @@ const ModalFooter = ({
     <div className="flex gap-3">
       <button
         type="button"
-        className="rounded-full border border-gray-300 px-6 py-2 text-sm font-semibold text-gray-500 transition hover:border-primary hover:text-primary"
+        className="rounded-md border border-gray-300 px-6 py-2 text-sm font-semibold text-gray-500 transition hover:border-primary hover:text-primary"
         onClick={onCancel}
       >
         Cancel
       </button>
-      <button
-        type="button"
-        className="rounded-full bg-primary px-10 py-3 text-sm font-semibold text-white shadow transition hover:bg-[#030447] disabled:cursor-not-allowed disabled:bg-primary/70"
+      <PrimaryButton
         onClick={onNext}
         disabled={Boolean(nextDisabled)}
-      >
-        {nextLabel ?? "Next"}
-      </button>
+        children={nextLabel ?? "Next"}
+      />
     </div>
   </div>
 );

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import DashboardLayout from "../layouts/DashboardLayout";
 import { StatisticsServices } from "../services/StatisticsServices/StatisticsServices";
 import ReportServices from "../services/ReportServices/ReportServices";
-import SelectFiled from "../antd/SelectFiled";
+import SelectField from "../antd/SelectField";
 import PrimaryButton from "../antd/PrimaryButton";
 
 const CurrencyIcon = () => (
@@ -623,7 +623,7 @@ const SubscriptionStatisticsSection = ({
               User Type
             </label>
           </div> */}
-          <SelectFiled
+          <SelectField
             label="User Type"
             value={filters.userType}
             onChange={(e: any) => onFilterChange("userType", e)}
@@ -665,7 +665,7 @@ const SubscriptionStatisticsSection = ({
               Month
             </label>
           </div> */}
-          <SelectFiled
+          <SelectField
             label="Month"
             value={filters.month}
             onChange={(e: any) => onFilterChange("month", parseInt(e))}
@@ -705,7 +705,7 @@ const SubscriptionStatisticsSection = ({
               Year
             </label>
           </div> */}
-          <SelectFiled
+          <SelectField
             label="Year"
             value={filters.year}
             onChange={(e: any) => onFilterChange("year", parseInt(e))}
@@ -790,7 +790,7 @@ const UserStatisticsSection = ({
               User Type
             </label>
           </div> */}
-          <SelectFiled
+          <SelectField
             label="User Type"
             value={filters.userType}
             onChange={(e: any) => onFilterChange("userType", e)}
@@ -832,7 +832,7 @@ const UserStatisticsSection = ({
               Month
             </label>
           </div> */}
-          <SelectFiled
+          <SelectField
             label="Month"
             value={filters.month}
             onChange={(e: any) => onFilterChange("month", parseInt(e))}
@@ -872,7 +872,7 @@ const UserStatisticsSection = ({
               Year
             </label>
           </div> */}
-          <SelectFiled
+          <SelectField
             label="Year"
             value={filters.year}
             onChange={(e: any) => onFilterChange("year", parseInt(e))}
@@ -971,7 +971,7 @@ const ServiceStatisticsSection = ({
               Category
             </label>
           </div> */}
-          <SelectFiled
+          <SelectField
             label="Category"
             value={filters.categoryId || ""}
             onChange={(e: any) =>
@@ -1034,7 +1034,7 @@ const ServiceStatisticsSection = ({
               Service
             </label>
           </div> */}
-          <SelectFiled
+          <SelectField
             label="Service"
             value={filters.serviceName || ""}
             onChange={(e: any) =>
@@ -1101,7 +1101,7 @@ const ServiceStatisticsSection = ({
               Sub Service
             </label>
           </div> */}
-          <SelectFiled
+          <SelectField
             label="Sub Service"
             value={filters.subServiceName || ""}
             onChange={(e: { target: { value: any } }) =>
@@ -1161,7 +1161,7 @@ const ServiceStatisticsSection = ({
               Month
             </label>
           </div> */}
-          <SelectFiled
+          <SelectField
             label="Month"
             value={filters.month}
             onChange={(e: any) =>
@@ -1204,7 +1204,7 @@ const ServiceStatisticsSection = ({
               Year
             </label>
           </div> */}
-          <SelectFiled
+          <SelectField
             label="Year"
             value={filters.year}
             onChange={(e: { target: { value: string } }) =>
@@ -1295,7 +1295,7 @@ const InsuranceStatisticsSection = ({
               Month
             </label>
           </div> */}
-          <SelectFiled
+          <SelectField
             label="Month"
             value={filters.month}
             onChange={(e: { target: { value: string } }) =>
@@ -1338,7 +1338,7 @@ const InsuranceStatisticsSection = ({
               Year
             </label>
           </div> */}
-          <SelectFiled
+          <SelectField
             label="Year"
             value={filters.year}
             onChange={(e: { target: { value: string } }) =>

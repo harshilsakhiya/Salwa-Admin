@@ -3,10 +3,10 @@ import { useToast } from "../ToastProvider";
 import type { SuperAdminRecord } from "../../services/superAdminService";
 import SupervisorServices from "../../services/SupervisorServices/SupervisorServices";
 import CommonServices from "../../services/CommonServices/CommonServices";
-import InputFiled from "../../antd/InputFiled";
-import DateFiled from "../../antd/DateFiled";
+import InputField from "../../antd/InputField";
+import DateField from "../../antd/DateField";
 import { Space } from "antd";
-import SelectFiled from "../../antd/SelectFiled";
+import SelectField from "../../antd/SelectField";
 
 interface SupervisorFormProps {
   mode: "add" | "view" | "edit";
@@ -512,49 +512,49 @@ const SupervisorForm: FC<SupervisorFormProps> = ({
                     General Information
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <InputFiled
+                    <InputField
                       label="First Name *"
                       value={formData.middleName}
                       onChange={(e: any) =>
                         handleInputChange("middleName", e.target.value)
                       }
                     />
-                    <InputFiled
+                    <InputField
                       label="Middle Name"
                       value={formData.firstName}
                       onChange={(e: any) =>
                         handleInputChange("firstName", e.target.value)
                       }
                     />
-                    <InputFiled
+                    <InputField
                       label="Last Name *"
                       value={formData.lastName}
                       onChange={(e: any) =>
                         handleInputChange("lastName", e.target.value)
                       }
                     />
-                    <InputFiled
+                    <InputField
                       label="ID Number / IQAMA Number *"
                       value={formData.idNumber}
                       onChange={(e: any) =>
                         handleInputChange("idNumber", e.target.value)
                       }
                     />
-                    <DateFiled
+                    <DateField
                       label="ID Expiry Date"
                       value={formData.idExpiryDate}
                       onChange={(e: any) =>
                         handleInputChange("idExpiryDate", e.target.value)
                       }
                     />
-                    <DateFiled
+                    <DateField
                       label="Date of Birth"
                       value={formData.dateOfBirth}
                       onChange={(e: any) =>
                         handleInputChange("dateOfBirth", e.target.value)
                       }
                     />
-                    <InputFiled
+                    <InputField
                       label="Graduation Certificate"
                       value={formData.graduationCertificate}
                       onChange={(e: any) =>
@@ -564,7 +564,7 @@ const SupervisorForm: FC<SupervisorFormProps> = ({
                         )
                       }
                     />
-                    <InputFiled
+                    <InputField
                       label="Acquired Languages"
                       value={formData.acquiredLanguages}
                       onChange={(e: any) =>
@@ -621,8 +621,8 @@ const SupervisorForm: FC<SupervisorFormProps> = ({
                         </label>
                       </div> */}
                       <Space.Compact style={{ width: '100%' }}>
-                        <SelectFiled options={""} mainClassName="w-1/4" />
-                        <InputFiled
+                        <SelectField options={""} mainClassName="w-1/4" />
+                        <InputField
                           label="Telephone *"
                           mainClassName="w-3/4"
                           labelClassName="!z-10"
@@ -639,7 +639,7 @@ const SupervisorForm: FC<SupervisorFormProps> = ({
                       )}
                     </div>
 
-                    <InputFiled
+                    <InputField
                       label="Official Email *"
                       value={formData.officialEmail}
                       onChange={(e: any) =>
@@ -647,7 +647,7 @@ const SupervisorForm: FC<SupervisorFormProps> = ({
                       }
                     />
 
-                    <SelectFiled
+                    <SelectField
                       label="Selct Type *"
                       options={commonData?.map((item: any) => (
                         <option key={item.ID} value={item.ID}>
@@ -668,35 +668,35 @@ const SupervisorForm: FC<SupervisorFormProps> = ({
                     Address
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <InputFiled
+                    <InputField
                       label="Country *"
                       value={formData.country}
                       onChange={(e: any) =>
                         handleInputChange("country", e.target.value)
                       }
                     />
-                    <InputFiled
+                    <InputField
                       label="Region *"
                       value={formData.region}
                       onChange={(e: any) =>
                         handleInputChange("region", e.target.value)
                       }
                     />
-                    <InputFiled
+                    <InputField
                       label="City *"
                       value={formData.city}
                       onChange={(e: any) =>
                         handleInputChange("city", e.target.value)
                       }
                     />
-                    <InputFiled
+                    <InputField
                       label="National Address - SPL"
                       value={formData.nationalAddress}
                       onChange={(e: any) =>
                         handleInputChange("nationalAddress", e.target.value)
                       }
                     />
-                    <InputFiled
+                    <InputField
                       label="Address *"
                       value={formData.address}
                       onChange={(e: any) =>
@@ -730,14 +730,14 @@ const SupervisorForm: FC<SupervisorFormProps> = ({
                     Bank Information
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <InputFiled
+                    <InputField
                       label="Bank Name *"
                       value={formData.bankName}
                       onChange={(e: any) =>
                         handleInputChange("bankName", e.target.value)
                       }
                     />
-                    <InputFiled
+                    <InputField
                       label="IBAN Number *"
                       value={formData.ibanNumber}
                       onChange={(e: any) =>
