@@ -972,7 +972,7 @@ const FormModal = ({
               <LabeledInput
                 label="Business Name"
                 value={values.businessName}
-                onChange={(e) =>
+                onChange={(e:any) =>
                   onChange({ ...values, businessName: e.target.value })
                 }
                 disabled={mode === "view"}
@@ -981,7 +981,7 @@ const FormModal = ({
               <LabeledInput
                 label="Subscription"
                 value={values.subscription}
-                onChange={(e) =>
+                onChange={(e:any) =>
                   onChange({ ...values, subscription: e.target.value })
                 }
                 disabled={mode === "view"}
@@ -991,7 +991,7 @@ const FormModal = ({
                 label="Subscription Start Date"
                 type="date"
                 value={values.subscriptionStartDate}
-                onChange={(e) =>
+                onChange={(e:any) =>
                   onChange({ ...values, subscriptionStartDate: e.target.value })
                 }
                 disabled={mode === "view"}
@@ -1001,7 +1001,7 @@ const FormModal = ({
                 label="Subscription End Date"
                 type="date"
                 value={values.subscriptionEndDate}
-                onChange={(e) =>
+                onChange={(e:any) =>
                   onChange({ ...values, subscriptionEndDate: e.target.value })
                 }
                 disabled={mode === "view"}
@@ -1010,7 +1010,7 @@ const FormModal = ({
               <LabeledInput
                 label="Subscription Amount"
                 value={values.subscriptionAmount}
-                onChange={(e) =>
+                onChange={(e:any) =>
                   onChange({ ...values, subscriptionAmount: e.target.value })
                 }
                 disabled={mode === "view"}
@@ -1019,7 +1019,7 @@ const FormModal = ({
               <LabeledSelect
                 label="Status"
                 value={values.status}
-                onChange={(e) =>
+                onChange={(e:any) =>
                   onChange({
                     ...values,
                     status: e.target.value as "Active" | "Inactive",
@@ -1044,7 +1044,7 @@ const FormModal = ({
               <LabeledInput
                 label="Country"
                 value={values.country}
-                onChange={(e) =>
+                onChange={(e:any) =>
                   onChange({ ...values, country: e.target.value })
                 }
                 disabled={mode === "view"}
@@ -1053,7 +1053,7 @@ const FormModal = ({
               <LabeledInput
                 label="Region"
                 value={values.region}
-                onChange={(e) =>
+                onChange={(e:any) =>
                   onChange({ ...values, region: e.target.value })
                 }
                 disabled={mode === "view"}
@@ -1062,14 +1062,14 @@ const FormModal = ({
               <LabeledInput
                 label="City"
                 value={values.city}
-                onChange={(e) => onChange({ ...values, city: e.target.value })}
+                onChange={(e:any) => onChange({ ...values, city: e.target.value })}
                 disabled={mode === "view"}
                 required
               />
               <LabeledInput
                 label="District"
                 value={values.district}
-                onChange={(e) =>
+                onChange={(e:any) =>
                   onChange({ ...values, district: e.target.value })
                 }
                 disabled={mode === "view"}

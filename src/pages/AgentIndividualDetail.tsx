@@ -226,28 +226,28 @@ const AgentIndividualDetail = () => {
                 label={t('pages.agents.registrationCommission')}
                 type="number"
                 value={discountForm.registrationCommission}
-                onChange={(e) => handleDiscountChange('registrationCommission', e.target.value)}
+                onChange={(e:any) => handleDiscountChange('registrationCommission', e.target.value)}
                 placeholder="0"
               />
               <Input
                 label={t('pages.agents.serviceCommission')}
                 type="number"
                 value={discountForm.serviceCommission}
-                onChange={(e) => handleDiscountChange('serviceCommission', e.target.value)}
+                onChange={(e:any) => handleDiscountChange('serviceCommission', e.target.value)}
                 placeholder="0"
               />
               <Input
                 label={t('pages.agents.registrationDiscount')}
                 type="number"
                 value={discountForm.registrationDiscount}
-                onChange={(e) => handleDiscountChange('registrationDiscount', e.target.value)}
+                onChange={(e:any) => handleDiscountChange('registrationDiscount', e.target.value)}
                 placeholder="0"
               />
               <Input
                 label={t('pages.agents.serviceDiscount')}
                 type="number"
                 value={discountForm.serviceDiscount}
-                onChange={(e) => handleDiscountChange('serviceDiscount', e.target.value)}
+                onChange={(e:any) => handleDiscountChange('serviceDiscount', e.target.value)}
                 placeholder="0"
               />
             </div>

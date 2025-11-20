@@ -512,7 +512,7 @@ const Select = ({
     <div className="relative input-filed-block">
       <select
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e:any) => onChange(e.target.value)}
         id={id}
         className="w-full px-3 py-2 h-[46px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
           placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"

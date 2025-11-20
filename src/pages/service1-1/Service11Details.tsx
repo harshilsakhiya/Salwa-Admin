@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import StepperLayout from "../../components/common/StepperLayout";
 import {
@@ -178,9 +178,6 @@ const Service11Details = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const location = useLocation();
-  const serviceData = location.state?.service;
 
   // Initialize form data with empty values
   const [formData, setFormData] = useState<AllStepsData>({

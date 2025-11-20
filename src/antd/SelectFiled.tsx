@@ -1,7 +1,7 @@
 import { Select } from "antd";
 import { useState } from "react";
 
-function SelectFiled({ value, setValue, options, label, className }: any) {
+function SelectFiled({ value, onChange, options, label, className }: any) {
   const [focused, setFocused] = useState(false);
 
   return (
@@ -21,7 +21,7 @@ function SelectFiled({ value, setValue, options, label, className }: any) {
       {/* Antd Select */}
       <Select
         value={value}
-        onChange={(val) => setValue(val)}
+        onChange={onChange}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         className={`w-full !text-[17px] !h-[62px] floating-select-filed ${className}`}

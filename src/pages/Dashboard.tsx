@@ -414,22 +414,25 @@ const Dashboard = () => {
       },
       {
         title: "Total Revenue Amount",
-        value: `${serviceData.totalRevenue || serviceData.revenueAmount || 0
-          } SAR`,
+        value: `${
+          serviceData.totalRevenue || serviceData.revenueAmount || 0
+        } SAR`,
         icon: <CurrencyIcon />,
       },
       {
         title: "Total Commission Amount",
-        value: `${serviceData.totalCommission || serviceData.commissionAmount || 0
-          } SAR`,
+        value: `${
+          serviceData.totalCommission || serviceData.commissionAmount || 0
+        } SAR`,
         icon: <CurrencyIcon />,
       },
       {
         title: "Total Payment Gateway Amount",
-        value: `${serviceData.totalPaymentGateway ||
+        value: `${
+          serviceData.totalPaymentGateway ||
           serviceData.paymentGatewayAmount ||
           0
-          } SAR`,
+        } SAR`,
         icon: <CurrencyIcon />,
       },
     ];
@@ -597,7 +600,7 @@ const SubscriptionStatisticsSection = ({
               className="w-full px-3 py-2 h-[46px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
                         placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
               value={filters.userType}
-              onChange={(e) =>
+              onChange={(e:any) =>
                 onFilterChange("userType", parseInt(e.target.value))
               }
             >
@@ -623,14 +626,11 @@ const SubscriptionStatisticsSection = ({
           <SelectFiled
             label="User Type"
             value={filters.userType}
-            onChange={(e) =>
-              onFilterChange("userType", parseInt(e.target.value))
-            }
-            option={userTypeOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
+            onChange={(e: any) => onFilterChange("userType", e)}
+            options={userTypeOptions.map((option) => ({
+              label: option.label,
+              value: option.value,
+            }))}
           />
         </div>
 
@@ -642,7 +642,7 @@ const SubscriptionStatisticsSection = ({
               className="w-full px-3 py-2 h-[46px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
                         placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
               value={filters.month}
-              onChange={(e) =>
+              onChange={(e:any) =>
                 onFilterChange("month", parseInt(e.target.value))
               }
             >
@@ -668,14 +668,11 @@ const SubscriptionStatisticsSection = ({
           <SelectFiled
             label="Month"
             value={filters.month}
-            onChange={(e) =>
-              onFilterChange("month", parseInt(e.target.value))
-            }
-            option={monthOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
+            onChange={(e: any) => onFilterChange("month", parseInt(e))}
+            options={monthOptions.map((option) => ({
+              label: option.label,
+              value: option.value,
+            }))}
           />
         </div>
 
@@ -687,7 +684,7 @@ const SubscriptionStatisticsSection = ({
               className="w-full px-3 py-2 h-[46px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
                         placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
               value={filters.year}
-              onChange={(e) => onFilterChange("year", parseInt(e.target.value))}
+              onChange={(e:any) => onFilterChange("year", parseInt(e.target.value))}
             >
               {generateYearOptions().map((year) => (
                 <option key={year} value={year}>
@@ -711,12 +708,11 @@ const SubscriptionStatisticsSection = ({
           <SelectFiled
             label="Year"
             value={filters.year}
-            onChange={(e) => onFilterChange("year", parseInt(e.target.value))}
-            option={generateYearOptions().map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
+            onChange={(e: any) => onFilterChange("year", parseInt(e))}
+            options={generateYearOptions().map((option) => ({
+              label: option,
+              value: option,
+            }))}
           />
         </div>
       </div>
@@ -771,7 +767,7 @@ const UserStatisticsSection = ({
               className="w-full px-3 py-2 h-[46px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
                         placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
               value={filters.userType}
-              onChange={(e) =>
+              onChange={(e:any) =>
                 onFilterChange("userType", parseInt(e.target.value))
               }
             >
@@ -797,14 +793,11 @@ const UserStatisticsSection = ({
           <SelectFiled
             label="User Type"
             value={filters.userType}
-            onChange={(e) =>
-              onFilterChange("userType", parseInt(e.target.value))
-            }
-            option={userTypeOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
+            onChange={(e: any) => onFilterChange("userType", e)}
+            options={userTypeOptions.map((option) => ({
+              label: option.label,
+              value: option.value,
+            }))}
           />
         </div>
 
@@ -816,7 +809,7 @@ const UserStatisticsSection = ({
               className="w-full px-3 py-2 h-[46px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
                         placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
               value={filters.month}
-              onChange={(e) =>
+              onChange={(e:any) =>
                 onFilterChange("month", parseInt(e.target.value))
               }
             >
@@ -842,14 +835,11 @@ const UserStatisticsSection = ({
           <SelectFiled
             label="Month"
             value={filters.month}
-            onChange={(e) =>
-              onFilterChange("month", parseInt(e.target.value))
-            }
-            option={monthOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
+            onChange={(e: any) => onFilterChange("month", parseInt(e))}
+            options={monthOptions.map((option) => ({
+              label: option.label,
+              value: option.value,
+            }))}
           />
         </div>
 
@@ -861,7 +851,7 @@ const UserStatisticsSection = ({
               className="w-full px-3 py-2 h-[46px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
                         placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
               value={filters.year}
-              onChange={(e) => onFilterChange("year", parseInt(e.target.value))}
+              onChange={(e:any) => onFilterChange("year", parseInt(e.target.value))}
             >
               {generateYearOptions().map((year) => (
                 <option key={year} value={year}>
@@ -885,12 +875,11 @@ const UserStatisticsSection = ({
           <SelectFiled
             label="Year"
             value={filters.year}
-            onChange={(e) => onFilterChange("year", parseInt(e.target.value))}
-            option={generateYearOptions().map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
+            onChange={(e: any) => onFilterChange("year", parseInt(e))}
+            options={generateYearOptions().map((option) => ({
+              label: option,
+              value: option,
+            }))}
           />
         </div>
       </div>
@@ -950,7 +939,7 @@ const ServiceStatisticsSection = ({
               className="w-full px-3 py-2 h-[46px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
                         placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
               value={filters.categoryId || ""}
-              onChange={(e) =>
+              onChange={(e:any) =>
                 onFilterChange(
                   "categoryId",
                   e.target.value ? parseInt(e.target.value) : null
@@ -985,7 +974,7 @@ const ServiceStatisticsSection = ({
           <SelectFiled
             label="Category"
             value={filters.categoryId || ""}
-            onChange={(e) =>
+            onChange={(e: any) =>
               onFilterChange(
                 "categoryId",
                 e.target.value ? parseInt(e.target.value) : null
@@ -1015,7 +1004,7 @@ const ServiceStatisticsSection = ({
               className="w-full px-3 py-2 h-[46px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
                         placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
               value={filters.serviceName || ""}
-              onChange={(e) =>
+              onChange={(e:any) =>
                 onFilterChange("serviceName", e.target.value || null)
               }
               disabled={!filters.categoryId}
@@ -1048,7 +1037,7 @@ const ServiceStatisticsSection = ({
           <SelectFiled
             label="Service"
             value={filters.serviceName || ""}
-            onChange={(e) =>
+            onChange={(e: any) =>
               onFilterChange("serviceName", e.target.value || null)
             }
             disabled={!filters.categoryId}
@@ -1076,7 +1065,7 @@ const ServiceStatisticsSection = ({
               className="w-full px-3 py-2 h-[46px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
                         placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
               value={filters.subServiceName || ""}
-              onChange={(e) =>
+              onChange={(e:any) =>
                 onFilterChange("subServiceName", e.target.value || null)
               }
               disabled={!filters.serviceName}
@@ -1115,7 +1104,7 @@ const ServiceStatisticsSection = ({
           <SelectFiled
             label="Sub Service"
             value={filters.subServiceName || ""}
-            onChange={(e) =>
+            onChange={(e: { target: { value: any } }) =>
               onFilterChange("subServiceName", e.target.value || null)
             }
             disabled={!filters.serviceName}
@@ -1149,7 +1138,7 @@ const ServiceStatisticsSection = ({
               className="w-full px-3 py-2 h-[46px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
                         placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
               value={filters.month}
-              onChange={(e) =>
+              onChange={(e:any) =>
                 onFilterChange("month", parseInt(e.target.value))
               }
             >
@@ -1175,7 +1164,7 @@ const ServiceStatisticsSection = ({
           <SelectFiled
             label="Month"
             value={filters.month}
-            onChange={(e) =>
+            onChange={(e: any) =>
               onFilterChange("month", parseInt(e.target.value))
             }
             option={monthOptions.map((option) => (
@@ -1194,7 +1183,7 @@ const ServiceStatisticsSection = ({
               className="w-full px-3 py-2 h-[46px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
                         placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
               value={filters.year}
-              onChange={(e) => onFilterChange("year", parseInt(e.target.value))}
+              onChange={(e:any) => onFilterChange("year", parseInt(e.target.value))}
             >
               {generateYearOptions().map((year) => (
                 <option key={year} value={year}>
@@ -1218,7 +1207,9 @@ const ServiceStatisticsSection = ({
           <SelectFiled
             label="Year"
             value={filters.year}
-            onChange={(e) => onFilterChange("year", parseInt(e.target.value))}
+            onChange={(e: { target: { value: string } }) =>
+              onFilterChange("year", parseInt(e.target.value))
+            }
             option={generateYearOptions().map((year) => (
               <option key={year} value={year}>
                 {year}
@@ -1281,7 +1272,7 @@ const InsuranceStatisticsSection = ({
               className="w-full px-3 py-2 h-[46px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
                         placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
               value={filters.month}
-              onChange={(e) =>
+              onChange={(e:any) =>
                 onFilterChange("month", parseInt(e.target.value))
               }
             >
@@ -1307,7 +1298,7 @@ const InsuranceStatisticsSection = ({
           <SelectFiled
             label="Month"
             value={filters.month}
-            onChange={(e) =>
+            onChange={(e: { target: { value: string } }) =>
               onFilterChange("month", parseInt(e.target.value))
             }
             option={monthOptions.map((option) => (
@@ -1326,7 +1317,7 @@ const InsuranceStatisticsSection = ({
               className="w-full px-3 py-2 h-[46px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
                         placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
               value={filters.year}
-              onChange={(e) => onFilterChange("year", parseInt(e.target.value))}
+              onChange={(e:any) => onFilterChange("year", parseInt(e.target.value))}
             >
               {generateYearOptions().map((year) => (
                 <option key={year} value={year}>
@@ -1350,7 +1341,9 @@ const InsuranceStatisticsSection = ({
           <SelectFiled
             label="Year"
             value={filters.year}
-            onChange={(e) => onFilterChange("year", parseInt(e.target.value))}
+            onChange={(e: { target: { value: string } }) =>
+              onFilterChange("year", parseInt(e.target.value))
+            }
             option={generateYearOptions().map((year) => (
               <option key={year} value={year}>
                 {year}

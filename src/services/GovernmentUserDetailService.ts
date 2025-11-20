@@ -151,6 +151,7 @@ const transformToSubscriberRecord = (record: GovernmentUserRecord): any => {
     isVerified: record.isVerified,
     accountStatus: record.accountStatus,
     lastLoginDate: record.lastLoginDate,
+    isActive: record.isActive,
   };
 };
 

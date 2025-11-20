@@ -696,7 +696,7 @@ const ServiceDashboard = () => {
                 id="search_bar_dashboard"
                 placeholder="Search here"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e:any) => setSearchTerm(e.target.value)}
                 className="w-full rounded-md border border-slate-200 bg-white pl-3 pr-11 py-2 text-base text-gray-600 shadow focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 peer
           placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"
               />

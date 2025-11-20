@@ -36,7 +36,7 @@ const Step6PublicHealth: React.FC<Step6Props> = ({ data, onChange }) => {
     //   </label>
     //   <select
     //     value={data[field]}
-    //     onChange={(e) => handleInputChange(field, e.target.value)}
+    //     onChange={(e:any) => handleInputChange(field, e.target.value)}
     //     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
     //   >
     //     <option value="">{t('steps.step1.selectOption')}</option>

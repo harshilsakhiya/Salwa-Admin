@@ -499,7 +499,7 @@ function ComanTable<T extends object>({
 
                         <select
                             value={pageSize}
-                            onChange={(e) => onPageSizeChange(Number(e.target.value))}
+                            onChange={(e:any) => onPageSizeChange(Number(e.target.value))}
                             className="w-[90px] appearance-none px-3 py-2 rounded-md border border-[#808285] 
                 bg-[#F5F5F5]  hover:bg-white text-gray-500 font-medium 
                text-[15px] focus:outline-none focus:ring-0"

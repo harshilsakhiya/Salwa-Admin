@@ -513,49 +513,49 @@ const SupervisorForm: FC<SupervisorFormProps> = ({
                     <InputFiled
                       label="First Name *"
                       value={formData.middleName}
-                      onChange={(e) =>
+                      onChange={(e: any) =>
                         handleInputChange("middleName", e.target.value)
                       }
                     />
                     <InputFiled
                       label="Middle Name"
                       value={formData.firstName}
-                      onChange={(e) =>
+                      onChange={(e: any) =>
                         handleInputChange("firstName", e.target.value)
                       }
                     />
                     <InputFiled
                       label="Last Name *"
                       value={formData.lastName}
-                      onChange={(e) =>
+                      onChange={(e: any) =>
                         handleInputChange("lastName", e.target.value)
                       }
                     />
                     <InputFiled
                       label="ID Number / IQAMA Number *"
                       value={formData.idNumber}
-                      onChange={(e) =>
+                      onChange={(e: any) =>
                         handleInputChange("idNumber", e.target.value)
                       }
                     />
                     <DateFiled
                       label="ID Expiry Date"
                       value={formData.idExpiryDate}
-                      onChange={(e) =>
+                      onChange={(e:any) =>
                         handleInputChange("idExpiryDate", e.target.value)
                       }
                     />
                     <DateFiled
                       label="Date of Birth"
                       value={formData.dateOfBirth}
-                      onChange={(e) =>
+                      onChange={(e: any) =>
                         handleInputChange("dateOfBirth", e.target.value)
                       }
                     />
                     <InputFiled
                       label="Graduation Certificate"
                       value={formData.graduationCertificate}
-                      onChange={(e) =>
+                      onChange={(e: any) =>
                         handleInputChange(
                           "graduationCertificate",
                           e.target.value
@@ -565,19 +565,19 @@ const SupervisorForm: FC<SupervisorFormProps> = ({
                     <InputFiled
                       label="Acquired Languages"
                       value={formData.acquiredLanguages}
-                      onChange={(e) =>
+                      onChange={(e: any) =>
                         handleInputChange("acquiredLanguages", e.target.value)
                       }
                     />
 
-
                     <div>
                       <div className="flex relative input-filed-block">
                         <select
-                          className={`px-3 py-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${isReadOnly
-                            ? "bg-gray-100 cursor-not-allowed"
-                            : "border-gray-300"
-                            }`}
+                          className={`px-3 py-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                            isReadOnly
+                              ? "bg-gray-100 cursor-not-allowed"
+                              : "border-gray-300"
+                          }`}
                           disabled={isReadOnly}
                         >
                           <option>+966</option>
@@ -588,15 +588,17 @@ const SupervisorForm: FC<SupervisorFormProps> = ({
                           type="tel"
                           id="telephone"
                           value={formData.telephone}
-                          onChange={(e) =>
+                          onChange={(e:any) =>
                             handleInputChange("telephone", e.target.value)
                           }
                           className={`flex-1 px-3 py-2 border border-l-0 rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
-                        placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD] ${formErrors.telephone
-                              ? "border-red-500"
-                              : "border-gray-300"
-                            } ${isReadOnly ? "bg-gray-100 cursor-not-allowed" : ""
-                            }`}
+                        placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD] ${
+                          formErrors.telephone
+                            ? "border-red-500"
+                            : "border-gray-300"
+                        } ${
+                            isReadOnly ? "bg-gray-100 cursor-not-allowed" : ""
+                          }`}
                           placeholder="Telephone *"
                           readOnly={isReadOnly}
                         />
@@ -606,9 +608,15 @@ const SupervisorForm: FC<SupervisorFormProps> = ({
                         label-filed absolute left-24 top-2 text-[#A0A3BD] text-base transition-all duration-200
                         peer-placeholder-shown:top-2 peer-placeholder-shown:left-24 peer-placeholder-shown:text-base cursor-text
                         peer-focus:-top-3 peer-focus:left-24 peer-focus:text-[13px] peer-focus:text-[#070B68]
-                        bg-white px-1  ${formData.telephone && formData.telephone.trim() !== "" ? "-top-3 left-24 !text-[13px] " : ""} 
+                        bg-white px-1  ${
+                          formData.telephone && formData.telephone.trim() !== ""
+                            ? "-top-3 left-24 !text-[13px] "
+                            : ""
+                        } 
                         `}
-                        >Telephone *</label>
+                        >
+                          Telephone *
+                        </label>
                       </div>
                       {formErrors.telephone && (
                         <p className="text-red-500 text-xs mt-1">
@@ -620,23 +628,24 @@ const SupervisorForm: FC<SupervisorFormProps> = ({
                     <InputFiled
                       label="Official Email *"
                       value={formData.officialEmail}
-                      onChange={(e) =>
+                      onChange={(e:any) =>
                         handleInputChange("officialEmail", e.target.value)
                       }
                     />
-
 
                     <div className="relative input-filed-block">
                       <select
                         value={formData.type}
                         id="select_type"
-                        onChange={(e) =>
+                        onChange={(e:any) =>
                           handleInputChange("type", parseInt(e.target.value))
                         }
                         className={`w-full px-3 py-2 h-[42px] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer
-                        placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD] ${formErrors.type ? "border-red-500" : "border-gray-300"
-                          } ${isReadOnly ? "bg-gray-100 cursor-not-allowed" : ""
-                          }`}
+                        placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD] ${
+                          formErrors.type ? "border-red-500" : "border-gray-300"
+                        } ${
+                          isReadOnly ? "bg-gray-100 cursor-not-allowed" : ""
+                        }`}
                         disabled={isReadOnly}
                       >
                         {commonData?.map((item: any) => (
@@ -651,9 +660,13 @@ const SupervisorForm: FC<SupervisorFormProps> = ({
                         label-filed absolute left-3 top-2 text-[#A0A3BD] text-base transition-all duration-200
                         peer-placeholder-shown:top-2 peer-placeholder-shown:left-3 peer-placeholder-shown:text-base cursor-text
                         peer-focus:-top-3 peer-focus:left-3 peer-focus:text-[13px] peer-focus:text-[#070B68]
-                        bg-white px-1  ${formData.type ? "!-top-3 !left-3 !text-[13px]" : ""} 
+                        bg-white px-1  ${
+                          formData.type ? "!-top-3 !left-3 !text-[13px]" : ""
+                        } 
                         `}
-                      >Selct Type *</label>
+                      >
+                        Selct Type *
+                      </label>
                       {formErrors.type && (
                         <p className="text-red-500 text-xs mt-1">
                           {formErrors.type}
@@ -672,35 +685,35 @@ const SupervisorForm: FC<SupervisorFormProps> = ({
                     <InputFiled
                       label="Country *"
                       value={formData.country}
-                      onChange={(e) =>
+                      onChange={(e:any) =>
                         handleInputChange("country", e.target.value)
                       }
                     />
                     <InputFiled
                       label="Region *"
                       value={formData.region}
-                      onChange={(e) =>
+                      onChange={(e:any) =>
                         handleInputChange("region", e.target.value)
                       }
                     />
                     <InputFiled
                       label="City *"
                       value={formData.city}
-                      onChange={(e) =>
+                      onChange={(e:any) =>
                         handleInputChange("city", e.target.value)
                       }
                     />
                     <InputFiled
                       label="National Address - SPL"
                       value={formData.nationalAddress}
-                      onChange={(e) =>
+                      onChange={(e:any) =>
                         handleInputChange("nationalAddress", e.target.value)
                       }
                     />
                     <InputFiled
                       label="Address *"
                       value={formData.address}
-                      onChange={(e) =>
+                      onChange={(e:any) =>
                         handleInputChange("address", e.target.value)
                       }
                     />
@@ -734,14 +747,14 @@ const SupervisorForm: FC<SupervisorFormProps> = ({
                     <InputFiled
                       label="Bank Name *"
                       value={formData.bankName}
-                      onChange={(e) =>
+                      onChange={(e:any) =>
                         handleInputChange("bankName", e.target.value)
                       }
                     />
                     <InputFiled
                       label="IBAN Number *"
                       value={formData.ibanNumber}
-                      onChange={(e) =>
+                      onChange={(e:any) =>
                         handleInputChange("ibanNumber", e.target.value)
                       }
                     />
@@ -754,10 +767,11 @@ const SupervisorForm: FC<SupervisorFormProps> = ({
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className={`px-8 py-3 font-medium rounded-md transition-colors flex items-center gap-2 ${isSubmitting
-                        ? "bg-gray-400 cursor-not-allowed"
-                        : "bg-black text-white hover:bg-gray-800"
-                        }`}
+                      className={`px-8 py-3 font-medium rounded-md transition-colors flex items-center gap-2 ${
+                        isSubmitting
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : "bg-black text-white hover:bg-gray-800"
+                      }`}
                     >
                       {isSubmitting && (
                         <svg
@@ -786,8 +800,8 @@ const SupervisorForm: FC<SupervisorFormProps> = ({
                           ? "Saving..."
                           : "Updating..."
                         : isAdd
-                          ? "Save"
-                          : "Update"}
+                        ? "Save"
+                        : "Update"}
                     </button>
                   </div>
                 )}

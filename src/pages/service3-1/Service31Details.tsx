@@ -302,7 +302,7 @@ const Service31Details = () => {
                 id="requestNumber"
                 type="text"
                 value={searchRequestNumber}
-                onChange={(e) => setSearchRequestNumber(e.target.value)}
+                onChange={(e:any) => setSearchRequestNumber(e.target.value)}
                 placeholder="Enter request number"
                 className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               />

@@ -309,7 +309,7 @@ const Service21Dashboard = () => {
                   id="search_requests"
                   placeholder="Search requests by title, device name, or contact person..."
                   value={searchText}
-                  onChange={(e) => setSearchText(e.target.value)}
+                  onChange={(e:any) => setSearchText(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent peer
                         placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"

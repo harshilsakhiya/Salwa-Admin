@@ -479,7 +479,7 @@ const Service72Details = () => {
                 </label>
                 <textarea
                   value={rejectionReason}
-                  onChange={(e) => setRejectionReason(e.target.value)}
+                  onChange={(e:any) => setRejectionReason(e.target.value)}
                   placeholder="Please provide the reason for rejection..."
                   className="w-full h-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent resize-none"
                   required

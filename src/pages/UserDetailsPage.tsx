@@ -12,7 +12,6 @@ const UserDetailsPage: React.FC = () => {
   const { userId, userType } = useParams<{ userId: string; userType: string }>();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  // console.log("userType",userType);
   
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -466,8 +465,7 @@ const UserDetailsPage: React.FC = () => {
                     onClick={async () => {
                       try {
                         await updateIndividualUserStatusByStatusId(Number(userId), 0);
-                        // Refresh user data or show success message
-                        window.location.reload();
+                        setUser({...user, status: 'Inactive'});
                       } catch (error) {
                         console.error('Error updating user status:', error);
                       }
@@ -481,8 +479,7 @@ const UserDetailsPage: React.FC = () => {
                     onClick={async () => {
                       try {
                         await updateIndividualUserStatusByStatusId(Number(userId), 1);
-                        // Refresh user data or show success message
-                        window.location.reload();
+                        setUser({...user, status: 'Active'});
                       } catch (error) {
                         console.error('Error updating user status:', error);
                       }
@@ -499,8 +496,7 @@ const UserDetailsPage: React.FC = () => {
                     onClick={async () => {
                       try {
                         await updateIndividualUserStatusByStatusId(Number(userId), StatusEnum.APPROVED);
-                        // Refresh user data or show success message
-                        window.location.reload();
+                        setUser({...user, status: 'Approved'});
                       } catch (error) {
                         console.error('Error updating user status:', error);
                       }
@@ -513,8 +509,7 @@ const UserDetailsPage: React.FC = () => {
                     onClick={async () => {
                       try {
                         await updateIndividualUserStatusByStatusId(Number(userId), StatusEnum.REJECTED);
-                        // Refresh user data or show success message
-                        window.location.reload();
+                        setUser({...user, status: 'Rejected'});
                       } catch (error) {
                         console.error('Error updating user status:', error);
                       }

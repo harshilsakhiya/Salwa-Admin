@@ -121,6 +121,7 @@ const transformToSubscriberRecord = (record: BusinessUserRecord): any => {
     isVerified: record.isVerified,
     businessWebsite: record.businessWebsite,
     businessDescription: record.businessDescription,
+    isActive: record.isActive,
   };
 };
 

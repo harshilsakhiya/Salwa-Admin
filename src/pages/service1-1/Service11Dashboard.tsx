@@ -48,7 +48,7 @@ const Service11Dashboard = () => {
           sortState.length > 0 ? sortState[0].order.toUpperCase() : "DESC",
       };
 
-      const response = await getAllHospitalNetwork(params);
+      const response: any = await getAllHospitalNetwork(params);
 
       setTotalCount(response.totalRecords || 0);
       setTotalPages(Math.ceil((response.totalRecords || 0) / pageSize));
@@ -223,8 +223,8 @@ const Service11Dashboard = () => {
     alert(`Editing business #${row.id} - ${row.businessName || "N/A"}`);
   };
 
-  const handlePrintAction = () => {
-    console.log("Printing request");
+  const handlePrintAction = (p0: string) => {
+    console.log("Printing request", p0);
     window.print();
   };
 
@@ -440,7 +440,7 @@ const Service11Dashboard = () => {
               id="search_hospitals"
               placeholder="Search hospitals by name, country, or category..."
               value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
+              onChange={(e: any) => setSearchText(e.target.value)}
               onKeyPress={(e) => e.key === "Enter" && handleSearch()}
               className="w-full rounded-md border border-slate-200 bg-white pl-3 pr-11 py-2 text-base text-gray-600 shadow focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 peer
               placeholder-transparent disabled:cursor-not-allowed disabled:bg-[#F4F5F9] disabled:text-[#A0A3BD]"

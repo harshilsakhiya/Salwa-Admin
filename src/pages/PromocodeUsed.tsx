@@ -802,7 +802,7 @@ const PromocodeUsed = () => {
                           </span>
                           <select
                             value={modalPageSize}
-                            onChange={(e) =>
+                            onChange={(e:any) =>
                               handleModalPageSizeChange(Number(e.target.value))
                             }
                             className="border border-gray-300 rounded px-2 py-1 text-sm"

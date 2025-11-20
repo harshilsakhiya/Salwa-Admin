@@ -92,7 +92,7 @@ const Step1Administrative: React.FC<Step1Props> = ({ data, onChange }) => {
     //   </label>
     //   <select
     //     value={data[field] as string}
-    //     onChange={(e) => handleInputChange(field, e.target.value)}
+    //     onChange={(e:any) => handleInputChange(field, e.target.value)}
     //     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
     //   >
     //     <option value="">{t("selectOption")}</option>
@@ -126,7 +126,7 @@ const Step1Administrative: React.FC<Step1Props> = ({ data, onChange }) => {
     //     <input
     //       type="date"
     //       value={data[field] as string}
-    //       onChange={(e) => handleInputChange(field, e.target.value)}
+    //       onChange={(e:any) => handleInputChange(field, e.target.value)}
     //       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
     //     />
     //     <svg
@@ -147,7 +147,7 @@ const Step1Administrative: React.FC<Step1Props> = ({ data, onChange }) => {
     <DateFiled
       label={label}
       value={data[field] as string}
-      onChange={(date, dateString: string) => handleInputChange(field, date)}
+      onChange={(date: any) => handleInputChange(field, date)}
     />
   );
 

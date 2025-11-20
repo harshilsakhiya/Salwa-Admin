@@ -1,10 +1,8 @@
 import { useState, useEffect, type ChangeEvent, type FormEvent } from "react";
 import DashboardLayout from "../layouts/DashboardLayout";
-import { 
-  updateIndividualSubscriptions, 
-  getAllIndividualSubscriptions, 
-  updateBusinessSubscriptions, 
-  getBusinessSubscriptions 
+import {
+  getAllIndividualSubscriptions,
+  getBusinessSubscriptions,
 } from "../services/SubsettingServices/SubsettingsServies";
 
 const INDIVIDUAL_CATEGORIES = [
@@ -25,14 +23,18 @@ const BUSINESS_CATEGORIES = [
 const DURATIONS = ["1 Year", "2 Year", "3 Year"];
 
 const SubscriptionSettings = () => {
-  const [activeTab, setActiveTab] = useState<"individuals" | "business">("individuals");
+  const [activeTab, setActiveTab] = useState<"individuals" | "business">(
+    "individuals"
+  );
   const [categoryFilter, setCategoryFilter] = useState("All Category");
   const [subCategoryFilter, setSubCategoryFilter] = useState("All Subcategory");
   const [searchTerm, setSearchTerm] = useState("");
   const [subscriptionData, setSubscriptionData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-    
-  const categories = activeTab === "individuals" ? INDIVIDUAL_CATEGORIES : BUSINESS_CATEGORIES;
+
+  console.log(subscriptionData, loading);
+  const categories =
+    activeTab === "individuals" ? INDIVIDUAL_CATEGORIES : BUSINESS_CATEGORIES;
 
   useEffect(() => {
     const fetchSubscriptionData = async () => {
@@ -57,9 +59,14 @@ const SubscriptionSettings = () => {
   }, [activeTab]);
 
   const filteredCategories = categories.filter((title) => {
-    const matchesCategory = categoryFilter === "All Category" || title.includes(categoryFilter);
-    const matchesSubCategory = subCategoryFilter === "All Subcategory" || title.includes(subCategoryFilter);
-    const matchesSearch = searchTerm.trim().length === 0 || title.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      categoryFilter === "All Category" || title.includes(categoryFilter);
+    const matchesSubCategory =
+      subCategoryFilter === "All Subcategory" ||
+      title.includes(subCategoryFilter);
+    const matchesSearch =
+      searchTerm.trim().length === 0 ||
+      title.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSubCategory && matchesSearch;
   });
 
@@ -70,8 +77,12 @@ const SubscriptionSettings = () => {
         <section className="space-y-8 rounded-[32px] border border-gray-200 bg-white p-8 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-semibold text-primary">Subscription Manage</h2>
-              <p className="text-sm text-gray-400">Configure product plans for every audience</p>
+              <h2 className="text-2xl font-semibold text-primary">
+                Subscription Manage
+              </h2>
+              <p className="text-sm text-gray-400">
+                Configure product plans for every audience
+              </p>
             </div>
             <button className="rounded-full bg-primary px-8 py-2.5 text-sm font-semibold text-white shadow hover:bg-[#030447]">
               Save
@@ -79,7 +90,9 @@ const SubscriptionSettings = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <span className="text-sm font-semibold text-gray-500">Subscription Type</span>
+            <span className="text-sm font-semibold text-gray-500">
+              Subscription Type
+            </span>
             <div className="flex rounded-full border border-gray-200 bg-[#f7f8fd] p-1 text-sm font-semibold text-gray-500">
               <ToggleButton
                 label="Individuals"
@@ -119,12 +132,23 @@ const SubscriptionSettings = () => {
   );
 };
 
-const ToggleButton = ({ label, isActive, onClick }: { label: string; isActive: boolean; onClick: () => void }) => (
+const ToggleButton = ({
+  label,
+  isActive,
+  onClick,
+}: {
+  label: string;
+  isActive: boolean;
+  onClick: () => void;
+}) => (
   <button
     type="button"
     onClick={onClick}
-    className={`rounded-full px-4 py-2 transition ${isActive ? "bg-white text-primary shadow" : "text-gray-500 hover:text-primary"
-      }`}
+    className={`rounded-full px-4 py-2 transition ${
+      isActive
+        ? "bg-white text-primary shadow"
+        : "text-gray-500 hover:text-primary"
+    }`}
   >
     {label}
   </button>
@@ -158,14 +182,27 @@ const FilterBar = ({
         label="Category"
         id="category"
         value={category}
-        options={["All Category", "Insurance", "Doctors", "Food Sector", "Education", "Hospitality"]}
+        options={[
+          "All Category",
+          "Insurance",
+          "Doctors",
+          "Food Sector",
+          "Education",
+          "Hospitality",
+        ]}
         onChange={(event) => onCategoryChange(event.target.value)}
       />
       <Select
         label="Sub Category"
         id="sub_category"
         value={subCategory}
-        options={["All Subcategory", "Small Facilities", "Medium Facilities", "Large Facilities", "Mega Facilities"]}
+        options={[
+          "All Subcategory",
+          "Small Facilities",
+          "Medium Facilities",
+          "Large Facilities",
+          "Mega Facilities",
+        ]}
         onChange={(event) => onSubCategoryChange(event.target.value)}
       />
       <div className="flex items-center flex-1 min-w-[220px]">
@@ -185,7 +222,9 @@ const FilterBar = ({
               label-filed absolute left-2.5 top-2 text-[#A0A3BD] text-base transition-all duration-200
               peer-placeholder-shown:top-2 peer-placeholder-shown:left-2.5 peer-placeholder-shown:text-base cursor-text
               peer-focus:-top-3 peer-focus:left-2.5 peer-focus:text-[13px] peer-focus:text-[#070B68]
-              bg-white px-1 ${search && search.trim() !== "" ? "!-top-3 !text-[13px] " : ""} 
+              bg-white px-1 ${
+                search && search.trim() !== "" ? "!-top-3 !text-[13px] " : ""
+              } 
               `}
           >
             Search
@@ -204,7 +243,9 @@ const PlanSection = ({ title }: { title: string }) => (
     <header className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-3">
       <div>
         <h3 className="text-xl font-semibold text-primary">{title}</h3>
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Plan Packages</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">
+          Plan Packages
+        </p>
       </div>
       <button className="rounded-full border border-gray-200 px-4 py-1.5 text-xs font-semibold text-primary hover:border-primary">
         Templates
@@ -242,7 +283,13 @@ const PlanCard = ({ duration }: { duration: string }) => (
   </article>
 );
 
-const Input = ({ label, placeholder }: { label: string; placeholder: string }) => (
+const Input = ({
+  label,
+  placeholder,
+}: {
+  label: string;
+  placeholder: string;
+}) => (
   <label className="space-y-1 text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">
     {label}
     <input
@@ -286,7 +333,9 @@ const Select = ({
         peer-focus:-top-3 peer-focus:left-3 peer-focus:text-[13px] peer-focus:text-[#070B68]
         bg-white px-1  ${value ? "!-top-3 !left-3 !text-[13px]" : ""} 
         `}
-      >{label}</label>
+      >
+        {label}
+      </label>
     </div>
   </label>
 );
@@ -297,17 +346,25 @@ const Header = () => (
       <Icon />
     </div>
     <div>
-      <h1 className="text-2xl font-semibold text-primary">Subscription Settings</h1>
-      <p className="text-sm text-gray-400">Manage plan tiers for every customer type</p>
+      <h1 className="text-2xl font-semibold text-primary">
+        Subscription Settings
+      </h1>
+      <p className="text-sm text-gray-400">
+        Manage plan tiers for every customer type
+      </p>
     </div>
   </div>
 );
 
 const Icon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72" className="h-10 w-10" fill="#050668">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 72 72"
+    className="h-10 w-10"
+    fill="#050668"
+  >
     <path d="M54 12H18a6 6 0 0 0-6 6v36a6 6 0 0 0 6 6h36a6 6 0 0 0 6-6V18a6 6 0 0 0-6-6Zm-21 36H21v-6h12Zm0-12H21v-6h12Zm18 12H39v-6h12Zm0-12H39v-6h12Z" />
   </svg>
 );
 
 export default SubscriptionSettings;
-
