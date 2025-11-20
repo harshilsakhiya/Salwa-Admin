@@ -217,7 +217,7 @@ class IndividualClinicService {
 
       // Use GET request with query parameters
       const res = await axiosInstance.get(
-        `MedicalEquipmentAndFacilities/GetAllClinicRentalServices?${queryParams.toString()}`
+        `MedicalEquipmentAndFacilities/GetAllClinicRentalServices?${queryParams.toString()}` 
       );
       return {
         success: true,

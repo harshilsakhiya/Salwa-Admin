@@ -6,7 +6,7 @@ import ComanTable, {
   type ActionButton,
   type SortState,
 } from "../../components/common/ComanTable";
-import IndividualClinicService from "../../services/IndividualClinicService";
+import MedicalLegalService from "../../services/MedicalLegalService";
 import { useToast } from "../../components/ToastProvider";
 import {
   getStatusBadgeClass,
@@ -62,7 +62,7 @@ const Service41Dashboard = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
 
-  const [rentalMedicalEquipmentRecords, setRentalMedicalEquipmentRecords] = useState<
+  const [medicalLegalServiceRecords, setMedicalLegalServiceRecords] = useState<
     RentalMedicalEquipmentRecord[]
   >([]);
   const [loading, setLoading] = useState(true);
@@ -73,11 +73,11 @@ const Service41Dashboard = () => {
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
 
-  const fetchRentalMedicalEquipmentDataFromAPI = async (): Promise<
+  const fetchMedicalLegalServiceDataFromAPI = async (): Promise<
     RentalMedicalEquipmentRecord[]
   > => {
     try {
-      const response = await IndividualClinicService.GetAllClinicRentalServices({
+      const response = await MedicalLegalService.GetAllMedicalLegalServices({
         pageNumber: pageNumber,
         pageSize: pageSize,
         orderByColumn: sortState.length > 0 ? sortState[0].key : "CreatedDate",
@@ -96,7 +96,7 @@ const Service41Dashboard = () => {
         setTotalCount(totalCount);
         setTotalPages(calculatedTotalPages);
 
-        return responseData?.data || [];
+        return responseData || [];
       } else {
         throw new Error(
           (response as any)?.message || "Failed to fetch rental medical equipment data"
@@ -114,8 +114,8 @@ const Service41Dashboard = () => {
         setLoading(true);
         setError(null);
 
-        const apiData = await fetchRentalMedicalEquipmentDataFromAPI();
-        setRentalMedicalEquipmentRecords(apiData);
+        const apiData = await fetchMedicalLegalServiceDataFromAPI();
+        setMedicalLegalServiceRecords(apiData);
       } catch (err) {
         console.error("Error fetching data:", err);
         setError("Failed to load data");
@@ -140,23 +140,24 @@ const Service41Dashboard = () => {
     setPageNumber(1);
   };
 
-  const handlePublishRentalMedicalEquipmentAction = async (row: RentalMedicalEquipmentRecord) => {
+  const handlePublishMedicalLegalServiceAction = async (row: RentalMedicalEquipmentRecord) => {
     try {
       setLoading(true);
 
       const response =
-        await IndividualClinicService.ClinicRentalServicesApproveRejectByAdmin({
-          requestId: row.requestId,
+        await MedicalLegalService.MedicalLegalServicesApproveRejectByAdmin({
+          id: row.requestId,
           newStatusId: StatusEnum.PUBLISHED,
-          requestNumber: row.requestNumber,
-          reason: "Rental medical equipment published by admin",
+          requestNumber: (row.requestId).toString(),
+          reason: "Medical legal service published by admin",
         });
 
       if (response && response.success) {
-        await fetchRentalMedicalEquipmentDataFromAPI();
+        const apiData = await fetchMedicalLegalServiceDataFromAPI();
+        setMedicalLegalServiceRecords(apiData);
 
         showToast(
-          `Rental medical equipment ${row.requestNumber} has been published successfully!`,
+          `Medical legal service ${row.requestId} has been published successfully!`,
           "success"
         );
       } else {
@@ -168,7 +169,7 @@ const Service41Dashboard = () => {
     } catch (error) {
       console.error("Error publishing rental medical equipment:", error);
       showToast(
-        `Failed to publish rental medical equipment ${row.requestNumber}. Please try again.`,
+        `Failed to publish medical legal service ${row.requestNumber}. Please try again.`,
         "error"
       );
     } finally {
@@ -178,11 +179,11 @@ const Service41Dashboard = () => {
 
   const rentalMedicalEquipmentTableColumns: TableColumn<RentalMedicalEquipmentRecord>[] = [
     {
-      label: "Request Number",
+      label: "ID No",
       value: (row) => (
-        <span className="font-semibold text-primary">{row.requestNumber}</span>
+        <span className="font-semibold text-primary">#{row.requestId.toString().padStart(4, '0')}</span>
       ),
-      sortKey: "requestNumber",
+      sortKey: "requestId",
       isSort: true,
     },
     {
@@ -192,43 +193,15 @@ const Service41Dashboard = () => {
       isSort: true,
     },
     {
-      label: "Business Name",
-      value: (row) => <span className="text-gray-500">{row.businessName}</span>,
-      sortKey: "businessName",
+      label: "Health Registration Number",
+      value: (row) => <span className="text-gray-500">{row.healthRegistrationNumber}</span>,
+      sortKey: "healthRegistrationNumber",
       isSort: true,
     },
     {
-      label: "Contact Person",
-      value: (row) => <span className="text-gray-500">{row.contactPersonName}</span>,
-      sortKey: "contactPersonName",
-      isSort: true,
-    },
-    {
-      label: "Contact Email",
-      value: (row) => <span className="text-gray-500">{row.contactPersonEmail}</span>,
-      sortKey: "contactPersonEmail",
-      isSort: true,
-    },
-    {
-      label: "Address",
-      value: (row) => <span className="text-gray-500">{row.address}</span>,
-      sortKey: "address",
-      isSort: true,
-    },
-    {
-      label: "City",
-      value: (row) => (
-        <span className="text-gray-500">{row.city}</span>
-      ),
-      sortKey: "city",
-      isSort: true,
-    },
-    {
-      label: "District",
-      value: (row) => (
-        <span className="text-gray-500">{row.district}</span>
-      ),
-      sortKey: "district",
+      label: "FDA Number",
+      value: (row) => <span className="text-gray-500">{row.fdaDeviceLicenseNumber}</span>,
+      sortKey: "fdaDeviceLicenseNumber",
       isSort: true,
     },
     {
@@ -240,49 +213,48 @@ const Service41Dashboard = () => {
       isSort: true,
     },
     {
-      label: "Provider Type",
-      value: (row) => <span className="text-gray-500">{row.providerTypeName}</span>,
-      sortKey: "providerTypeName",
-      isSort: true,
-    },
-    {
-      label: "Rent Period",
+      label: "Rend Period",
       value: (row) => (
-        <span className="text-gray-500">{row.rentPeriodName}</span>
+        <span className="text-gray-500">{row.rentValue + " Months"}</span>
       ),
-      sortKey: "rentPeriodName",
+      sortKey: "rentValue" + "",
       isSort: true,
     },
     {
-      label: "Rent Value",
+      label: "Email",
       value: (row) => (
-        <span className="text-gray-500 font-semibold">${row.rentValue}</span>
+        <span className="text-gray-500">{row.contactPersonEmail}</span>
       ),
-      sortKey: "rentValue",
+      sortKey: "contactPersonEmail",
       isSort: true,
     },
     {
-      label: "Validity",
+      label: "Country",
       value: (row) => (
-        <span
-          className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${row.leftDays === "Expire"
-              ? "bg-red-100 text-red-800"
-              : row.leftDays === "Soon"
-                ? "bg-yellow-100 text-yellow-800"
-                : "bg-green-100 text-green-800"
-            }`}
-        >
-          {row.leftDays}
-        </span>
+        <span className="text-gray-500">{row.country}</span>
       ),
-      sortKey: "leftDays",
+      sortKey: "country",
       isSort: true,
     },
     {
-      label: "Created Date",
+      label: "Region",
+      value: (row) => <span className="text-gray-500">{row.region}</span>,
+      sortKey: "region",
+      isSort: true,
+    },
+    {
+      label: "City",
+      value: (row) => (
+        <span className="text-gray-500">{row.city}</span>
+      ),
+      sortKey: "city",
+      isSort: true,
+    },
+    {
+      label: "Upload Date",
       value: (row) => (
         <span className="text-gray-500">
-          {new Date(row.createdDate).toLocaleDateString()}
+          {new Date(row.createdDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
         </span>
       ),
       sortKey: "createdDate",
@@ -306,7 +278,7 @@ const Service41Dashboard = () => {
     },
   ];
 
-  const rentalMedicalEquipmentActionButtons: ActionButton<RentalMedicalEquipmentRecord>[] = [
+  const medicalLegalServiceActionButtons: ActionButton<RentalMedicalEquipmentRecord>[] = [
     {
       label: "View",
       iconType: "view",
@@ -318,18 +290,18 @@ const Service41Dashboard = () => {
     {
       label: "Publish",
       iconType: "publish",
-      onClick: (row) => handlePublishRentalMedicalEquipmentAction(row),
+      onClick: (row) => handlePublishMedicalLegalServiceAction(row),
       isVisible: (row) => row.statusId === StatusEnum.APPROVED,
     },
   ];
 
   // Separate render functions for each table type to handle TypeScript properly
 
-  const renderRentalMedicalEquipmentTable = () => (
+  const renderMedicalLegalServiceTable = () => (
     <ComanTable
       columns={rentalMedicalEquipmentTableColumns}
-      data={rentalMedicalEquipmentRecords}
-      actions={rentalMedicalEquipmentActionButtons}
+      data={medicalLegalServiceRecords}
+      actions={medicalLegalServiceActionButtons}
       page={pageNumber}
       totalPages={totalPages}
       totalCount={totalCount}
@@ -342,7 +314,7 @@ const Service41Dashboard = () => {
     />
   );
 
-  if (loading && rentalMedicalEquipmentRecords.length === 0) {
+  if (loading && medicalLegalServiceRecords.length === 0) {
     return (
       <DashboardLayout>
         <div className="p-6">
@@ -355,7 +327,7 @@ const Service41Dashboard = () => {
     );
   }
 
-  if (error && rentalMedicalEquipmentRecords.length === 0) {
+  if (error && medicalLegalServiceRecords.length === 0) {
     return (
       <DashboardLayout>
         <div className="p-6">
@@ -404,7 +376,7 @@ const Service41Dashboard = () => {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                Rental Medical Equipment Dashboard
+                Medical Legal Services Dashboard
               </h1>
 
               {/* Tab Navigation */}
@@ -461,7 +433,7 @@ const Service41Dashboard = () => {
           </div>
         </div>
 
-        {renderRentalMedicalEquipmentTable()}
+        {renderMedicalLegalServiceTable()}
       </div>
     </DashboardLayout>
   );
