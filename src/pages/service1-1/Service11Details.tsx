@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import StepperLayout from "../../components/common/StepperLayout";
 import {
@@ -8,8 +8,9 @@ import {
   Step3Technical,
   Step4HumanResource,
   Step5ServiceLogistics,
-  Step6PublicHealth
+  Step6PublicHealth,
 } from "../../components/steps";
+import { updateUpsertAdministrativeOrganizationalStandards } from "../../services/AdministrativeAndOrganizationalStandards";
 
 // Step Data Interfaces
 interface Step1Data {
@@ -173,174 +174,177 @@ interface AllStepsData {
 
 const Service11Details = () => {
   const navigate = useNavigate();
-  
+
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const location = useLocation();
+  const serviceData = location.state?.service;
+
   // Initialize form data with empty values
   const [formData, setFormData] = useState<AllStepsData>({
     step1: {
-      facilityName: '',
-      facilityType: '',
-      facilityArea: '',
-      hasPrivateRooms: '',
-      numberOfPrivateRooms: '',
-      hasICURooms: '',
-      numberOfICURooms: '',
-      numberOfOperatingRooms: '',
-      numberOfDaySurgeryRooms: '',
-      hasPharmacy: '',
-      hasPostOpRoom: '',
-      hasER: '',
-      numberOfDialysisMachines: '',
-      facilityAddress: '',
-      country: '',
-      region: '',
-      city: '',
-      typeOfFacilityBranches: '',
-      hasEmergencyDepartment: '',
-      hasParking: '',
-      numberOfParkingSlots: '',
-      hasAmbulanceService: '',
-      numberOfAmbulanceCars: '',
-      waitingTimeForConsultation: '',
-      evaluationDate: '',
-      expirationDate: '',
-      doctorInsuranceBoardNumber: '',
-      evaluationDate2: '',
-      expirationDate2: '',
-      numberOfBeds: '',
-      numberOfClinics: '',
-      totalSpaceInSqM: '',
-      privateWaitingArea: '',
-      infectionControlOfficer: '',
-      medicalWasteDepartment: '',
-      sterilizationDepartment: '',
-      pharmacyDepartment: '',
-      medicalRecordsDepartment: '',
-      labDepartment: '',
-      bloodBank: '',
-      ambulanceMedicalTransport: '',
-      radiologyDepartment: '',
-      physiotherapyDepartment: '',
-      dentalDepartment: '',
-      psychiatryDepartment: '',
-      nutritionDieteticsDepartment: '',
-      medicalEducation: '',
-      publicRelationsDepartment: '',
-      dermatologySkinCare: '',
-      internalMedicine: '',
-      cardiologyDepartment: '',
-      pediatricsChildCare: '',
-      medicalBoardDepartment: '',
-      medicalStaff: '',
-      educationalStaff: '',
-      nurseTraining: '',
-      employeeAccommodation: '',
+      facilityName: "",
+      facilityType: "",
+      facilityArea: "",
+      hasPrivateRooms: "",
+      numberOfPrivateRooms: "",
+      hasICURooms: "",
+      numberOfICURooms: "",
+      numberOfOperatingRooms: "",
+      numberOfDaySurgeryRooms: "",
+      hasPharmacy: "",
+      hasPostOpRoom: "",
+      hasER: "",
+      numberOfDialysisMachines: "",
+      facilityAddress: "",
+      country: "",
+      region: "",
+      city: "",
+      typeOfFacilityBranches: "",
+      hasEmergencyDepartment: "",
+      hasParking: "",
+      numberOfParkingSlots: "",
+      hasAmbulanceService: "",
+      numberOfAmbulanceCars: "",
+      waitingTimeForConsultation: "",
+      evaluationDate: "",
+      expirationDate: "",
+      doctorInsuranceBoardNumber: "",
+      evaluationDate2: "",
+      expirationDate2: "",
+      numberOfBeds: "",
+      numberOfClinics: "",
+      totalSpaceInSqM: "",
+      privateWaitingArea: "",
+      infectionControlOfficer: "",
+      medicalWasteDepartment: "",
+      sterilizationDepartment: "",
+      pharmacyDepartment: "",
+      medicalRecordsDepartment: "",
+      labDepartment: "",
+      bloodBank: "",
+      ambulanceMedicalTransport: "",
+      radiologyDepartment: "",
+      physiotherapyDepartment: "",
+      dentalDepartment: "",
+      psychiatryDepartment: "",
+      nutritionDieteticsDepartment: "",
+      medicalEducation: "",
+      publicRelationsDepartment: "",
+      dermatologySkinCare: "",
+      internalMedicine: "",
+      cardiologyDepartment: "",
+      pediatricsChildCare: "",
+      medicalBoardDepartment: "",
+      medicalStaff: "",
+      educationalStaff: "",
+      nurseTraining: "",
+      employeeAccommodation: "",
       facilityPhotosOutside: [],
-      facilityPhotosInside: []
+      facilityPhotosInside: [],
     },
     step2: {
-      generalMedicalOperation: '',
-      subspecialties: '',
-      specializedUnits: '',
-      knowledgeOfThe: '',
-      icuMom: '',
-      cardiacTeam: '',
-      doctorsConsultationUnit: '',
-      intensiveCareUnit: '',
-      pediatricsIntensiveCareUnit: '',
-      nonMedicalIntensiveCareUnit: '',
-      intermediateCareUnit: '',
-      isolationUnit: '',
-      emergencyUnit: '',
-      dialysisUnit: '',
-      comprehensiveRehabilitationCenter: '',
-      nursery: '',
-      maternityUnit: '',
-      organDonationTransplantCenter: '',
-      drugAddictionUnit: ''
+      generalMedicalOperation: "",
+      subspecialties: "",
+      specializedUnits: "",
+      knowledgeOfThe: "",
+      icuMom: "",
+      cardiacTeam: "",
+      doctorsConsultationUnit: "",
+      intensiveCareUnit: "",
+      pediatricsIntensiveCareUnit: "",
+      nonMedicalIntensiveCareUnit: "",
+      intermediateCareUnit: "",
+      isolationUnit: "",
+      emergencyUnit: "",
+      dialysisUnit: "",
+      comprehensiveRehabilitationCenter: "",
+      nursery: "",
+      maternityUnit: "",
+      organDonationTransplantCenter: "",
+      drugAddictionUnit: "",
     },
     step3: {
-      radiologyDepartment: '',
-      pathologyDepartment: '',
-      laboratoryDepartment: '',
-      anesthesiologyDepartment: '',
-      availabilityOfMedicalEquipment: '',
-      totalNumberOfBeds: ''
+      radiologyDepartment: "",
+      pathologyDepartment: "",
+      laboratoryDepartment: "",
+      anesthesiologyDepartment: "",
+      availabilityOfMedicalEquipment: "",
+      totalNumberOfBeds: "",
     },
     step4: {
-      totalStaff: '',
-      numberOfLeadEmployees: '',
-      numberOfForeignEmployees: '',
-      numberOfGeneralDoctor: '',
-      numberOfSpecialistDoctor: '',
-      numberOfGeneralPractitioner: '',
-      numberOfConsultantDoctor: '',
-      numberOfEmergencyMedicine: '',
-      numberOfAnesthesiaDoctor: '',
-      numberOfSpecialistDentist: '',
-      numberOfGeneralDentist: '',
-      numberOfNursingOrParamedical: '',
-      numberOfPharmacist: '',
-      numberOfMidwives: '',
-      numberOfTechnicianDoctor: '',
-      numberOfRadiologyTechnician: '',
-      numberOfLaboratoryTechnician: '',
-      numberOfDentalTechnician: '',
-      numberOfOtherHealthcareSchedules: '',
-      numberOfDentalAssistant: '',
-      numberOfNursingOrParamedicalAssistant: '',
-      numberOfDentalHygienist: '',
-      numberOfPublicHealthNurse: '',
-      numberOfPublicHealthTechnician: '',
-      numberOfOrthopedicTechnician: '',
-      numberOfSocialPsychologistOrSocialWorker: '',
-      numberOfCardioPulmonaryTechnician: '',
-      numberOfOtherGroupOfTechnicalAndProfessionalStaff: '',
-      numberOfContractOrTemporaryStaff: '',
-      numberOfOtherStaff: '',
-      numberOfMedicalRecordsStaff: '',
-      numberOfPhysiotherapistSchedules: '',
-      numberOfOtherGroupOfTechnicalAndProfessionalStaffSpecify: '',
-      numberOfContractOrTemporaryStaffSpecify: ''
+      totalStaff: "",
+      numberOfLeadEmployees: "",
+      numberOfForeignEmployees: "",
+      numberOfGeneralDoctor: "",
+      numberOfSpecialistDoctor: "",
+      numberOfGeneralPractitioner: "",
+      numberOfConsultantDoctor: "",
+      numberOfEmergencyMedicine: "",
+      numberOfAnesthesiaDoctor: "",
+      numberOfSpecialistDentist: "",
+      numberOfGeneralDentist: "",
+      numberOfNursingOrParamedical: "",
+      numberOfPharmacist: "",
+      numberOfMidwives: "",
+      numberOfTechnicianDoctor: "",
+      numberOfRadiologyTechnician: "",
+      numberOfLaboratoryTechnician: "",
+      numberOfDentalTechnician: "",
+      numberOfOtherHealthcareSchedules: "",
+      numberOfDentalAssistant: "",
+      numberOfNursingOrParamedicalAssistant: "",
+      numberOfDentalHygienist: "",
+      numberOfPublicHealthNurse: "",
+      numberOfPublicHealthTechnician: "",
+      numberOfOrthopedicTechnician: "",
+      numberOfSocialPsychologistOrSocialWorker: "",
+      numberOfCardioPulmonaryTechnician: "",
+      numberOfOtherGroupOfTechnicalAndProfessionalStaff: "",
+      numberOfContractOrTemporaryStaff: "",
+      numberOfOtherStaff: "",
+      numberOfMedicalRecordsStaff: "",
+      numberOfPhysiotherapistSchedules: "",
+      numberOfOtherGroupOfTechnicalAndProfessionalStaffSpecify: "",
+      numberOfContractOrTemporaryStaffSpecify: "",
     },
     step5: {
-      itNetworkTechnicians: '',
-      maintenanceDepartment: '',
-      itStaffShop: '',
-      priceListFile: null
+      itNetworkTechnicians: "",
+      maintenanceDepartment: "",
+      itStaffShop: "",
+      priceListFile: null,
     },
     step6: {
-      healthAwarenessSupplements: '',
-      epidemicControlDepartment: '',
-      patientEducationServices: '',
-      socialServices: '',
-      medicalEquipmentRepairWorkshop: '',
-      availabilityOfLongTermHospitalizationRiskManagement: '',
-      availabilityOfHomecareServices: '',
-      availabilityOfElderlyCareServices: '',
-      availabilityOfMedicalEquipmentAndToolsStorage: '',
-      availabilityOfMedicalEquipmentAnalysisStorage: ''
-    }
+      healthAwarenessSupplements: "",
+      epidemicControlDepartment: "",
+      patientEducationServices: "",
+      socialServices: "",
+      medicalEquipmentRepairWorkshop: "",
+      availabilityOfLongTermHospitalizationRiskManagement: "",
+      availabilityOfHomecareServices: "",
+      availabilityOfElderlyCareServices: "",
+      availabilityOfMedicalEquipmentAndToolsStorage: "",
+      availabilityOfMedicalEquipmentAnalysisStorage: "",
+    },
   });
 
   const stepTitles = [
-    'Administrative & Organizational Standards',
-    'Medical Standards',
-    'Technical Standards',
-    'Human Resource Standards',
-    'Service & Logistics Standards',
-    'Public Health & Prevention Standards'
+    "Administrative & Organizational Standards",
+    "Medical Standards",
+    "Technical Standards",
+    "Human Resource Standards",
+    "Service & Logistics Standards",
+    "Public Health & Prevention Standards",
   ];
 
   const totalSteps = 6;
 
   const handleStepDataChange = (step: keyof AllStepsData, data: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [step]: data
+      [step]: data,
     }));
   };
 
@@ -356,21 +360,27 @@ const Service11Details = () => {
     }
   };
 
-
   const handleFinish = async () => {
     setLoading(true);
     try {
       // TODO: Implement API call to save all form data
-      console.log('Saving form data:', formData);
-      
+      console.log("Saving form data:", formData);
+      await updateUpsertAdministrativeOrganizationalStandards(
+        777, // user ID
+        0, // AdmOrgId
+        2, // UserType
+        3, // SubTypeId
+        formData
+      );
+
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      alert('Form submitted successfully!');
-      navigate('/service-dashboard/category/1/service/1/action/order');
+      // await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      alert("Form submitted successfully!");
+      navigate("/service-dashboard/category/1/service/1/action/order");
     } catch (err) {
-      console.error('Error saving form:', err);
-      setError('Failed to save form data');
+      console.error("Error saving form:", err);
+      setError("Failed to save form data");
     } finally {
       setLoading(false);
     }
@@ -382,42 +392,42 @@ const Service11Details = () => {
         return (
           <Step1Administrative
             data={formData.step1}
-            onChange={(data) => handleStepDataChange('step1', data)}
+            onChange={(data) => handleStepDataChange("step1", data)}
           />
         );
       case 2:
         return (
           <Step2Medical
             data={formData.step2}
-            onChange={(data) => handleStepDataChange('step2', data)}
+            onChange={(data) => handleStepDataChange("step2", data)}
           />
         );
       case 3:
         return (
           <Step3Technical
             data={formData.step3}
-            onChange={(data) => handleStepDataChange('step3', data)}
+            onChange={(data) => handleStepDataChange("step3", data)}
           />
         );
       case 4:
         return (
           <Step4HumanResource
             data={formData.step4}
-            onChange={(data) => handleStepDataChange('step4', data)}
+            onChange={(data) => handleStepDataChange("step4", data)}
           />
         );
       case 5:
         return (
           <Step5ServiceLogistics
             data={formData.step5}
-            onChange={(data) => handleStepDataChange('step5', data)}
+            onChange={(data) => handleStepDataChange("step5", data)}
           />
         );
       case 6:
         return (
           <Step6PublicHealth
             data={formData.step6}
-            onChange={(data) => handleStepDataChange('step6', data)}
+            onChange={(data) => handleStepDataChange("step6", data)}
           />
         );
       default:
@@ -431,7 +441,9 @@ const Service11Details = () => {
         <div className="text-center">
           <p className="text-red-500 mb-4">{error}</p>
           <button
-            onClick={() => navigate("/service-dashboard/category/1/service/1/action/order")}
+            onClick={() =>
+              navigate("/service-dashboard/category/1/service/1/action/order")
+            }
             className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark"
           >
             Back to Dashboard

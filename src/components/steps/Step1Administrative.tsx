@@ -78,6 +78,7 @@ const Step1Administrative: React.FC<Step1Props> = ({ data, onChange }) => {
     field: keyof Step1Data,
     value: string | File[]
   ) => {
+    console.log("Field Changed:", field, value);
     onChange({
       ...data,
       [field]: value,
@@ -102,7 +103,9 @@ const Step1Administrative: React.FC<Step1Props> = ({ data, onChange }) => {
     <SelectFiled
       label={label}
       value={data[field] as string}
-      onChange={(e: { target: { value: string | File[]; }; }) => handleInputChange(field, e.target.value)}
+      onChange={(e: { target: { value: string | File[] } }) =>
+        handleInputChange(field, e.target.value)
+      }
     />
   );
 
@@ -144,7 +147,7 @@ const Step1Administrative: React.FC<Step1Props> = ({ data, onChange }) => {
     <DateFiled
       label={label}
       value={data[field] as string}
-      onChange={(e: { target: { value: string | File[]; }; }) => handleInputChange(field, e.target.value)}
+      onChange={(date, dateString: string) => handleInputChange(field, date)}
     />
   );
 
@@ -192,8 +195,9 @@ const Step1Administrative: React.FC<Step1Props> = ({ data, onChange }) => {
                 </div>
               )}
 
-
               <InputFiled
+                type="file"
+                accept="image/*"
                 label={file ? t("change") : t("upload")}
                 onChange={(e: { target: { files: any } }) => {
                   const files = e.target.files;
@@ -290,8 +294,14 @@ const Step1Administrative: React.FC<Step1Props> = ({ data, onChange }) => {
         "hasEmergencyDepartment",
         t("Is There an Emergency deparment?")
       )}
-      {renderYesNoDropdown("hasParking", t("Is There a Parking Lot for Patients?"))}
-      {renderTextInput("numberOfParkingSlots", t("Number of Patient Parking Lots"))}
+      {renderYesNoDropdown(
+        "hasParking",
+        t("Is There a Parking Lot for Patients?")
+      )}
+      {renderTextInput(
+        "numberOfParkingSlots",
+        t("Number of Patient Parking Lots")
+      )}
       {renderYesNoDropdown("hasAmbulanceService", t("hasAmbulanceService"))}
       {renderTextInput("numberOfAmbulanceCars", t("numberOfAmbulanceCars"))}
 
@@ -345,10 +355,7 @@ const Step1Administrative: React.FC<Step1Props> = ({ data, onChange }) => {
         t("physiotherapyDepartment")
       )}
       {renderYesNoDropdown("dentalDepartment", t("dentalDepartment"))}
-      {renderYesNoDropdown(
-        "psychiatryDepartment",
-        t("psychiatryDepartment")
-      )}
+      {renderYesNoDropdown("psychiatryDepartment", t("psychiatryDepartment"))}
       {renderYesNoDropdown(
         "nutritionDieteticsDepartment",
         t("nutritionDieteticsDepartment")
@@ -360,10 +367,7 @@ const Step1Administrative: React.FC<Step1Props> = ({ data, onChange }) => {
       )}
       {renderYesNoDropdown("dermatologySkinCare", t("dermatologySkinCare"))}
       {renderYesNoDropdown("internalMedicine", t("internalMedicine"))}
-      {renderYesNoDropdown(
-        "cardiologyDepartment",
-        t("cardiologyDepartment")
-      )}
+      {renderYesNoDropdown("cardiologyDepartment", t("cardiologyDepartment"))}
       {renderYesNoDropdown("pediatricsChildCare", t("pediatricsChildCare"))}
       {renderYesNoDropdown(
         "medicalBoardDepartment",
@@ -381,12 +385,17 @@ const Step1Administrative: React.FC<Step1Props> = ({ data, onChange }) => {
 
       {/* Image Upload Sections */}
       <div className="border border-[#e5e7eb] rounded-[16px] md:col-span-3">
-        {renderImageUpload("facilityPhotosInside", t("A Picture of the Facility from the Inside"))}
+        {renderImageUpload(
+          "facilityPhotosInside",
+          t("A Picture of the Facility from the Inside")
+        )}
       </div>
       <div className="border border-[#e5e7eb] rounded-[16px] md:col-span-3">
-        {renderImageUpload("facilityPhotosOutside", t("A Picture of the Facility from the Outside"))}
+        {renderImageUpload(
+          "facilityPhotosOutside",
+          t("A Picture of the Facility from the Outside")
+        )}
       </div>
-
     </div>
   );
 };
