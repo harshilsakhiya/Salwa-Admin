@@ -5,7 +5,6 @@ import RentalServices from "./pages/RentalServices";
 import RentalServiceDetail from "./pages/RentalServiceDetail";
 import RentalServiceNotifications from "./pages/RentalServiceNotifications";
 import AdvancedOptions from "./pages/AdvancedOptions";
-import SupportTicketSystem from "./pages/SupportTicketSystem";
 import StatementAnalysis from "./pages/StatementAnalysis";
 import ListSubscribers from "./pages/ListSubscribers";
 import UserDetailsPage from "./pages/UserDetailsPage";
@@ -67,6 +66,7 @@ import { Offer91Dashboard, Offer91Details } from "./pages/offer9-1";
 import { Offer711Dashboard, Offer711Details } from "./pages/offer7-1-1";
 import { Offer712Dashboard, Offer712Details } from "./pages/offer7-1-2";
 import { Offer713Dashboard, Offer713Details } from "./pages/offer7-1-3";
+import BusinessAnalytics from "./pages/BusinessAnalytics";
 
 const App = () => {
   return (
@@ -83,7 +83,10 @@ const App = () => {
           path="/service-dashboard/category/1/service/1/action/order"
           element={<Service11Dashboard />}
         />
-        <Route path="/service1-1/:requestId" element={<Service11Details />} />
+        <Route
+          path="/service1-1/:requestId"
+          element={<Service11Details />}
+        />
 
         {/* Specific routes for Category ID 2 */}
         <Route
@@ -238,19 +241,19 @@ const App = () => {
         <Route path="/offer6-1/dashboard" element={<Offer61Dashboard />} />
         <Route path="/offer6-1/details/new" element={<Offer61Details />} />
         <Route path="/offer6-1/details/:offerId" element={<Offer61Details />} />
-
+        
         <Route path="/offer6-2/dashboard" element={<Offer62Dashboard />} />
         <Route path="/offer6-2/details/new" element={<Offer62Details />} />
         <Route path="/offer6-2/details/:offerId" element={<Offer62Details />} />
-
+        
         <Route path="/offer6-3/dashboard" element={<Offer63Dashboard />} />
         <Route path="/offer6-3/details/new" element={<Offer63Details />} />
         <Route path="/offer6-3/details/:offerId" element={<Offer63Details />} />
-
+        
         <Route path="/offer7-1/dashboard" element={<Offer71Dashboard />} />
         <Route path="/offer7-1/details/new" element={<Offer71Details />} />
         <Route path="/offer7-1/details/:offerId" element={<Offer71Details />} />
-
+        
         <Route path="/offer9-1/dashboard" element={<Offer91Dashboard />} />
         <Route path="/offer9-1/details/new" element={<Offer91Details />} />
         <Route path="/offer9-1/details/:offerId" element={<Offer91Details />} />
@@ -258,24 +261,15 @@ const App = () => {
         {/* Offer Subservice Detail Routes */}
         <Route path="/offer7-1-1/dashboard" element={<Offer711Dashboard />} />
         <Route path="/offer7-1-1/details/new" element={<Offer711Details />} />
-        <Route
-          path="/offer7-1-1/details/:offerId"
-          element={<Offer711Details />}
-        />
-
+        <Route path="/offer7-1-1/details/:offerId" element={<Offer711Details />} />
+        
         <Route path="/offer7-1-2/dashboard" element={<Offer712Dashboard />} />
         <Route path="/offer7-1-2/details/new" element={<Offer712Details />} />
-        <Route
-          path="/offer7-1-2/details/:offerId"
-          element={<Offer712Details />}
-        />
-
+        <Route path="/offer7-1-2/details/:offerId" element={<Offer712Details />} />
+        
         <Route path="/offer7-1-3/dashboard" element={<Offer713Dashboard />} />
         <Route path="/offer7-1-3/details/new" element={<Offer713Details />} />
-        <Route
-          path="/offer7-1-3/details/:offerId"
-          element={<Offer713Details />}
-        />
+        <Route path="/offer7-1-3/details/:offerId" element={<Offer713Details />} />
 
         {/* Service 5-1 Routes */}
         <Route path="/service5-1" element={<Service51Dashboard />} />
@@ -434,10 +428,7 @@ const App = () => {
         <Route path="/statement-analysis" element={<StatementAnalysis />} />
         <Route path="/subscribers" element={<ListSubscribers />} />
         <Route path="/list-subscribers" element={<ListSubscribers />} />
-        <Route
-          path="/user-details/:userId/:userType"
-          element={<UserDetailsPage />}
-        />
+        <Route path="/user-details/:userId/:userType" element={<UserDetailsPage />} />
         <Route path="/agents" element={<ListAgents />} />
         <Route
           path="/agents/individual/:id"
@@ -449,10 +440,6 @@ const App = () => {
           element={<SupervisorDetail />}
         />
         <Route path="/reports" element={<Reports />} />
-        <Route
-          path="/support-ticket-system"
-          element={<SupportTicketSystem />}
-        />
         <Route
           path="/supervisor-management"
           element={<SupervisorManagement />}
@@ -469,11 +456,9 @@ const App = () => {
           path="/employee-category"
           element={<EmployeeCategoryAssignment />}
         />
-        <Route
-          path="/terms-condition-master"
-          element={<TermsConditionsMaster />}
-        />
+        <Route path="/terms-condition-master" element={<TermsConditionsMaster />} />
         <Route path="/promocode-settings" element={<PromocodeSettings />} />
+        <Route path="/business-idea-partner" element={<BusinessAnalytics />} />
         <Route
           path="/non-medical-companies"
           element={<NonMedicalCompanies />}

@@ -1,6 +1,8 @@
 // BusinessAnalytics.tsx
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { ReactNode } from "react";
+import type {
+  ReactNode,
+} from "react";
 import DashboardLayout from "../layouts/DashboardLayout";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../components/ToastProvider";
@@ -128,7 +130,8 @@ const BusinessAnalytics = () => {
   const [listLoading, setListLoading] = useState(false);
   const [listError, setListError] = useState<string | null>(null);
 
-  const [, setUserTypeOptions] = useState<UserTypeOption[]>(DEFAULT_USER_TYPES);
+  const [, setUserTypeOptions] =
+    useState<UserTypeOption[]>(DEFAULT_USER_TYPES);
 
   // form modal controls retained to keep same UI; Add/Edit are placeholders for now
   // const [isFormOpen, setIsFormOpen] = useState(false);
@@ -163,8 +166,6 @@ const BusinessAnalytics = () => {
     ) => {
       setListLoading(true);
       setListError(null);
-
-      console.log(tab);
       try {
         const url = `${LIST_ENDPOINT}?pageNumber=${page}&pageSize=${size}`;
         const response = await authFetch(url, {
@@ -680,12 +681,8 @@ const StatsRow = () => (
     <div className="flex gap-6 flex-1 items-center justify-start">
       {stats.map((s) => (
         <div key={s.label} className="min-w-[180px] flex-1">
-          <div className="text-4xl lg:text-5xl font-extrabold text-black leading-none">
-            {s.value}
-          </div>
-          <div className="mt-4 text-sm font-semibold text-gray-700 whitespace-pre-line">
-            {s.label}
-          </div>
+          <div className="text-4xl lg:text-5xl font-extrabold text-black leading-none">{s.value}</div>
+          <div className="mt-4 text-sm font-semibold text-gray-700 whitespace-pre-line">{s.label}</div>
         </div>
       ))}
     </div>
@@ -715,21 +712,12 @@ const ChartPlaceholder = () => {
   const chartWidth = viewWidth - padding.left - padding.right;
   const chartHeight = viewHeight - padding.top - padding.bottom;
   const barCount = values.length;
-  const barWidth = Math.max(
-    12,
-    Math.floor((chartWidth - barGap * (barCount - 1)) / barCount)
-  );
+  const barWidth = Math.max(12, Math.floor((chartWidth - barGap * (barCount - 1)) / barCount));
 
   return (
     <div className="rounded-[12px] border border-gray-200 bg-white p-4">
       <div className="text-xs text-gray-600 mb-3">Report by Month</div>
-      <svg
-        viewBox={`0 0 ${viewWidth} ${viewHeight}`}
-        width="100%"
-        height="220"
-        preserveAspectRatio="xMidYMid meet"
-        aria-hidden
-      >
+      <svg viewBox={`0 0 ${viewWidth} ${viewHeight}`} width="100%" height="220" preserveAspectRatio="xMidYMid meet" aria-hidden>
         {/* y axis grid lines (optional lightweight) */}
         {[0, 0.25, 0.5, 0.75, 1].map((t, i) => {
           const y = padding.top + chartHeight * (1 - t);
@@ -755,14 +743,7 @@ const ChartPlaceholder = () => {
           return (
             <g key={i} transform={`translate(${x},0)`}>
               {/* numeric label above bar */}
-              <text
-                x={barWidth / 2}
-                y={labelY}
-                textAnchor="middle"
-                fontSize="11"
-                fill="#111"
-                style={{ fontWeight: 700 }}
-              >
+              <text x={barWidth / 2} y={labelY} textAnchor="middle" fontSize="11" fill="#111" style={{ fontWeight: 700 }}>
                 {val}
               </text>
 
@@ -792,17 +773,8 @@ const ChartPlaceholder = () => {
         })}
 
         {/* y-axis left label (0 and max) */}
-        <text
-          x={8}
-          y={padding.top + chartHeight + 4}
-          fontSize="10"
-          fill="#9ca3af"
-        >
-          0
-        </text>
-        <text x={8} y={padding.top + 10} fontSize="10" fill="#9ca3af">
-          {max}
-        </text>
+        <text x={8} y={padding.top + chartHeight + 4} fontSize="10" fill="#9ca3af">0</text>
+        <text x={8} y={padding.top + 10} fontSize="10" fill="#9ca3af">{max}</text>
       </svg>
     </div>
   );
@@ -986,19 +958,6 @@ const stats = [
 
 // monthly data shown in image (Jan..Dec)
 const monthlyValues = [30, 37, 117, 50, 74, 22, 90, 60, 80, 50, 110, 75];
-const monthLabels = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sept",
-  "Oct",
-  "Nov",
-  "Dec",
-];
+const monthLabels = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec"];
 
 export default BusinessAnalytics;
