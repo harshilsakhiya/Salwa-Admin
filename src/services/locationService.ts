@@ -18,10 +18,19 @@ const mapOptions = (payload: unknown): LookupOption[] => {
         if (!item || typeof item !== "object") {
           return null;
         }
-        const maybeId = (item as { id?: number; countryId?: number; stateId?: number }).id ??
+        const maybeId =
+          (item as { id?: number; countryId?: number; stateId?: number }).id ??
           (item as { countryId?: number }).countryId ??
           (item as { stateId?: number }).stateId;
-        const maybeName = (item as { name?: string; countryName?: string; stateName?: string; cityName?: string }).name ??
+        const maybeName =
+          (
+            item as {
+              name?: string;
+              countryName?: string;
+              stateName?: string;
+              cityName?: string;
+            }
+          ).name ??
           (item as { countryName?: string }).countryName ??
           (item as { stateName?: string }).stateName ??
           (item as { cityName?: string }).cityName;
@@ -33,7 +42,9 @@ const mapOptions = (payload: unknown): LookupOption[] => {
       .filter((item): item is LookupOption => Boolean(item));
   }
 
-  const data = (payload as { data?: unknown })?.data ?? (payload as { result?: unknown })?.result;
+  const data =
+    (payload as { data?: unknown })?.data ??
+    (payload as { result?: unknown })?.result;
   if (Array.isArray(data)) {
     return mapOptions(data);
   }
@@ -42,7 +53,9 @@ const mapOptions = (payload: unknown): LookupOption[] => {
 };
 
 export const fetchCountries = async () => {
-  const response = await apiRequest<unknown>(`${BASE_URL}/GetAllCountry`, { method: "GET" });
+  const response = await apiRequest<unknown>(`${BASE_URL}/GetAllCountry`, {
+    method: "GET",
+  });
   return mapOptions(response);
 };
 
@@ -62,14 +75,10 @@ export const fetchCities = async (countryId: number, stateId: number) => {
     return [];
   }
   const response = await apiRequest<unknown>(
-    `${BASE_URL}/GetAllCity?countryId=${encodeURIComponent(countryId)}&stateId=${encodeURIComponent(stateId)}`,
+    `${BASE_URL}/GetAllCity?countryId=${encodeURIComponent(
+      countryId
+    )}&stateId=${encodeURIComponent(stateId)}`,
     { method: "GET" }
   );
   return mapOptions(response);
 };
-
-
-
-
-
-
