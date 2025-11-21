@@ -16,6 +16,7 @@ import {
 
 interface DashboardRecord {
   id: number;
+  requestId: number;
   jobTitle: string;
   jobDescription: string;
   department: string;
@@ -42,6 +43,18 @@ interface DashboardRecord {
   urgentFlag: boolean;
   internalOnly: boolean;
   externalAllowed: boolean;
+  jobClassification: string;
+  jobType: string;
+  country: string;
+  region: string;
+  city: string;
+  emailHR: string;
+  speciality: string;
+  nationalityId: number;
+  religionId: number;
+  genderId: number;
+  jobTypeId: number;
+  requestNumber: string;
 }
 
 const Service51Dashboard = () => {
@@ -71,7 +84,7 @@ const Service51Dashboard = () => {
           orderByColumn:
             sortState.length > 0 ? sortState[0].key : "CreatedDate",
           orderDirection:
-            sortState.length > 0 ? sortState[0].order.toUpperCase() : "DESC",
+            sortState.length > 0 ? sortState[0].order.toUpperCase() : "ASC",
         });
 
       if (response && response.success) {
@@ -133,9 +146,9 @@ const Service51Dashboard = () => {
 
       const response =
         await MedicalStaffService.MedicalRecruitmentJobAdminApproveReject({
-          RequestId: row.id,
+          RequestId: row.requestId,
           NewStatusId: StatusEnum.PUBLISHED,
-          RequestNumber: 0,
+          RequestNumber: row.requestNumber,
           Reason: "Job published by admin",
         });
 
@@ -164,7 +177,7 @@ const Service51Dashboard = () => {
     {
       label: "Job ID",
       value: (row) => (
-        <span className="font-semibold text-primary">#{row.id}</span>
+        <span className="font-semibold text-primary">#{row.requestId}</span>
       ),
       sortKey: "id",
       isSort: true,
@@ -185,59 +198,71 @@ const Service51Dashboard = () => {
       isSort: true,
     },
     {
-      label: "Department",
-      value: (row) => <span className="text-gray-700">{row.department}</span>,
-      sortKey: "department",
+      label: "Job role",
+      value: (row) => <span className="text-gray-700">{row.jobClassification}</span>,
+      sortKey: "jobClassification",
       isSort: true,
     },
     {
-      label: "Location",
-      value: (row) => <span className="text-gray-500">{row.location}</span>,
-      sortKey: "location",
+      label: "Speciality",
+      value: (row) => <span className="text-gray-500">{row.speciality}</span>,
+      sortKey: "speciality",
       isSort: true,
     },
     {
-      label: "Employment Type",
+      label: "Nationality",
       value: (row) => (
-        <span className="text-gray-500">{row.employmentType}</span>
+        <span className="text-gray-500">{row.nationalityId}</span>
       ),
-      sortKey: "employmentType",
+      sortKey: "nationalityId",
       isSort: true,
     },
     {
-      label: "Experience",
+      label: "Religion",
       value: (row) => (
-        <span className="text-gray-500">{row.experienceYears} years</span>
+        <span className="text-gray-500">{row.religionId}</span>
       ),
-      sortKey: "experienceYears",
+      sortKey: "religionId",
       isSort: true,
     },
     {
-      label: "Salary Range",
-      value: (row) => <span className="text-gray-500">{row.salaryRange}</span>,
-      sortKey: "salaryRange",
+      label: "Gender",
+      value: (row) => <span className="text-gray-500">{row.genderId}</span>,
+      sortKey: "genderId",
       isSort: true,
     },
     {
-      label: "Contact Email",
-      value: (row) => <span className="text-gray-500">{row.contactEmail}</span>,
-      sortKey: "contactEmail",
+      label: "Job Type",
+      value: (row) => <span className="text-gray-500">{row.jobTypeId}</span>,
+      sortKey: "jobTypeId",
       isSort: true,
     },
     {
-      label: "Application Deadline",
-      value: (row) => (
-        <span className="text-gray-500">
-          {row.applicationDeadline
-            ? new Date(row.applicationDeadline).toLocaleDateString()
-            : "No deadline"}
-        </span>
-      ),
-      sortKey: "applicationDeadline",
+      label: "HR Email",
+      value: (row) => <span className="text-gray-500">{row.emailHR}</span>,
+      sortKey: "emailHR",
       isSort: true,
     },
     {
-      label: "Created Date",
+      label: "Country",
+      value: (row) => <span className="text-gray-500">{row.country}</span>,
+      sortKey: "country",
+      isSort: true,
+    },
+    {
+      label: "Region",
+      value: (row) => <span className="text-gray-500">{row.region}</span>,
+      sortKey: "region",
+      isSort: true,
+    },
+    {
+      label: "City",
+      value: (row) => <span className="text-gray-500">{row.city}</span>,
+      sortKey: "city",
+      isSort: true,
+    },
+    {
+      label: "Upload Date",
       value: (row) => (
         <span className="text-gray-500">
           {new Date(row.createdDate).toLocaleDateString()}
@@ -269,7 +294,7 @@ const Service51Dashboard = () => {
       label: "View",
       iconType: "view",
       onClick: (row) => {
-        navigate(`/service5-1/${row.id}`);
+        navigate(`/service5-1/${row.requestNumber}`);
       },
       isVisible: () => true,
     },

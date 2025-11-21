@@ -48,11 +48,11 @@ class MedicalRecruitmentJobService {
     try {
       const {
         searchText = "",
-        statusId = 0,
+        statusId = undefined,
         pageNumber = 1,
         pageSize = 10,
         orderByColumn = "CreatedDate",
-        orderDirection = "DESC",
+        orderDirection = "ASC",
       } = params;
 
       const body = {
@@ -83,7 +83,7 @@ class MedicalRecruitmentJobService {
    * GET API: /api/MedicalRecruitmentJob/GetAllMedicalRecruitmentJobByRequestNumber/{requestNumber}
    */
   static GetAllMedicalRecruitmentJobByRequestNumber = async (
-    requestNumber: string | number
+    requestNumber: string
   ) => {
     try {
       const res = await axiosInstance.get(
@@ -105,7 +105,7 @@ class MedicalRecruitmentJobService {
   static MedicalRecruitmentJobAdminApproveReject = async (params: {
     RequestId: number;
     NewStatusId: number;
-    RequestNumber: string | number;
+    RequestNumber: string;
     Reason: string;
   }) => {
     try {

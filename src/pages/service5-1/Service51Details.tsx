@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import DashboardLayout from "../../layouts/DashboardLayout";
-import IndividualClinicService from "../../services/IndividualClinicService";
+import MedicalStaffService from "../../services/medicalStaffService";
 import { useToast } from "../../components/ToastProvider";
 import {
   getStatusBadgeClass,
@@ -18,18 +18,10 @@ interface ServiceDetails {
   WorkingEmp: number;
   ContactPersonName: string;
   ContactEmail: string;
-  ClinicHours: string;
-  RentPeriod: number;
-  RentPeriodType: string;
-  ServiceType: string;
-  ProvideWith: string;
   StatusId: number;
   StatusName: string;
   CreatedDate: string;
   UpdatedDate: string;
-  CreatedBy: number;
-  UpdatedBy: number;
-  ClinicSiteId: number;
   CategoryId: number;
   SerevieceId: number;
   ConfirmedFlag: boolean;
@@ -40,15 +32,20 @@ interface ServiceDetails {
   Reason: string;
   Media: string;
   ValidityTime: number;
-  TransactionId: string | null;
-  Quotation: string | null;
-  DeletedBy: number | null;
   DeletedDate: string | null;
-  RowNum: number;
-  Address?: string;
   City?: string;
   Region?: string;
   Country?: string;
+  Classification?: string;
+  Speciality?: string;
+  ReligionName?: string;
+  JobTypeName?: string;
+  JobClassfication?: string;
+  RoleName?: string;
+  NationalityName?: string;
+  GenderName?: string;
+  Experience?: string;
+  JobShiftName?: string;
 }
 
 const sampleImages = [
@@ -71,6 +68,9 @@ const Service51Details = () => {
   const [error, setError] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [images, setImages] = useState<string[]>(sampleImages);
+  
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
 
   const fetchServiceDetails = async () => {
     if (!id) {
@@ -84,8 +84,8 @@ const Service51Details = () => {
       setError(null);
 
       const response: any =
-        await IndividualClinicService.GetIndividualClinicServiceRequestById(
-          parseInt(id)
+        await MedicalStaffService.GetAllMedicalRecruitmentJobByRequestNumber(
+          id
         );
 
       if (response && response.success) {
@@ -126,18 +126,18 @@ const Service51Details = () => {
   const prevImage = () => {
     setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
   };
-
+  
   const handleApprove = async () => {
     if (!serviceDetails) return;
-
 
     try {
       setLoading(true);
 
-      const response = await IndividualClinicService.UpdateStatus({
-        requestId: serviceDetails.RequestId,
-        statusId: StatusEnum.APPROVED,
-        reason: "Request approved by admin",
+      const response = await MedicalStaffService.MedicalRecruitmentJobAdminApproveReject({
+        RequestId: serviceDetails.RequestId,
+        NewStatusId: StatusEnum.APPROVED,
+        RequestNumber: serviceDetails?.RequestNumber,
+        Reason: "Request approved by admin",
       });
 
       if (response && response.success) {
@@ -163,21 +163,34 @@ const Service51Details = () => {
     }
   };
 
-  const handleReject = async () => {
+  // Handle reject action - open modal instead of direct rejection
+  const handleReject = () => {
     if (!serviceDetails) return;
-
-
+    setShowRejectModal(true);
+    setRejectionReason("");
+  };
+// -------------------------------------------
+  // Handle reject confirmation with reason
+  const handleRejectSubmit = async () => {
+    if (!serviceDetails || !rejectionReason.trim()) {
+      showToast("Please provide a reason for rejection", "error");
+      return;
+    }
 
     try {
       setLoading(true);
 
-      const response = await IndividualClinicService.UpdateStatus({
-        requestId: serviceDetails.RequestId,
-        statusId: StatusEnum.REJECTED,
-        reason: "Request rejected by admin",
-      });
+      const response =
+        await MedicalStaffService.MedicalRecruitmentJobAdminApproveReject({
+          RequestId: serviceDetails.RequestId,
+          NewStatusId: StatusEnum.REJECTED,
+          RequestNumber: serviceDetails?.RequestNumber,
+          Reason: rejectionReason.trim(),
+        });
 
       if (response && response.success) {
+        setShowRejectModal(false);
+        setRejectionReason("");
         await fetchServiceDetails();
 
         showToast(
@@ -198,6 +211,12 @@ const Service51Details = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Handle reject modal cancel
+  const handleRejectCancel = () => {
+    setShowRejectModal(false);
+    setRejectionReason("");
   };
 
   if (loading) {
@@ -260,250 +279,99 @@ const Service51Details = () => {
                 <span className="text-sm font-medium">Back</span>
               </button>
             </div>
-            <div className="flex items-center gap-4">
-              <h1 className="text-2xl font-bold text-gray-900">
-                Service 5-1 Details
-              </h1>
-              <div className="flex items-center gap-2">
-                <div className="h-6 w-px bg-gray-300"></div>
-                <span
-                  className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${getStatusBadgeClass(
-                    serviceDetails.StatusId
-                  )}`}
-                >
-                  {getStatusName(serviceDetails.StatusId)}
-                </span>
-              </div>
-            </div>
           </div>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 gap-8">
           <div className="space-y-6">
             <div className="relative">
-              <div className="relative h-96 bg-gray-100 rounded-lg overflow-hidden">
-                <img
-                  src={images[currentImageIndex]}
-                  alt={`Service image ${currentImageIndex + 1}`}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src =
-                      "/img/hospital_img.jpg";
-                  }}
-                />
-
-                <button
-                  onClick={prevImage}
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-all"
-                >
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M15 19l-7-7 7-7"
-                    />
-                  </svg>
-                </button>
-                <button
-                  onClick={nextImage}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-all"
-                >
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </button>
-              </div>
-
-              <div className="flex gap-2 mt-4 overflow-x-auto">
-                {images.map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentImageIndex(index)}
-                    className={`flex-shrink-0 w-20 h-16 rounded-lg overflow-hidden border-2 ${index === currentImageIndex
-                      ? "border-primary"
-                      : "border-gray-200"
-                      }`}
-                  >
-                    <img
-                      src={image}
-                      alt={`Thumbnail ${index + 1}`}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src =
-                          "/img/hospital_img.jpg";
-                      }}
-                    />
-                  </button>
-                ))}
-              </div>
             </div>
-
             <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">
-                {serviceDetails.OrderTitle}
-              </h2>
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <svg
-                    className="w-5 h-5 text-gray-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">
+                  {serviceDetails.OrderTitle}
+                </h2>
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="h-6 w-px bg-gray-300"></div>
+                  <span
+                    className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${getStatusBadgeClass(
+                      serviceDetails.StatusId
+                    )}`}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                  <span className="text-gray-700">Jeddah, Saudi Arabia</span>
-                  <span className="ml-auto bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                    {serviceDetails.ValidityTime} Days Left
+                    {getStatusName(serviceDetails.StatusId)}
                   </span>
                 </div>
+              </div>
+              <div className="space-y-6">
 
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Request Number:</span>
-                    <span className="font-medium">
-                      {serviceDetails.RequestNumber}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">
-                      Building License Number:
-                    </span>
-                    <span className="font-medium">
-                      {serviceDetails.BuildingLicenseNumber}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">
-                      Medical License Number:
-                    </span>
-                    <span className="font-medium">
-                      {serviceDetails.MedicalLicenseNumber}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Contact Person:</span>
-                    <span className="font-medium">
-                      {serviceDetails.ContactPersonName}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Contact Email:</span>
-                    <span className="font-medium">
-                      {serviceDetails.ContactEmail}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Working Employees:</span>
-                    <span className="font-medium">
-                      {serviceDetails.WorkingEmp}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Rent Period:</span>
-                    <span className="font-medium">
-                      {serviceDetails.RentPeriod}{" "}
-                      {serviceDetails.RentPeriodType}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Clinic Hours:</span>
-                    <span className="font-medium">
-                      {serviceDetails.ClinicHours}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Service Type:</span>
-                    <span className="font-medium">
-                      {serviceDetails.ServiceType}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">
-                      Sterilization Equipment:
-                    </span>
-                    <span className="font-medium">
-                      {serviceDetails.SterilizationEquipmentFlag ? "Yes" : "No"}
-                    </span>
-                  </div>
+              {/* Location + Days Left */}
+              <div className="flex items-center gap-2 text-gray-500">
+                <svg
+                  className="w-5 h-5 text-gray-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+
+                <span className="text-gray-500">
+                  {serviceDetails.City}, {serviceDetails.Country}
+                </span>
+
+                <span className="ml-auto bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                  30 Days Left
+                </span>
+              </div>
+
+              {/* Title */}
+              <h2 className="font-semibold text-lg text-gray-700">Key Details:</h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-3 text-sm">
+                  <p>• <b>Issuing of Classification :</b> <span className="text-gray-500">{serviceDetails.Classification}</span></p>
+                  <p>• <b>Speciality :</b> <span className="text-gray-500">{serviceDetails.Speciality}</span></p>
+                  <p>• <b>Religion :</b> <span className="text-gray-500">{serviceDetails.ReligionName}</span></p>
+                  <p>• <b>Job Type :</b> <span className="text-gray-500">{serviceDetails.JobTypeName}</span></p>
+                  <p>• <b>Classification :</b> <span className="text-gray-500">{serviceDetails.JobClassfication}</span></p>
+                  <p>• <b>HR Email :</b> <span className="text-gray-500">example@gmail.com</span></p>
                 </div>
 
-                {serviceDetails.OtherTermsAndCon && (
-                  <div className="mt-4">
-                    <h3 className="font-semibold text-gray-900 mb-2">
-                      Terms & Conditions:
-                    </h3>
-                    <p className="text-gray-700 text-sm">
-                      {serviceDetails.OtherTermsAndCon}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+                <div className="space-y-3 text-sm">
+                  <p>• <b>Role :</b> <span className="text-gray-500">{serviceDetails.RoleName}</span></p>
+                  <p>• <b>Nationality :</b> <span className="text-gray-500">{serviceDetails.NationalityName}</span></p>
+                  <p>• <b>Gender :</b> <span className="text-gray-500">{serviceDetails.GenderName}</span></p>
+                  <p>• <b>Job Shift :</b> <span className="text-gray-500">{serviceDetails.JobShiftName}</span></p>
+                  <p>• <b>Experience :</b> <span className="text-gray-500">{serviceDetails.Experience}</span></p>
+                </div>
 
-          <div className="space-y-6">
-            <div className="bg-white rounded-lg border border-gray-200 p-6 h-96">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Location
-              </h3>
-              <div className="h-full bg-gray-100 rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <svg
-                    className="w-16 h-16 text-gray-400 mx-auto mb-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                  <p className="text-gray-500 mb-2">Riyadh Medical Center</p>
-                  <p className="text-sm text-gray-400">
-                    123 Healthcare Avenue, Riyadh, MD 10001
+              </div>
+
+              {/* Terms & Conditions */}
+              {serviceDetails.OtherTermsAndCon && (
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-1 text-sm">
+                    Terms & Condition :
+                  </h3>
+
+                  <p className="text-gray-700 text-sm leading-relaxed">
+                    {serviceDetails.OtherTermsAndCon}
                   </p>
-                  <button className="mt-4 px-4 py-2 bg-black text-white rounded-md text-sm hover:bg-gray-800 transition-colors">
-                    Redirect to location
-                  </button>
                 </div>
-              </div>
+              )}
+            </div>
+
             </div>
           </div>
         </div>
@@ -528,6 +396,62 @@ const Service51Details = () => {
             Approve
           </button>
         </div>
+
+        {/* Reject Reason Modal - Same design as Service3DetailPage */}
+        {showRejectModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-2xl mx-4">
+              {/* Modal Header */}
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Reason for Cancellation
+                </h3>
+                <button
+                  onClick={handleRejectCancel}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Reason*
+                </label>
+                <textarea
+                  value={rejectionReason}
+                  onChange={(e:any) => setRejectionReason(e.target.value)}
+                  placeholder="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+                  className="w-full h-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent resize-none"
+                  required
+                />
+              </div>
+
+              {/* Modal Footer */}
+              <div className="flex justify-center">
+                <button
+                  onClick={handleRejectSubmit}
+                  className="px-8 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors"
+                >
+                  Send
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );
