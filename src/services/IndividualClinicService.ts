@@ -129,13 +129,13 @@ class IndividualClinicService {
   static GetIndividualClinicServiceRequestById = async (requestId: number) => {
     try {
       const res = await axiosInstance.get(
-        `IndividualClinicService/GetIndividualClinicServiceRequestById/${requestId}`
+        `IndividualClinicService/IndividualClinicServiceRequestsQuotationRequestId?requestId=${requestId}`
       );
       return successHandler(res);
     } catch (error: any) {
       return errorHandler(error);
     }
-  };
+  };  
 
   /**
    * Update individual clinic service request status

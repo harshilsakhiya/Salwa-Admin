@@ -13,7 +13,7 @@ interface ServiceDetails {
   RequestId: number;
   RequestNumber: string;
   OrderTitle: string;
-  BuildingLicenseNumber: string;
+  buildingLicenseNumber: string;
   MedicalLicenseNumber: string;
   WorkingEmp: number;
   ContactPersonName: string;
@@ -68,10 +68,26 @@ const SubServicesDetails7 = () => {
   const [serviceDetails, setServiceDetails] = useState<ServiceDetails | null>(
     null
   );
+  console.log("serviceDetails", serviceDetails);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [images, setImages] = useState<string[]>(sampleImages);
+
+  // --- New states for reject modal ---
+  const [rejectModalOpen, setRejectModalOpen] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
+  const [submittingReject, setSubmittingReject] = useState(false);
+
+  // -- states for accept modal --
+  // --- Accept modal states ---
+  const [acceptModalOpen, setAcceptModalOpen] = useState(false);
+  const [acceptedOrderNumber, setAcceptedOrderNumber] = useState<string | null>(null);
+  const [acceptedDate, setAcceptedDate] = useState<string | null>(null);
+
+  // uploaded image path (will be transformed to url by your environment)
+  const acceptImageUrl = "/mnt/data/b7c89c44-a25a-4d87-a63a-73bdbcace1c4.png";
+
 
   // Fetch service details
   const fetchServiceDetails = async () => {
@@ -91,12 +107,21 @@ const SubServicesDetails7 = () => {
         );
 
       if (response && response.success) {
-        setServiceDetails(response.data);
+        // If API returns an array, find the matching requestId item
+        // const matched = Array.isArray(response.data)
+        //   ?response.data.find(
+        //     (x: any) => x.requestId === parseInt(requestId, 10)
+        //   )
+        //   : response.data;
+        const matched = response.data;
+
+        setServiceDetails(matched || null);
 
         // If API returns media/images, use them; otherwise use sample images
-        if (response.data.Media) {
+        const mediaValue = (matched && matched.Media) || (response.data && response.data.Media);
+        if (mediaValue) {
           try {
-            const mediaUrls = JSON.parse(response.data.Media);
+            const mediaUrls = JSON.parse(mediaValue);
             if (Array.isArray(mediaUrls) && mediaUrls.length > 0) {
               setImages(mediaUrls);
             }
@@ -131,12 +156,9 @@ const SubServicesDetails7 = () => {
     setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
-  // Handle approve action
+  // Handle approve action (unchanged)
   const handleApprove = async () => {
     if (!serviceDetails) return;
-
-
-
 
     try {
       setLoading(true);
@@ -150,6 +172,22 @@ const SubServicesDetails7 = () => {
       if (response && response.success) {
         // Refetch the data to get updated information
         await fetchServiceDetails();
+
+        // prepare modal info (use RequestNumber if you want human-facing order number)
+        const orderNumberDisplay = serviceDetails.RequestNumber
+          ? `#${serviceDetails.RequestNumber}`
+          : `#${String(serviceDetails.RequestId).padStart(4, "0")}`;
+
+        const now = new Date();
+        const formatted = now.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        });
+
+        setAcceptedOrderNumber(orderNumberDisplay);
+        setAcceptedDate(formatted);
+        setAcceptModalOpen(true);
 
         showToast(
           `Request ${serviceDetails.RequestNumber} has been approved successfully!`,
@@ -171,43 +209,79 @@ const SubServicesDetails7 = () => {
     }
   };
 
-  // Handle reject action
+
+  // --- Updated handleReject: open modal instead of immediate API call ---
   const handleReject = async () => {
     if (!serviceDetails) return;
+    setRejectReason(""); // reset previous reason
+    setRejectModalOpen(true);
+  };
 
-  
+  // Confirm reject with reason
+  const confirmReject = async () => {
+  if (!serviceDetails) return;
+  if (!rejectReason || rejectReason.trim().length < 3) {
+    showToast("Please enter a valid reason (at least 3 characters).", "error");
+    return;
+  }
 
-    try {
-      setLoading(true);
+  try {
+    setSubmittingReject(true);
 
-      const response = await IndividualClinicService.UpdateStatus({
-        requestId: serviceDetails.RequestId,
-        statusId: StatusEnum.REJECTED,
-        reason: "Request rejected by admin",
-      });
+    const response = await IndividualClinicService.UpdateStatus({
+      requestId: serviceDetails.RequestId,
+      statusId: StatusEnum.REJECTED,
+      reason: rejectReason.trim(),
+    });
 
-      if (response && response.success) {
-        // Refetch the data to get updated information
-        await fetchServiceDetails();
+    if (response && response.success) {
+      // close modal, refetch
+      setRejectModalOpen(false);
+      await fetchServiceDetails();
 
-        showToast(
-          `Request ${serviceDetails.RequestNumber} has been rejected`,
-          "success"
-        );
-      } else {
-        throw new Error(
-          (response as any)?.message || "Failed to reject request"
-        );
-      }
-    } catch (error) {
-      console.error("Error rejecting request:", error);
       showToast(
-        `Failed to reject request ${serviceDetails.RequestNumber}. Please try again.`,
-        "error"
+        `Request ${serviceDetails.RequestNumber} has been rejected.`,
+        "success"
       );
-    } finally {
-      setLoading(false);
+
+      // --- send client-side notification by navigating to notifications route ---
+      // try {
+      //   const updatedOrder = {
+      //     // copy existing details so notifications page has expected data
+      //     ...serviceDetails,
+      //     // add a friendly status field like other components expect
+      //     status: "Rejected",
+      //   };
+
+      //   navigate(`/notifications`, {
+      //     state: {
+      //       order: updatedOrder,
+      //       reason: rejectReason.trim(),
+      //       timestamp: new Date().toISOString(),
+      //     },
+      //   });
+      // } catch (navErr) {
+      //   console.warn("Failed to navigate to notifications:", navErr);
+      // }
+    } else {
+      throw new Error((response as any)?.message || "Failed to reject request");
     }
+  } catch (error) {
+    console.error("Error rejecting request:", error);
+    showToast(
+      `Failed to reject request ${serviceDetails?.RequestNumber}. Please try again.`,
+      "error"
+    );
+  } finally {
+    setSubmittingReject(false);
+  }
+};
+
+
+  // Cancel reject modal
+  const cancelReject = () => {
+    setRejectModalOpen(false);
+    setRejectReason("");
   };
 
   if (loading) {
@@ -302,7 +376,7 @@ const SubServicesDetails7 = () => {
                 }}
               />
 
-              {/* Navigation Arrows with new design */}
+              {/* Navigation Arrows */}
               <button
                 onClick={prevImage}
                 className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 backdrop-blur-sm text-gray-700 p-3 rounded-full shadow-lg hover:bg-opacity-100 transition-all duration-200 hover:scale-110"
@@ -321,7 +395,7 @@ const SubServicesDetails7 = () => {
               </button>
             </div>
 
-            {/* Thumbnail Images with new design */}
+            {/* Thumbnail Images */}
             <div className="p-4 bg-gray-50">
               <div className="flex gap-3 overflow-x-auto">
                 {images.map((image, index) => (
@@ -379,7 +453,7 @@ const SubServicesDetails7 = () => {
                   <div className="bg-gray-50 rounded-lg p-4">
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 text-sm font-medium">Building License:</span>
-                      <span className="font-semibold text-gray-900">{serviceDetails.BuildingLicenseNumber}</span>
+                      <span className="font-semibold text-gray-900">{serviceDetails.buildingLicenseNumber}</span>
                     </div>
                   </div>
 
@@ -519,6 +593,116 @@ const SubServicesDetails7 = () => {
             Approve
           </button>
         </div>
+
+        {/* Reject Modal */}
+        {rejectModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            {/* overlay */}
+            <div
+              className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
+              onClick={cancelReject}
+            />
+            {/* modal */}
+            <div className="relative bg-white rounded-xl max-w-2xl w-full mx-4 p-6 shadow-2xl z-10">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold">Reason for Cancellation</h2>
+                <button onClick={cancelReject} className="text-gray-500 hover:text-gray-700">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <label className="block text-sm font-medium text-gray-700 mb-2">Reason*</label>
+              <textarea
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                rows={6}
+                placeholder="Write the reason for rejection..."
+                className="w-full border border-gray-200 rounded-md p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+
+              <div className="mt-6 flex items-center justify-center gap-4">
+                <button
+                  onClick={cancelReject}
+                  disabled={submittingReject}
+                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmReject}
+                  disabled={submittingReject}
+                  className="px-6 py-2 bg-black text-white rounded-md hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2"
+                >
+                  {submittingReject ? (
+                    <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                    </svg>
+                  ) : null}
+                  Send
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Accept Modal */}
+        {acceptModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div
+              className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
+              onClick={() => setAcceptModalOpen(false)}
+            />
+            <div className="relative bg-white rounded-xl max-w-2xl w-full mx-4 p-8 shadow-2xl z-10 text-center">
+              <button
+                onClick={() => setAcceptModalOpen(false)}
+                className="absolute left-4 top-4 text-gray-500 hover:text-gray-700"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              {/* large graphic (your uploaded image) */}
+              <div className="mb-6 flex justify-center">
+                <img
+                  src={acceptImageUrl}
+                  alt="accepted"
+                  className="w-28 h-28 object-contain"
+                  onError={(e) => {
+                    // fallback to an inline SVG check if image isn't available
+                    (e.target as HTMLImageElement).src =
+                      "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path d='M9 16.17L4.83 12 3.41 13.41 9 19l12-12L19.59 5.59z'/></svg>";
+                  }}
+                />
+              </div>
+
+              <h2 className="text-lg font-semibold mb-2">
+                Order Number :{" "}
+                <span className="font-bold">{acceptedOrderNumber || "#N/A"}</span>
+              </h2>
+
+              <p className="text-sm text-gray-700 mb-4">
+                Clinic on Worksite Order has been successfully accepted.
+              </p>
+
+              <p className="text-xs text-gray-500">
+                Order Accepted Date : <span className="font-semibold">{acceptedDate}</span>
+              </p>
+
+              <div className="mt-6">
+                <button
+                  onClick={() => setAcceptModalOpen(false)}
+                  className="mt-4 px-6 py-2 bg-black text-white rounded-md hover:bg-gray-800"
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );
