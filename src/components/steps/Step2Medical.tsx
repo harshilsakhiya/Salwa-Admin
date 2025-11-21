@@ -1,28 +1,28 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-import InputField from '../../antd/InputField';
-import SelectField from '../../antd/SelectField';
+import React from "react";
+import { useTranslation } from "react-i18next";
+import InputField from "../../antd/InputField";
+import SelectField from "../../antd/SelectField";
 
 interface Step2Data {
-  generalMedicalOperation: string;
-  subspecialties: string;
-  specializedUnits: string;
-  knowledgeOfThe: string;
-  icuMom: string;
-  cardiacTeam: string;
-  doctorsConsultationUnit: string;
-  intensiveCareUnit: string;
-  pediatricsIntensiveCareUnit: string;
-  nonMedicalIntensiveCareUnit: string;
-  intermediateCareUnit: string;
-  isolationUnit: string;
-  emergencyUnit: string;
-  dialysisUnit: string;
-  comprehensiveRehabilitationCenter: string;
-  nursery: string;
-  maternityUnit: string;
-  organDonationTransplantCenter: string;
-  drugAddictionUnit: string;
+  GeneralMedicalOperation: string;
+  Subspecialties: string;
+  SpecializedUnits: string;
+  KnowledgeOfThe: string;
+  IcuMom: string;
+  CardiacTeam: string;
+  DoctorsConsultationUnit: string;
+  IntensiveCareUnit: string;
+  PediatricsIntensiveCareUnit: string;
+  NonMedicalIntensiveCareUnit: string;
+  IntermediateCareUnit: string;
+  IsolationUnit: string;
+  EmergencyUnit: string;
+  DialysisUnit: string;
+  ComprehensiveRehabilitationCenter: string;
+  Nursery: string;
+  MaternityUnit: string;
+  OganDonationTransplantCenter: string;
+  DrugAddictionUnit: string;
 }
 
 interface Step2Props {
@@ -35,7 +35,7 @@ const Step2Medical: React.FC<Step2Props> = ({ data, onChange }) => {
   const handleInputChange = (field: keyof Step2Data, value: string) => {
     onChange({
       ...data,
-      [field]: value
+      [field]: value,
     });
   };
 
@@ -55,7 +55,7 @@ const Step2Medical: React.FC<Step2Props> = ({ data, onChange }) => {
     <InputField
       label={label}
       value={data[field]}
-      onChange={(e:any) => handleInputChange(field, e.target.value)}
+      onChange={(e: any) => handleInputChange(field, e.target.value)}
     />
   );
 
@@ -77,36 +77,63 @@ const Step2Medical: React.FC<Step2Props> = ({ data, onChange }) => {
     <SelectField
       label={label}
       value={data[field]}
-      onChange={(e:any) => handleInputChange(field, e.target.value)}
+      onChange={(e: any) => handleInputChange(field, e.target.value)}
     />
   );
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-4">
       {/* General Medical Information */}
-      {renderTextInput('generalMedicalOperation', t('General Medical Specialties'))}
-      {renderTextInput('subspecialties', t('Subspecialties'))}
-      {renderTextInput('specializedUnits', t('Specialized Units'))}
+      {renderTextInput(
+        "GeneralMedicalOperation",
+        t("General Medical Specialties")
+      )}
+      {renderTextInput("Subspecialties", t("Subspecialties"))}
+      {renderTextInput("SpecializedUnits", t("Specialized Units"))}
 
       {/* Medical Units and Departments */}
-      {renderYesNoDropdown('knowledgeOfThe', t('steps.step2.knowledgeOfThe'))}
-      {renderYesNoDropdown('icuMom', t('steps.step2.icuMom'))}
-      {renderYesNoDropdown('cardiacTeam', t('steps.step2.cardiacTeam'))}
-      {renderYesNoDropdown('doctorsConsultationUnit', t('steps.step2.doctorsConsultationUnit'))}
-      {renderYesNoDropdown('intensiveCareUnit', t('steps.step2.intensiveCareUnit'))}
-      {renderYesNoDropdown('pediatricsIntensiveCareUnit', t('steps.step2.pediatricsIntensiveCareUnit'))}
-      {renderYesNoDropdown('nonMedicalIntensiveCareUnit', t('steps.step2.nonMedicalIntensiveCareUnit'))}
-      {renderYesNoDropdown('intermediateCareUnit', t('steps.step2.intermediateCareUnit'))}
-      {renderYesNoDropdown('isolationUnit', t('steps.step2.isolationUnit'))}
-      {renderYesNoDropdown('emergencyUnit', t('steps.step2.emergencyUnit'))}
-      {renderYesNoDropdown('dialysisUnit', t('steps.step2.dialysisUnit'))}
-      {renderYesNoDropdown('comprehensiveRehabilitationCenter', t('steps.step2.comprehensiveRehabilitationCenter'))}
-      {renderYesNoDropdown('nursery', t('steps.step2.nursery'))}
-      {renderYesNoDropdown('maternityUnit', t('steps.step2.maternityUnit'))}
-      {renderYesNoDropdown('organDonationTransplantCenter', t('steps.step2.organDonationTransplantCenter'))}
+      {renderYesNoDropdown("KnowledgeOfThe", t("steps.step2.knowledgeOfThe"))}
+      {renderYesNoDropdown("IcuMom", t("steps.step2.icuMom"))}
+      {renderYesNoDropdown("CardiacTeam", t("steps.step2.cardiacTeam"))}
+      {renderYesNoDropdown(
+        "DoctorsConsultationUnit",
+        t("steps.step2.doctorsConsultationUnit")
+      )}
+      {renderYesNoDropdown(
+        "IntensiveCareUnit",
+        t("steps.step2.intensiveCareUnit")
+      )}
+      {renderYesNoDropdown(
+        "PediatricsIntensiveCareUnit",
+        t("steps.step2.pediatricsIntensiveCareUnit")
+      )}
+      {renderYesNoDropdown(
+        "NonMedicalIntensiveCareUnit",
+        t("steps.step2.nonMedicalIntensiveCareUnit")
+      )}
+      {renderYesNoDropdown(
+        "IntermediateCareUnit",
+        t("steps.step2.intermediateCareUnit")
+      )}
+      {renderYesNoDropdown("IsolationUnit", t("steps.step2.isolationUnit"))}
+      {renderYesNoDropdown("EmergencyUnit", t("steps.step2.emergencyUnit"))}
+      {renderYesNoDropdown("DialysisUnit", t("steps.step2.dialysisUnit"))}
+      {renderYesNoDropdown(
+        "ComprehensiveRehabilitationCenter",
+        t("steps.step2.comprehensiveRehabilitationCenter")
+      )}
+      {renderYesNoDropdown("Nursery", t("steps.step2.nursery"))}
+      {renderYesNoDropdown("MaternityUnit", t("steps.step2.maternityUnit"))}
+      {renderYesNoDropdown(
+        "OganDonationTransplantCenter",
+        t("steps.step2.organDonationTransplantCenter")
+      )}
 
       <div className="md:col-span-3">
-        {renderYesNoDropdown('drugAddictionUnit', t('steps.step2.drugAddictionUnit'))}
+        {renderYesNoDropdown(
+          "DrugAddictionUnit",
+          t("steps.step2.drugAddictionUnit")
+        )}
       </div>
     </div>
   );

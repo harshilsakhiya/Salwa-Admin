@@ -3,16 +3,16 @@ import { useTranslation } from "react-i18next";
 import SelectField from "../../antd/SelectField";
 
 interface Step6Data {
-  healthAwarenessSupplements: string;
-  epidemicControlDepartment: string;
-  patientEducationServices: string;
-  socialServices: string;
-  medicalEquipmentRepairWorkshop: string;
-  availabilityOfLongTermHospitalizationRiskManagement: string;
-  availabilityOfHomecareServices: string;
-  availabilityOfElderlyCareServices: string;
-  availabilityOfMedicalEquipmentAndToolsStorage: string;
-  availabilityOfMedicalEquipmentAnalysisStorage: string;
+  HealthAwarenessSupplements: string;
+  EpidemicControlDepartment: string;
+  PatientEducationServices: string;
+  SocialServices: string;
+  MedicalEquipmentRepairWorkshop: string;
+  AvailabilityOfLongTermHospitalizationRiskManagement: string;
+  AvailabilityOfHomecareServices: string;
+  AvailabilityOfElderlyCareServices: string;
+  AvailabilityOfMedicalEquipmentAndToolsStorage: string;
+  AvailabilityOfMedicalEquipmentAnalysisStorage: string;
 }
 
 interface Step6Props {
@@ -55,44 +55,44 @@ const Step6PublicHealth: React.FC<Step6Props> = ({ data, onChange }) => {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
       <div className="md:col-span-2 grid md:grid-cols-3 gap-4">
         {renderYesNoDropdown(
-          "healthAwarenessSupplements",
+          "HealthAwarenessSupplements",
           t("steps.step6.healthAwarenessSupplements")
         )}
         {renderYesNoDropdown(
-          "epidemicControlDepartment",
+          "EpidemicControlDepartment",
           t("steps.step6.epidemicControlDepartment")
         )}
         {renderYesNoDropdown(
-          "patientEducationServices",
+          "PatientEducationServices",
           t("steps.step6.patientEducationServices")
         )}
       </div>
-      {renderYesNoDropdown("socialServices", t("Social Services"))}
+      {renderYesNoDropdown("SocialServices", t("Social Services"))}
       {renderYesNoDropdown(
-        "medicalEquipmentRepairWorkshop",
+        "MedicalEquipmentRepairWorkshop",
         t("Medical Equipment Repair Workshop")
       )}
       {renderYesNoDropdown(
-        "availabilityOfLongTermHospitalizationRiskManagement",
+        "AvailabilityOfLongTermHospitalizationRiskManagement",
         t(
           "Availability of long-term hospitalization care and management services"
         )
       )}
       {renderYesNoDropdown(
-        "availabilityOfHomecareServices",
+        "AvailabilityOfHomecareServices",
         t("Availability of home medical services")
       )}
       {renderYesNoDropdown(
-        "availabilityOfElderlyCareServices",
+        "AvailabilityOfElderlyCareServices",
         t("Availability of elderly care services")
       )}
       {renderYesNoDropdown(
-        "availabilityOfMedicalEquipmentAndToolsStorage",
+        "AvailabilityOfMedicalEquipmentAndToolsStorage",
         t("Availability of medical equipment and tools storage")
       )}
       <div className="md:col-span-2">
         {renderYesNoDropdown(
-          "availabilityOfMedicalEquipmentAnalysisStorage",
+          "AvailabilityOfMedicalEquipmentAnalysisStorage",
           t("Availability of medical equipment and tools storage")
         )}
       </div>

@@ -53,6 +53,7 @@ export const getUserWisePointsAndClassById = (userId: string) =>
     { method: "GET" }
   );
 
+// step 1
 export const updateUpsertAdministrativeOrganizationalStandards = (
   userId: number,
   admOrgId: number,
@@ -60,15 +61,6 @@ export const updateUpsertAdministrativeOrganizationalStandards = (
   SubTypeId: number | null,
   formData: Record<string, any>
 ) => {
-  const finalFormData = {
-    ...formData.step1,
-    ...formData.step2,
-    ...formData.step3,
-    ...formData.step4,
-    ...formData.step5,
-    ...formData.step6,
-  };
-
   return apiRequest<{ message?: string; status?: number }>(
     `${ACCOUNT_BASE_URL}/UpsertAdministrativeOrganizationalStandards`,
     {
@@ -79,7 +71,139 @@ export const updateUpsertAdministrativeOrganizationalStandards = (
         AdmOrgId: admOrgId,
         UserType,
         SubTypeId,
-        ...finalFormData,
+        ...formData,
+      }),
+    }
+  );
+};
+
+export const getAdministrativeAndOrganizationalStandards = (userId: string) =>
+  apiRequest<
+    UserWisePointsAndClassRecord | { data?: UserWisePointsAndClassRecord }
+  >(
+    `${ACCOUNT_BASE_URL}/GetAdministrativeAndOrganizationalStandards${buildQuery(
+      {
+        userId,
+      }
+    )}`,
+    { method: "GET" }
+  );
+
+// step 2
+export const updateUpsertTechnicalStandards = (
+  userId: number,
+  admOrgId: number,
+  UserType: number,
+  SubTypeId: number | null,
+  formData: Record<string, any>
+) => {
+  return apiRequest<{ message?: string; status?: number }>(
+    `${ACCOUNT_BASE_URL}/UpsertTechnicalStandards`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        UserId: userId,
+        AdmOrgId: admOrgId,
+        UserType,
+        SubTypeId,
+        ...formData,
+      }),
+    }
+  );
+};
+
+// step 3
+export const updateUpsertMedicalStandards = (
+  userId: number,
+  admOrgId: number,
+  UserType: number,
+  SubTypeId: number | null,
+  formData: Record<string, any>
+) => {
+  return apiRequest<{ message?: string; status?: number }>(
+    `${ACCOUNT_BASE_URL}/UpsertMedicalStandards`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        UserId: userId,
+        AdmOrgId: admOrgId,
+        UserType,
+        SubTypeId,
+        ...formData,
+      }),
+    }
+  );
+};
+
+// step 4
+export const updateUpsertHumanResourceStandard = (
+  userId: number,
+  admOrgId: number,
+  UserType: number,
+  SubTypeId: number | null,
+  formData: Record<string, any>
+) => {
+  return apiRequest<{ message?: string; status?: number }>(
+    `${ACCOUNT_BASE_URL}/UpsertHumanResourceStandard`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        UserId: userId,
+        AdmOrgId: admOrgId,
+        UserType,
+        SubTypeId,
+        ...formData,
+      }),
+    }
+  );
+};
+
+// step 5
+export const updateUpsertServiceLogisticsStandards = (
+  userId: number,
+  admOrgId: number,
+  UserType: number,
+  SubTypeId: number | null,
+  formData: Record<string, any>
+) => {
+  return apiRequest<{ message?: string; status?: number }>(
+    `${ACCOUNT_BASE_URL}/UpsertServiceLogisticsStandards`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        UserId: userId,
+        AdmOrgId: admOrgId,
+        UserType,
+        SubTypeId,
+        ...formData,
+      }),
+    }
+  );
+};
+
+// step 6
+export const updateUpsertPublicHealthAndPreventionStandards = (
+  userId: number,
+  admOrgId: number,
+  UserType: number,
+  SubTypeId: number | null,
+  formData: Record<string, any>
+) => {
+  return apiRequest<{ message?: string; status?: number }>(
+    `${ACCOUNT_BASE_URL}/UpsertPublicHealthAndPreventionStandards`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        UserId: userId,
+        AdmOrgId: admOrgId,
+        UserType,
+        SubTypeId,
+        ...formData,
       }),
     }
   );

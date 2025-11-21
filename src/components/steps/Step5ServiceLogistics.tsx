@@ -3,10 +3,10 @@ import { useTranslation } from "react-i18next";
 import SelectField from "../../antd/SelectField";
 
 interface Step5Data {
-  itNetworkTechnicians: string;
-  maintenanceDepartment: string;
-  itStaffShop: string;
-  priceListFile: File | null;
+  ItNetworkTechnicians: string;
+  MaintenanceDepartment: string;
+  ItStaffShop: string;
+  PriceListFile: File | null;
 }
 
 interface Step5Props {
@@ -44,7 +44,7 @@ const Step5ServiceLogistics: React.FC<Step5Props> = ({ data, onChange }) => {
     <SelectField
       label={label}
       value={data[field] as string}
-      onChange={(e:any) => handleInputChange(field, e.target.value)}
+      onChange={(e: any) => handleInputChange(field, e.target.value)}
     />
   );
 
@@ -59,9 +59,9 @@ const Step5ServiceLogistics: React.FC<Step5Props> = ({ data, onChange }) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-4">
-      {renderDropdown("itNetworkTechnicians", t("IT & Network Technicians"))}
-      {renderDropdown("maintenanceDepartment", t("Maintenance Department"))}
-      {renderDropdown("itStaffShop", t("Is there Shops?"))}
+      {renderDropdown("ItNetworkTechnicians", t("IT & Network Technicians"))}
+      {renderDropdown("MaintenanceDepartment", t("Maintenance Department"))}
+      {renderDropdown("ItStaffShop", t("Is there Shops?"))}
 
       <div className="md:col-span-3 mt-2.5 flex items-center justify-between gap-2">
         <div>

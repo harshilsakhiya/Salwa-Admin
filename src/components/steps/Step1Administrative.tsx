@@ -3,67 +3,69 @@ import { useTranslation } from "react-i18next";
 import InputField from "../../antd/InputField";
 import SelectField from "../../antd/SelectField";
 import DateField from "../../antd/DateField";
+import { YesNoEnum } from "../../utils/statusEnum";
 
 interface Step1Data {
-  facilityName: string;
-  facilityType: string;
-  facilityArea: string;
-  hasPrivateRooms: string;
-  numberOfPrivateRooms: string;
-  hasICURooms: string;
-  numberOfICURooms: string;
-  numberOfOperatingRooms: string;
-  numberOfDaySurgeryRooms: string;
-  hasPharmacy: string;
-  hasPostOpRoom: string;
-  hasER: string;
-  numberOfDialysisMachines: string;
-  facilityAddress: string;
-  country: string;
-  region: string;
-  city: string;
-  typeOfFacilityBranches: string;
-  hasEmergencyDepartment: string;
-  hasParking: string;
-  numberOfParkingSlots: string;
-  hasAmbulanceService: string;
-  numberOfAmbulanceCars: string;
-  waitingTimeForConsultation: string;
-  evaluationDate: string;
-  expirationDate: string;
-  doctorInsuranceBoardNumber: string;
-  evaluationDate2: string;
-  expirationDate2: string;
-  numberOfBeds: string;
-  numberOfClinics: string;
-  totalSpaceInSqM: string;
-  privateWaitingArea: string;
-  infectionControlOfficer: string;
-  medicalWasteDepartment: string;
-  sterilizationDepartment: string;
-  pharmacyDepartment: string;
-  medicalRecordsDepartment: string;
-  labDepartment: string;
-  bloodBank: string;
-  ambulanceMedicalTransport: string;
-  radiologyDepartment: string;
-  physiotherapyDepartment: string;
-  dentalDepartment: string;
-  psychiatryDepartment: string;
-  nutritionDieteticsDepartment: string;
-  medicalEducation: string;
-  publicRelationsDepartment: string;
-  dermatologySkinCare: string;
-  internalMedicine: string;
-  cardiologyDepartment: string;
-  pediatricsChildCare: string;
-  medicalBoardDepartment: string;
-  medicalStaff: string;
-  educationalStaff: string;
-  nurseTraining: string;
-  employeeAccommodation: string;
-  facilityPhotosOutside: File[];
-  facilityPhotosInside: File[];
+  FacilityName: string;
+  FacilityType: string;
+  FacilityArea: string;
+  AreTherePrivateRooms: string;
+  NumberOfPrivateRooms: string;
+  AreThereICURooms: string;
+  NumberOfICURooms: string;
+  NumberOfOperatingRooms: string;
+  NumberOfDaySurgeryRooms: string;
+  AreTherePharmacy: string;
+  AreTherePostOpRoom: string;
+  AreThereER: string;
+  NumberOfDialysisMachines: string;
+  FacilityAddress: string;
+  Country: string;
+  Region: string;
+  City: string;
+  District: string;
+  TypeOfFacilityBranches: string;
+  AreThereEmergencyDepartment: string;
+  AreThereParking: string;
+  NumberOfParkingSlots: string;
+  AreThereAmbulanceService: string;
+  NumberOfAmbulanceCars: string;
+  WaitingTimeForConsultation: string;
+  EvaluationDate: string;
+  ExpirationDate: string;
+  DoctorInsuranceBoardNumber: string;
+  EvaluationDate2: string;
+  ExpirationDate2: string;
+  NumberOfBeds: string;
+  NumberOfClinics: string;
+  TotalSpaceInSqM: string;
+  PrivateWaitingArea: string;
+  InfectionControlOfficer: string;
+  MedicalWasteDepartment: string;
+  SterilizationDepartment: string;
+  PharmacyDepartment: string;
+  MedicalRecordsDepartment: string;
+  LabDepartment: string;
+  BloodBank: string;
+  AmbulanceMedicalTransport: string;
+  RadiologyDepartment: string;
+  PhysiotherapyDepartment: string;
+  DentalDepartment: string;
+  PsychiatryDepartment: string;
+  NutritionDieteticsDepartment: string;
+  MedicalEducation: string;
+  PublicRelationsDepartment: string;
+  DermatologySkinCare: string;
+  InternalMedicine: string;
+  CardiologyDepartment: string;
+  PediatricsChildCare: string;
+  MedicalBoardDepartment: string;
+  MedicalStaff: string;
+  EducationalStaff: string;
+  NurseTraining: string;
+  EmployeeAccommodation: string;
+  FacilityPhotosOutside: File[];
+  FacilityPhotosInside: File[];
 }
 
 interface Step1Props {
@@ -102,10 +104,9 @@ const Step1Administrative: React.FC<Step1Props> = ({ data, onChange }) => {
     // </div>
     <SelectField
       label={label}
-      value={data[field] as string}
-      onChange={(e: { target: { value: string | File[] } }) =>
-        handleInputChange(field, e.target.value)
-      }
+      value={YesNoEnum.find((x) => x.value === data[field])}
+      options={YesNoEnum}
+      onChange={(e: any) => handleInputChange(field, e)}
     />
   );
 
@@ -152,7 +153,7 @@ const Step1Administrative: React.FC<Step1Props> = ({ data, onChange }) => {
   );
 
   const renderImageUpload = (
-    field: "facilityPhotosOutside" | "facilityPhotosInside",
+    field: "FacilityPhotosOutside" | "FacilityPhotosInside",
     label: string
   ) => (
     <div className="p-4">
@@ -217,27 +218,30 @@ const Step1Administrative: React.FC<Step1Props> = ({ data, onChange }) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-4">
-      {renderTextInput("facilityName", t("Facility Name"))}
-      {renderTextInput("facilityType", t("Facility Type"))}
-      {renderTextInput("facilityArea", t("Facility Area"))}
-      {renderYesNoDropdown("hasPrivateRooms", t("Are There Private Rooms?"))}
-      {renderTextInput("numberOfPrivateRooms", t("Number of Private Rooms"))}
-      {renderYesNoDropdown("hasICURooms", t("Are There vip Rooms?"))}
-      {renderTextInput("numberOfICURooms", t("Number of vip Rooms"))}
+      {renderTextInput("FacilityName", t("Facility Name"))}
+      {renderTextInput("FacilityType", t("Facility Type"))}
+      {renderTextInput("FacilityArea", t("Facility Area"))}
+      {renderYesNoDropdown(
+        "AreTherePrivateRooms",
+        t("Are There Private Rooms?")
+      )}
+      {renderTextInput("NumberOfPrivateRooms", t("Number of Private Rooms"))}
+      {renderYesNoDropdown("AreThereICURooms", t("Are There vip Rooms?"))}
+      {renderTextInput("NumberOfICURooms", t("Number of vip Rooms"))}
       {renderTextInput(
-        "numberOfOperatingRooms",
+        "NumberOfOperatingRooms",
         t("Number of Operating Rooms")
       )}
       {renderTextInput(
-        "numberOfDaySurgeryRooms",
+        "NumberOfDaySurgeryRooms",
         t("Number of day surgery Rooms")
       )}
-      {renderYesNoDropdown("hasPharmacy", t("Is There a Pharmacy?"))}
-      {renderYesNoDropdown("hasPostOpRoom", t("hasPostOpRoom"))}
-      {renderYesNoDropdown("hasER", t("hasER"))}
+      {renderYesNoDropdown("AreTherePharmacy", t("Is There a Pharmacy?"))}
+      {renderYesNoDropdown("AreTherePostOpRoom", t("AreTherePostOpRoom"))}
+      {renderYesNoDropdown("AreThereER", t("AreThereER"))}
       <div className="md:col-span-3">
         {renderTextInput(
-          "numberOfDialysisMachines",
+          "NumberOfDialysisMachines",
           t("numberOfDialysisMachines")
         )}
       </div>
@@ -246,12 +250,15 @@ const Step1Administrative: React.FC<Step1Props> = ({ data, onChange }) => {
       <div className="md:col-span-3 flex gap-6">
         <div className="grid grid-cols-1 md:grid-cols-2 w-full gap-4">
           <div className="md:col-span-2">
-            {renderTextInput("facilityAddress", t("Facility Address"))}
+            {renderTextInput("FacilityAddress", t("Facility Address"))}
           </div>
-          {renderTextInput("country", t("Country"))}
-          {renderTextInput("region", t("Region"))}
+          {renderTextInput("Country", t("Country"))}
+          {renderTextInput("Region", t("Region"))}
           <div className="md:col-span-2">
-            {renderTextInput("city", t("City"))}
+            {renderTextInput("City", t("City"))}
+          </div>
+          <div className="md:col-span-2">
+            {renderTextInput("District", t("District"))}
           </div>
         </div>
         <div className="flex items-center flex-col min-w-[218px] gap-4">
@@ -287,98 +294,101 @@ const Step1Administrative: React.FC<Step1Props> = ({ data, onChange }) => {
 
       {/* Additional Facility Details */}
       {renderTextInput(
-        "typeOfFacilityBranches",
+        "TypeOfFacilityBranches",
         t("Type of Facility Branches")
       )}
       {renderYesNoDropdown(
-        "hasEmergencyDepartment",
+        "AreThereEmergencyDepartment",
         t("Is There an Emergency deparment?")
       )}
       {renderYesNoDropdown(
-        "hasParking",
+        "AreThereParking",
         t("Is There a Parking Lot for Patients?")
       )}
       {renderTextInput(
-        "numberOfParkingSlots",
+        "NumberOfParkingSlots",
         t("Number of Patient Parking Lots")
       )}
-      {renderYesNoDropdown("hasAmbulanceService", t("hasAmbulanceService"))}
-      {renderTextInput("numberOfAmbulanceCars", t("numberOfAmbulanceCars"))}
+      {renderYesNoDropdown(
+        "AreThereAmbulanceService",
+        t("AreThereAmbulanceService")
+      )}
+      {renderTextInput("NumberOfAmbulanceCars", t("numberOfAmbulanceCars"))}
 
       {/* Time and Date Fields */}
       {renderTextInput(
-        "waitingTimeForConsultation",
+        "WaitingTimeForConsultation",
         t("waitingTimeForConsultation")
       )}
-      {renderDateInput("evaluationDate", t("Issuance date"))}
-      {renderDateInput("expirationDate", t("Expiration date"))}
+      {renderDateInput("EvaluationDate", t("Issuance date"))}
+      {renderDateInput("ExpirationDate", t("Expiration date"))}
       {renderTextInput(
-        "doctorInsuranceBoardNumber",
+        "DoctorInsuranceBoardNumber",
         t("Social insurance board number")
       )}
-      {renderDateInput("evaluationDate2", t("Issuance date"))}
-      {renderDateInput("expirationDate2", t("Expiration date"))}
+      {renderDateInput("EvaluationDate2", t("Issuance date"))}
+      {renderDateInput("ExpirationDate2", t("Expiration date"))}
 
       {/* Capacity and Space */}
-      {renderTextInput("numberOfBeds", t("Number of Beds"))}
-      {renderTextInput("numberOfClinics", t("Number of Clinics"))}
-      {renderTextInput("totalSpaceInSqM", t("totalSpaceInSqM"))}
+      {renderTextInput("NumberOfBeds", t("Number of Beds"))}
+      {renderTextInput("NumberOfClinics", t("Number of Clinics"))}
+      {renderTextInput("TotalSpaceInSqM", t("totalSpaceInSqM"))}
 
       {/* Department and Service Availability */}
-      {renderYesNoDropdown("privateWaitingArea", t("privateWaitingArea"))}
+      {renderYesNoDropdown("PrivateWaitingArea", t("privateWaitingArea"))}
       {renderYesNoDropdown(
-        "infectionControlOfficer",
+        "InfectionControlOfficer",
         t("infectionControlOfficer")
       )}
       {renderYesNoDropdown(
-        "medicalWasteDepartment",
+        "MedicalWasteDepartment",
         t("medicalWasteDepartment")
       )}
       {renderYesNoDropdown(
-        "sterilizationDepartment",
+        "SterilizationDepartment",
         t("sterilizationDepartment")
       )}
-      {renderYesNoDropdown("pharmacyDepartment", t("pharmacyDepartment"))}
+      {renderYesNoDropdown("PharmacyDepartment", t("pharmacyDepartment"))}
       {renderYesNoDropdown(
-        "medicalRecordsDepartment",
+        "MedicalRecordsDepartment",
         t("medicalRecordsDepartment")
       )}
-      {renderYesNoDropdown("labDepartment", t("labDepartment"))}
-      {renderYesNoDropdown("bloodBank", t("bloodBank"))}
+      {renderYesNoDropdown("LabDepartment", t("labDepartment"))}
+      {renderYesNoDropdown("BloodBank", t("bloodBank"))}
       {renderYesNoDropdown(
-        "ambulanceMedicalTransport",
+        "AmbulanceMedicalTransport",
         t("ambulanceMedicalTransport")
       )}
-      {renderYesNoDropdown("radiologyDepartment", t("radiologyDepartment"))}
+      {renderYesNoDropdown("RadiologyDepartment", t("radiologyDepartment"))}
       {renderYesNoDropdown(
-        "physiotherapyDepartment",
+        "PhysiotherapyDepartment",
         t("physiotherapyDepartment")
       )}
-      {renderYesNoDropdown("dentalDepartment", t("dentalDepartment"))}
-      {renderYesNoDropdown("psychiatryDepartment", t("psychiatryDepartment"))}
+      {renderYesNoDropdown("DentalDepartment", t("dentalDepartment"))}
+      {renderYesNoDropdown("PsychiatryDepartment", t("psychiatryDepartment"))}
       {renderYesNoDropdown(
-        "nutritionDieteticsDepartment",
+        "NutritionDieteticsDepartment",
         t("nutritionDieteticsDepartment")
       )}
-      {renderYesNoDropdown("medicalEducation", t("medicalEducation"))}
+      {renderYesNoDropdown("MedicalEducation", t("medicalEducation"))}
       {renderYesNoDropdown(
-        "publicRelationsDepartment",
+        "PublicRelationsDepartment",
         t("publicRelationsDepartment")
       )}
-      {renderYesNoDropdown("dermatologySkinCare", t("dermatologySkinCare"))}
-      {renderYesNoDropdown("internalMedicine", t("internalMedicine"))}
-      {renderYesNoDropdown("cardiologyDepartment", t("cardiologyDepartment"))}
-      {renderYesNoDropdown("pediatricsChildCare", t("pediatricsChildCare"))}
+      {renderYesNoDropdown("DermatologySkinCare", t("dermatologySkinCare"))}
+      {renderYesNoDropdown("InternalMedicine", t("internalMedicine"))}
+      {renderYesNoDropdown("CardiologyDepartment", t("cardiologyDepartment"))}
+      {renderYesNoDropdown("PediatricsChildCare", t("pediatricsChildCare"))}
       {renderYesNoDropdown(
-        "medicalBoardDepartment",
+        "MedicalBoardDepartment",
         t("medicalBoardDepartment")
       )}
-      {renderYesNoDropdown("medicalStaff", t("Medical Library"))}
-      {renderYesNoDropdown("educationalStaff", t("Educational Halls"))}
-      {renderYesNoDropdown("nurseTraining", t("Basic Training Centers"))}
+      {renderYesNoDropdown("MedicalStaff", t("Medical Library"))}
+      {renderYesNoDropdown("EducationalStaff", t("Educational Halls"))}
+      {renderYesNoDropdown("NurseTraining", t("Basic Training Centers"))}
       <div className="md:col-span-3">
         {renderYesNoDropdown(
-          "employeeAccommodation",
+          "EmployeeAccommodation",
           t("Employee Accommodation")
         )}
       </div>
@@ -386,13 +396,13 @@ const Step1Administrative: React.FC<Step1Props> = ({ data, onChange }) => {
       {/* Image Upload Sections */}
       <div className="border border-[#e5e7eb] rounded-[16px] md:col-span-3">
         {renderImageUpload(
-          "facilityPhotosInside",
+          "FacilityPhotosInside",
           t("A Picture of the Facility from the Inside")
         )}
       </div>
       <div className="border border-[#e5e7eb] rounded-[16px] md:col-span-3">
         {renderImageUpload(
-          "facilityPhotosOutside",
+          "FacilityPhotosOutside",
           t("A Picture of the Facility from the Outside")
         )}
       </div>
