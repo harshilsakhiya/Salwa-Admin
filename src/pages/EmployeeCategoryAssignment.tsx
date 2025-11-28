@@ -897,6 +897,31 @@ const CloseIcon = () => (
   </svg>
 );
 
+const SearchIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.6"
+    className="h-4 w-4"
+  >
+    <circle cx="11" cy="11" r="7" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="m20 20-3-3" />
+  </svg>
+);
 
+const ChevronIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 20 20"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.6"
+    className="h-3 w-3"
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="m6 8 4 4 4-4" />
+  </svg>
+);
 
 export default EmployeeCategoryAssignment;

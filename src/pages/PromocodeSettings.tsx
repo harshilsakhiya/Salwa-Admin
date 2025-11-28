@@ -987,7 +987,7 @@ const FormModal = ({
             <DateField
               label="Start Date"
               value={values.startDate}
-              onChange={(event: { target: { value: any; }; }) =>
+              onChange={(event) =>
                 onChange({ ...values, startDate: event.target.value })
               }
               disabled={isSubmitting}
@@ -995,7 +995,7 @@ const FormModal = ({
             <DateField
               label="End Date"
               value={values.endDate}
-              onChange={(event: { target: { value: any; }; }) =>
+              onChange={(event) =>
                 onChange({ ...values, endDate: event.target.value })
               }
               disabled={isSubmitting}
@@ -1244,7 +1244,10 @@ const LabeledInput = ({
 const LabeledSelect = ({
   options,
   value,
+  id,
   labelText,
+  className = "",
+  ...props
 }: {
   labelText?: string;
   options: Array<{ value: number | string; label: string }>;
@@ -1369,7 +1372,19 @@ const CloseIcon = () => (
   </svg>
 );
 
-
+const SearchIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.6"
+    className="h-4 w-4"
+  >
+    <circle cx="11" cy="11" r="7" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M20 20l-3-3" />
+  </svg>
+);
 
 const CurrencyIcon = () => (
   <svg

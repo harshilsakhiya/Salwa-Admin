@@ -209,7 +209,7 @@ const FilterBar = ({
         <SearchField
           label="Search"
           value={search}
-          onChange={(event: { target: { value: string; }; }) => onSearchChange(event.target.value)}
+          onChange={(event) => onSearchChange(event.target.value)}
         />
       </div>
     </form>

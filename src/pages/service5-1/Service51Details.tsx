@@ -66,11 +66,9 @@ const Service51Details = () => {
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  // const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [images, setImages] = useState<string[]>(sampleImages);
-
-  console.log(images);
-
+  
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
 
@@ -121,19 +119,26 @@ const Service51Details = () => {
     fetchServiceDetails();
   }, [id, showToast]);
 
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+  
   const handleApprove = async () => {
     if (!serviceDetails) return;
 
     try {
       setLoading(true);
 
-      const response =
-        await MedicalStaffService.MedicalRecruitmentJobAdminApproveReject({
-          RequestId: serviceDetails.RequestId,
-          NewStatusId: StatusEnum.APPROVED,
-          RequestNumber: serviceDetails?.RequestNumber,
-          Reason: "Request approved by admin",
-        });
+      const response = await MedicalStaffService.MedicalRecruitmentJobAdminApproveReject({
+        RequestId: serviceDetails.RequestId,
+        NewStatusId: StatusEnum.APPROVED,
+        RequestNumber: serviceDetails?.RequestNumber,
+        Reason: "Request approved by admin",
+      });
 
       if (response && response.success) {
         await fetchServiceDetails();
@@ -164,7 +169,7 @@ const Service51Details = () => {
     setShowRejectModal(true);
     setRejectionReason("");
   };
-  // -------------------------------------------
+// -------------------------------------------
   // Handle reject confirmation with reason
   const handleRejectSubmit = async () => {
     if (!serviceDetails || !rejectionReason.trim()) {
@@ -279,7 +284,8 @@ const Service51Details = () => {
 
         <div className="grid grid-cols-1 gap-8">
           <div className="space-y-6">
-            <div className="relative"></div>
+            <div className="relative">
+            </div>
             <div className="bg-white rounded-lg border border-gray-200 p-6">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-bold text-gray-900 mb-4">
@@ -297,127 +303,75 @@ const Service51Details = () => {
                 </div>
               </div>
               <div className="space-y-6">
-                {/* Location + Days Left */}
-                <div className="flex items-center gap-2 text-gray-500">
-                  <svg
-                    className="w-5 h-5 text-gray-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
 
-                  <span className="text-gray-500">
-                    {serviceDetails.City}, {serviceDetails.Country}
-                  </span>
+              {/* Location + Days Left */}
+              <div className="flex items-center gap-2 text-gray-500">
+                <svg
+                  className="w-5 h-5 text-gray-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
 
-                  <span className="ml-auto bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                    30 Days Left
-                  </span>
-                </div>
+                <span className="text-gray-500">
+                  {serviceDetails.City}, {serviceDetails.Country}
+                </span>
 
-                {/* Title */}
-                <h2 className="font-semibold text-lg text-gray-700">
-                  Key Details:
-                </h2>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-3 text-sm">
-                    <p>
-                      • <b>Issuing of Classification :</b>{" "}
-                      <span className="text-gray-500">
-                        {serviceDetails.Classification}
-                      </span>
-                    </p>
-                    <p>
-                      • <b>Speciality :</b>{" "}
-                      <span className="text-gray-500">
-                        {serviceDetails.Speciality}
-                      </span>
-                    </p>
-                    <p>
-                      • <b>Religion :</b>{" "}
-                      <span className="text-gray-500">
-                        {serviceDetails.ReligionName}
-                      </span>
-                    </p>
-                    <p>
-                      • <b>Job Type :</b>{" "}
-                      <span className="text-gray-500">
-                        {serviceDetails.JobTypeName}
-                      </span>
-                    </p>
-                    <p>
-                      • <b>Classification :</b>{" "}
-                      <span className="text-gray-500">
-                        {serviceDetails.JobClassfication}
-                      </span>
-                    </p>
-                    <p>
-                      • <b>HR Email :</b>{" "}
-                      <span className="text-gray-500">example@gmail.com</span>
-                    </p>
-                  </div>
-
-                  <div className="space-y-3 text-sm">
-                    <p>
-                      • <b>Role :</b>{" "}
-                      <span className="text-gray-500">
-                        {serviceDetails.RoleName}
-                      </span>
-                    </p>
-                    <p>
-                      • <b>Nationality :</b>{" "}
-                      <span className="text-gray-500">
-                        {serviceDetails.NationalityName}
-                      </span>
-                    </p>
-                    <p>
-                      • <b>Gender :</b>{" "}
-                      <span className="text-gray-500">
-                        {serviceDetails.GenderName}
-                      </span>
-                    </p>
-                    <p>
-                      • <b>Job Shift :</b>{" "}
-                      <span className="text-gray-500">
-                        {serviceDetails.JobShiftName}
-                      </span>
-                    </p>
-                    <p>
-                      • <b>Experience :</b>{" "}
-                      <span className="text-gray-500">
-                        {serviceDetails.Experience}
-                      </span>
-                    </p>
-                  </div>
-                </div>
-
-                {/* Terms & Conditions */}
-                {serviceDetails.OtherTermsAndCon && (
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-1 text-sm">
-                      Terms & Condition :
-                    </h3>
-
-                    <p className="text-gray-700 text-sm leading-relaxed">
-                      {serviceDetails.OtherTermsAndCon}
-                    </p>
-                  </div>
-                )}
+                <span className="ml-auto bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                  30 Days Left
+                </span>
               </div>
+
+              {/* Title */}
+              <h2 className="font-semibold text-lg text-gray-700">Key Details:</h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-3 text-sm">
+                  <p>• <b>Issuing of Classification :</b> <span className="text-gray-500">{serviceDetails.Classification}</span></p>
+                  <p>• <b>Speciality :</b> <span className="text-gray-500">{serviceDetails.Speciality}</span></p>
+                  <p>• <b>Religion :</b> <span className="text-gray-500">{serviceDetails.ReligionName}</span></p>
+                  <p>• <b>Job Type :</b> <span className="text-gray-500">{serviceDetails.JobTypeName}</span></p>
+                  <p>• <b>Classification :</b> <span className="text-gray-500">{serviceDetails.JobClassfication}</span></p>
+                  <p>• <b>HR Email :</b> <span className="text-gray-500">example@gmail.com</span></p>
+                </div>
+
+                <div className="space-y-3 text-sm">
+                  <p>• <b>Role :</b> <span className="text-gray-500">{serviceDetails.RoleName}</span></p>
+                  <p>• <b>Nationality :</b> <span className="text-gray-500">{serviceDetails.NationalityName}</span></p>
+                  <p>• <b>Gender :</b> <span className="text-gray-500">{serviceDetails.GenderName}</span></p>
+                  <p>• <b>Job Shift :</b> <span className="text-gray-500">{serviceDetails.JobShiftName}</span></p>
+                  <p>• <b>Experience :</b> <span className="text-gray-500">{serviceDetails.Experience}</span></p>
+                </div>
+
+              </div>
+
+              {/* Terms & Conditions */}
+              {serviceDetails.OtherTermsAndCon && (
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-1 text-sm">
+                    Terms & Condition :
+                  </h3>
+
+                  <p className="text-gray-700 text-sm leading-relaxed">
+                    {serviceDetails.OtherTermsAndCon}
+                  </p>
+                </div>
+              )}
+            </div>
+
             </div>
           </div>
         </div>
@@ -479,7 +433,7 @@ const Service51Details = () => {
                 </label>
                 <textarea
                   value={rejectionReason}
-                  onChange={(e: any) => setRejectionReason(e.target.value)}
+                  onChange={(e:any) => setRejectionReason(e.target.value)}
                   placeholder="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
                   className="w-full h-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent resize-none"
                   required
@@ -504,3 +458,4 @@ const Service51Details = () => {
 };
 
 export default Service51Details;
+
