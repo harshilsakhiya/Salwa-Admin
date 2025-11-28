@@ -500,6 +500,7 @@ const Select = ({
   value,
   options,
   onChange,
+  id,
 }: {
   label: string;
   value: string;

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type SetStateAction } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../components/ToastProvider";
 import {
@@ -429,7 +429,7 @@ const SupervisorPage = () => {
                   label="Search by name, ID, or email"
                   mainClassName="min-w-[300px]"
                   value={searchTerm}
-                  onChange={(event: { target: { value: SetStateAction<string>; }; }) => setSearchTerm(event.target.value)}
+                  onChange={(event) => setSearchTerm(event.target.value)}
                 />
                 {/* <div className="relative flex-1 min-w-[220px] max-w-sm">
                   <input
@@ -701,6 +701,18 @@ const ChartPlaceholder = () => (
   </div>
 );
 
-
+const SearchIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.6"
+    className="h-4 w-4"
+  >
+    <circle cx="11" cy="11" r="6" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M20 20l-2.6-2.6" />
+  </svg>
+);
 
 export default SupervisorPage;
