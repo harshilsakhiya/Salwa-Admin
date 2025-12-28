@@ -4,14 +4,13 @@ import InputField from "../../antd/InputField";
 import SelectField from "../../antd/SelectField";
 
 interface Step3Data {
-  radiologyDepartment: string;
-  pathologyDepartment: string;
-  laboratoryDepartment: string;
-  anesthesiologyDepartment: string;
-  availabilityOfMedicalEquipment: string;
-  totalNumberOfBeds: string;
+  RadiologyDepartment: string;
+  PathologyDepartment: string;
+  LaboratoryDepartment: string;
+  AnesthesiologyDepartment: string;
+  AvailabilityOfMedicalEquipment: string;
+  TotalNumberOfBeds: string;
 }
-
 interface Step3Props {
   data: Step3Data;
   onChange: (data: Step3Data) => void;
@@ -70,18 +69,18 @@ const Step3Technical: React.FC<Step3Props> = ({ data, onChange }) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-4">
-      {renderYesNoDropdown("radiologyDepartment", t("Radiology Department?"))}
-      {renderYesNoDropdown("pathologyDepartment", t("Pathology Department"))}
-      {renderYesNoDropdown("laboratoryDepartment", t("Laboratory Department"))}
+      {renderYesNoDropdown("RadiologyDepartment", t("Radiology Department?"))}
+      {renderYesNoDropdown("PathologyDepartment", t("Pathology Department"))}
+      {renderYesNoDropdown("LaboratoryDepartment", t("Laboratory Department"))}
       {renderTextInput(
-        "anesthesiologyDepartment",
+        "AnesthesiologyDepartment",
         t("Histopathology Department")
       )}
       {renderYesNoDropdown(
-        "availabilityOfMedicalEquipment",
+        "AvailabilityOfMedicalEquipment",
         t("steps.step3.availabilityOfMedicalEquipment")
       )}
-      {renderTextInput("totalNumberOfBeds", t("steps.step3.totalNumberOfBeds"))}
+      {renderTextInput("TotalNumberOfBeds", t("steps.step3.totalNumberOfBeds"))}
     </div>
   );
 };
